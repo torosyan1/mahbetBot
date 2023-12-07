@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-const { bot_token, locale } = require('./src/utils/env');
+const { bot_token, locale, port } = require('./src/utils/env');
 const { Telegraf, session } = require("telegraf");
 const languages = require("./src/utils/language"); 
 const { auth } = require("./src/middleware/auth");
@@ -37,7 +37,10 @@ app.use(express.urlencoded({ extended: true }));
 
 app.post('/login', async (req, res) => {
     try {
-        console.log('pppp')
+        if(!user_id || !telegram_id || !action) {
+            return res.status(500).send('Something went wrong!');
+         }
+         
         const { action, user_id, telegram_id } = req.body;
         await knex('logs').insert({
             action,
@@ -54,6 +57,10 @@ app.post('/login', async (req, res) => {
 app.post('/registration', async (req, res) => {
     try {
         const { action, user_id, telegram_id } = req.body;
+        if(!user_id || !telegram_id || !action) {
+           return res.status(500).send('Something went wrong!');
+        }
+        
         await knex('logs').insert({
             action,
             telegram_id,
@@ -66,7 +73,4 @@ app.post('/registration', async (req, res) => {
     }
 });
 
-app.listen(process.env.PORT, () => console.log(`Server is running on port ${process.env.PORT}`));
-// Enable graceful stop
-process.once("SIGINT", () => bot.stop("SIGINT"));
-process.once("SIGTERM", () => bot.stop("SIGTERM"));
+app.listen(port, () => console.log(`Server is running on port ${port}`));
