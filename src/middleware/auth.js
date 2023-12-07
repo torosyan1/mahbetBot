@@ -8,8 +8,6 @@ const auth = async (ctx, next) =>{
                 await knex('users').insert({ telegram_id: ctx.update.message.from.id })
             }
            ctx.session = { userId: ctx.update.message.from.id };
-        } else {
-            console.log(ctx.session)
         }
       next()
     } catch(err){
