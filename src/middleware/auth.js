@@ -14,6 +14,7 @@ const auth = async (ctx, next) =>{
       next()
     } catch(err){
         console.log('Auth middlware  ==>', err.message)
+        next()
     }
 }
 
