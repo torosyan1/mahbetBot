@@ -37,11 +37,12 @@ app.use(express.urlencoded({ extended: true }));
 
 app.post('/login', async (req, res) => {
     try {
+        const { action, user_id, telegram_id } = req.body;
+        
         if(!user_id || !telegram_id || !action) {
             return res.status(500).send('Something went wrong!');
          }
          
-        const { action, user_id, telegram_id } = req.body;
         await knex('logs').insert({
             action,
             telegram_id,
