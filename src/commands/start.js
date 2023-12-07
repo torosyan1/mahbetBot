@@ -9,7 +9,7 @@ module.exports = async (ctx) => {
 
   await ctx.telegram.sendPhoto( chatID, welcome_image_url );
   await ctx.reply(welcomeMessage, 
-    Markup.inlineKeyboard([ Markup.button.webApp(welcomeButtonInline, web_app), ]).resize(),
+    Markup.inlineKeyboard([ Markup.button.webApp(welcomeButtonInline, web_app + '/?tel_id=' + chatID), ]).resize(),
   );
   await ctx.reply(
     forMoreMessage,
