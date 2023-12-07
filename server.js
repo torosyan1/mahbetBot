@@ -5,6 +5,9 @@ const { Telegraf, session } = require("telegraf");
 const languages = require("./src/utils/language"); 
 const { auth } = require("./src/middleware/auth");
 const start = require("./src/commands/start");
+const express = require('express');
+const knex = require('./src/connections/db');
+
 
 const { suppotButtonKeyboard, promotionButtonKeyboard, topGamesButtonKeyboard, helpMeButtonKeyboard } = languages[locale];
 
@@ -26,6 +29,44 @@ bot.hears(helpMeButtonKeyboard,(ctx)=>ctx.telegram.sendMessage(ctx.message.from.
 
 bot.launch();
 
+// express server
+const app = express();
+
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true })); 
+
+app.post('/login', async (req, res) => {
+    try {
+        console.log('pppp')
+        const { action, user_id, telegram_id } = req.body;
+        await knex('logs').insert({
+            action,
+            telegram_id,
+            mahbet_id: user_id
+        })
+        res.status(200).send(true)
+    } catch(err){
+        console.log(err);
+        res.status(500).send('Something went wrong!');
+    }
+});
+
+app.post('/registration', async (req, res) => {
+    try {
+        const { action, user_id, telegram_id } = req.body;
+        await knex('logs').insert({
+            action,
+            telegram_id,
+            mahbet_id: user_id
+        })
+        res.status(200).send(true)
+    } catch(err){
+        console.log(err);
+        res.status(500).send('Something went wrong!');
+    }
+});
+
+app.listen(process.env.PORT, () => console.log(`Server is running on port ${process.env.PORT}`));
 // Enable graceful stop
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
