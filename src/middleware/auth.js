@@ -10,8 +10,10 @@ const auth = async (ctx, next) =>{
                     username: ctx.update.message.from.username || '',
                     first_name: ctx.update.message.from.first_name || '',
                     last_name: ctx.update.message.from.last_name || '',
+                    active: 1
                 })
             }
+           console.log(ctx.update.message.from.id)
            ctx.session = { userId: ctx.update.message.from.id };
         }
         next()

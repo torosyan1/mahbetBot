@@ -7,6 +7,7 @@ const { auth } = require("./src/middleware/auth");
 const start = require("./src/commands/start");
 const express = require('express');
 const knex = require('./src/connections/db');
+const { userActivityValidation } = require('./src/middleware/usersActivityValidation');
 
 
 const { suppotButtonKeyboard, promotionButtonKeyboard, topGamesButtonKeyboard, helpMeButtonKeyboard } = languages[locale];
@@ -18,6 +19,7 @@ const bot = new Telegraf(bot_token, {
 
 bot.use(session());
 
+bot.use(userActivityValidation);
 bot.use(auth);
 
 bot.start(start);
