@@ -7,20 +7,26 @@ module.exports = async (ctx) => {
   const chatID = ctx.message.from.id;
   const { welcomeMessage, welcomeButtonInline, welcomeButtonKeyboard, suppotButtonKeyboard, promotionButtonKeyboard, topGamesButtonKeyboard, helpMeButtonKeyboard, forMoreMessage } = languages[locale];
 
-  await ctx.telegram.sendPhoto( chatID, welcome_image_url );
-  await ctx.reply(welcomeMessage, 
-    Markup.inlineKeyboard([ Markup.button.webApp(welcomeButtonInline, web_app + '/?tel_id=' + chatID), ]).resize(),
-  );
+  await ctx.replyWithPhoto(welcome_image_url, {
+    caption: welcomeMessage,
+    reply_markup: {
+      inline_keyboard: [[{
+          text: welcomeButtonInline,
+          web_app: { url: web_app + '/?tel_id=' + chatID }
+      }]],
+  },
+  });
+
   await ctx.reply(
     forMoreMessage,
     Markup.keyboard([
-      [Markup.button.webApp(welcomeButtonKeyboard, web_app)],
+      [Markup.button.webApp(welcomeButtonKeyboard,  web_app + '/?tel_id=' + chatID)],
       [suppotButtonKeyboard, promotionButtonKeyboard],
       [topGamesButtonKeyboard, helpMeButtonKeyboard],
-    ])
+    ]).resize()
   );
 
   } catch(err){
-   console.log(err.message, chatID)
+   console.log(err.message)
   }
 };
