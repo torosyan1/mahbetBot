@@ -5,7 +5,12 @@ const auth = async (ctx, next) =>{
         if(ctx.session === undefined ){
             const result = await knex('users').select('telegram_id').where({ telegram_id: ctx.update.message.from.id });
             if(!result.length) {
-                await knex('users').insert({ telegram_id: ctx.update.message.from.id })
+                await knex('users').insert({ 
+                    telegram_id: ctx.update.message.from.id,
+                    username: ctx.update.message.from.username || '',
+                    first_name: ctx.update.message.from.first_name || '',
+                    last_name: ctx.update.message.from.last_name || '',
+                })
             }
            ctx.session = { userId: ctx.update.message.from.id };
         }
