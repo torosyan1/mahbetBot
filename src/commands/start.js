@@ -17,7 +17,7 @@ module.exports = async (ctx) => {
       [Markup.button.webApp(welcomeButtonKeyboard, web_app)],
       [suppotButtonKeyboard, promotionButtonKeyboard],
       [topGamesButtonKeyboard, helpMeButtonKeyboard],
-    ]).resize()
+    ])
   );
 
   } catch(err){
