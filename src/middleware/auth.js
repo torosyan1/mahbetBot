@@ -2,7 +2,7 @@ const knex = require('../connections/db');
 
 const auth = async (ctx, next) =>{
     try {
-        if(ctx.session === undefined ){
+        if(ctx.session === undefined && ctx.update.message){
             const result = await knex('users').select('telegram_id').where({ telegram_id: ctx.update.message.from.id });
             if(!result.length) {
                 await knex('users').insert({ 
@@ -13,13 +13,13 @@ const auth = async (ctx, next) =>{
                     active: 1
                 })
             }
-           console.log(ctx.update.message.from.id)
-           ctx.session = { userId: ctx.update.message.from.id };
+            ctx.session = { userId: ctx.update.message.from.id };
         }
+
         next()
     } catch(err){
+        console.log(err)
         console.log('Auth middlware  ==>', err.message)
-        next()
     }
 }
 
