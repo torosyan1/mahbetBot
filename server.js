@@ -76,10 +76,4 @@ app.post('/registration', async (req, res) => {
     }
 });
 
-app.get('/ip',function(req, res) {
-    const ipAddress = req.socket.remoteAddress;
-    console.log(ipAddress)
-    res.send(ipAddress);
-});
-
 app.listen(port, () => console.log(`Server is running on port ${port}`));
