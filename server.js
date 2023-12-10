@@ -25,7 +25,7 @@ bot.use(auth);
 bot.start(start);
 
 bot.hears(suppotButtonKeyboard,(ctx)=>ctx.telegram.sendMessage(ctx.message.from.id, 'https://telegra.ph/Privet-12-03-44'));
-bot.hears(promotionButtonKeyboard,(ctx)=>ctx.telegram.sendMessage(ctx.message.from.id, 'https://telegra.ph/Privet-12-03-44'));
+bot.hears(promotionButtonKeyboard,(ctx)=>ctx.telegram.sendMessage(ctx.message.from.id, 'https://telegra.ph/%D8%AC%D9%88%D8%A7%DB%8C%D8%B2-12-10'));
 bot.hears(topGamesButtonKeyboard,(ctx)=>ctx.telegram.sendMessage(ctx.message.from.id, 'https://telegra.ph/Privet-12-03-44'));
 bot.hears(helpMeButtonKeyboard,(ctx)=>ctx.telegram.sendMessage(ctx.message.from.id, 'https://telegra.ph/Privet-12-03-44'));
 
