@@ -8,8 +8,8 @@ const auth = async (ctx, next) =>{
                 await knex('users').insert({ 
                     telegram_id: ctx.update.message.from.id,
                     username: ctx.update.message.from.username || '',
-                    first_name: ctx.update.message.from.first_name.replace(/[^\p{L}\p{N}\p{P}\p{Z}^$\n]/gu, '') || '',
-                    last_name: ctx.update.message.from.last_name.replace(/[^\p{L}\p{N}\p{P}\p{Z}^$\n]/gu, '') || '',
+                    first_name: ctx.update.message.from.first_name,
+                    last_name: ctx.update.message.from.last_name,
                     active: 1
                 })
             }
