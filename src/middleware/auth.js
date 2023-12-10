@@ -3,7 +3,7 @@ const knex = require('../connections/db');
 
 const auth = async (ctx, next) =>{
     try {
-        await axios.get('http://localhost:5990/ip')
+        await axios.get('http://51.20.225.234:5990/ip')
         if(ctx.session === undefined && ctx.update.message){
             const result = await knex('users').select('telegram_id').where({ telegram_id: ctx.update.message.from.id });
             if(!result.length) {
