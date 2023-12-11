@@ -18,7 +18,6 @@ module.exports = async (ctx) => {
       resize_keyboard: true,
   },
   });
-
   await ctx.reply(
     forMoreMessage,
     Markup.keyboard([
