@@ -5,7 +5,7 @@ const languages = require("../utils/language");
 module.exports = async (ctx) => {
   try {
   const chatID = ctx.message.from.id;
-  const { welcomeMessage, welcomeButtonInline, welcomeButtonKeyboard, suppotButtonKeyboard, promotionButtonKeyboard, topGamesButtonKeyboard, helpMeButtonKeyboard, forMoreMessage } = languages[locale];
+  const { welcomeMessage, welcomeButtonInline, welcomeButtonKeyboard, suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, forMoreMessage } = languages[locale];
 
   await ctx.replyWithPhoto(welcome_image_url, {
     caption: welcomeMessage,
@@ -14,6 +14,8 @@ module.exports = async (ctx) => {
           text: welcomeButtonInline,
           web_app: { url: web_app + '/?tel_id=' + chatID }
       }]],
+      one_time_keyboard: true,
+      resize_keyboard: true,
   },
   });
 
@@ -22,7 +24,7 @@ module.exports = async (ctx) => {
     Markup.keyboard([
       [Markup.button.webApp(welcomeButtonKeyboard,  web_app + '/?tel_id=' + chatID)],
       [suppotButtonKeyboard, promotionButtonKeyboard],
-      [topGamesButtonKeyboard, helpMeButtonKeyboard],
+      [FAQButtonKeyboard, helpMeButtonKeyboard],
     ]).resize()
   );
 

@@ -7,7 +7,7 @@ const language = {
         "forMoreMessage": "For more 👇",
         "suppotButtonKeyboard": "24/7 support 🎗️",
         "promotionButtonKeyboard": "Promotions 🎁",
-        "topGamesButtonKeyboard": "Top games 🏆",
+        "FAQButtonKeyboard": "FAQ 🏆",
         "helpMeButtonKeyboard": "Help me 🆘",
     },
     "fa": {
@@ -16,9 +16,9 @@ const language = {
         "welcomeButtonInline":  "📌 وب سایت ماه بت",
         "welcomeButtonKeyboard": "ورود به سایت 📌",
         "forMoreMessage": "اطلاعات بیشتر‼️ ",
-        "suppotButtonKeyboard": "پشتیبانی زنده 🗣️ ",
+        "suppotButtonKeyboard": "پشتیبانی زنده 🗣️",
         "promotionButtonKeyboard": "جوایز 🎁",
-        "topGamesButtonKeyboard": "بازی های برتر 🏆",
+        "FAQButtonKeyboard": "سوالات متداول🏆",
         "helpMeButtonKeyboard": "راهنما  🆘",
     }
 };
