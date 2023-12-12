@@ -6,6 +6,7 @@ const languages = require("./src/utils/language");
 const { auth } = require("./src/middleware/auth");
 const start = require("./src/commands/start");
 const express = require('express');
+const cors = require('cors')
 const knex = require('./src/connections/db');
 const { userActivityValidation } = require('./src/middleware/usersActivityValidation');
 
@@ -33,6 +34,7 @@ bot.launch();
 // express server
 const app = express();
 
+app.use(cors())
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true })); 
 
