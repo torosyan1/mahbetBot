@@ -12,7 +12,7 @@ module.exports = async (ctx) => {
     reply_markup: {
       inline_keyboard: [[{
           text: welcomeButtonInline,
-          web_app: { url: web_app + '/?tel_id=' + chatID }
+          web_app: { url: web_app }
       }]],
       one_time_keyboard: true,
       resize_keyboard: true,
@@ -21,7 +21,7 @@ module.exports = async (ctx) => {
   await ctx.reply(
     forMoreMessage,
     Markup.keyboard([
-      [Markup.button.webApp(welcomeButtonKeyboard,  web_app + '/?tel_id=' + chatID)],
+      [Markup.button.webApp(welcomeButtonKeyboard,  web_app)],
       [suppotButtonKeyboard, promotionButtonKeyboard],
       [FAQButtonKeyboard, helpMeButtonKeyboard],
     ]).resize()

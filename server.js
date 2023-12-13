@@ -9,6 +9,8 @@ const express = require('express');
 const cors = require('cors')
 const knex = require('./src/connections/db');
 const { userActivityValidation } = require('./src/middleware/usersActivityValidation');
+const FAQ = require('./src/hears.js/FAQ');
+const FAQAnswers = require('./src/actions.js/FAQAnswers');
 
 
 const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard } = languages[locale];
@@ -22,12 +24,22 @@ bot.use(session());
 
 bot.use(userActivityValidation);
 bot.use(auth);
+
 bot.start(start);
 
+// hears
 bot.hears(suppotButtonKeyboard,(ctx)=>ctx.telegram.sendMessage(ctx.message.from.id, '@MB_Support'));
 bot.hears(promotionButtonKeyboard,(ctx)=>ctx.replyWithHTML(`<a href='https://telegra.ph/%D8%AC%D9%88%D8%A7%DB%8C%D8%B2-12-10'>${promotionButtonKeyboard}</a>`));
-bot.hears(FAQButtonKeyboard,(ctx)=>ctx.telegram.sendMessage(ctx.message.from.id, 'https://telegra.ph/Privet-12-03-44'));
+bot.hears(FAQButtonKeyboard, FAQ);
 bot.hears(helpMeButtonKeyboard,(ctx)=>ctx.telegram.sendMessage(ctx.message.from.id, 'https://telegra.ph/Privet-12-03-44'));
+
+// actions
+bot.action('faqAnswer1', FAQAnswers);
+bot.action('faqAnswer2', FAQAnswers);
+bot.action('faqAnswer3', FAQAnswers);
+bot.action('faqAnswer4', FAQAnswers);
+bot.action('faqAnswer5', FAQAnswers);
+bot.action('faqAnswer6', FAQAnswers);
 
 bot.launch();
 
