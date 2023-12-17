@@ -1,6 +1,5 @@
 module.exports = async (ctx) => {
   try {
-    console.log(ctx.update.callback_query.from.id, global.FAQSelected)
     await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, global.FAQSelected);
     const answers = {
         faqAnswer1: 'صد البته ورزش های پرطرفداری نظیر فوتبال و بسکتبال ، والیبال ، اتوموبیل رانی ، ورزش های رزمی و همچنین بیش از 80 نوع ورزش دیگر در ماه بت فراهم شده تا کاربران عزیز به هر رشته ورزشی که علاقه دارند بتوانند پیش بینی انجام دهند و لذت ببرند',
