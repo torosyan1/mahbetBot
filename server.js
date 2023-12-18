@@ -93,4 +93,27 @@ app.post('/registration', async (req, res) => {
     }
 });
 
+app.post('/fraud', async (req, res) => {
+    try {
+        const { ip, city, country, device, device_input, telegram_id } = req.body;
+
+        if( !ip || !city || !country || !device || !device_input || !telegram_id) {
+           return res.status(500).send('Something went wrong!');
+        }
+        
+        await knex('fraud').insert({
+            ip,
+            city,
+            country,
+            device,
+            device_input,
+            telegram_id,
+        })
+        res.status(200).send(true)
+    } catch(err){
+        console.log(err, 'fraud');
+        res.status(500).send('Something went wrong!,');
+    }
+});
+
 app.listen(port, () => console.log(`Server is running on port ${port}`));
