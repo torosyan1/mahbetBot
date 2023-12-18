@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const { bot_token, locale, port } = require('./src/utils/env');
 const { Telegraf, session } = require("telegraf");
+const geoip = require('geoip-lite');
 const languages = require("./src/utils/language"); 
 const { auth } = require("./src/middleware/auth");
 const start = require("./src/commands/start");
@@ -95,16 +96,16 @@ app.post('/registration', async (req, res) => {
 
 app.post('/fraud', async (req, res) => {
     try {
-        const { ip, city, country, device, device_input, telegram_id } = req.body;
+        const { ip, device, device_input, telegram_id } = req.body;
 
-        if( !ip || !city || !country || !device || !device_input || !telegram_id) {
+        if( !ip || !device || !device_input || !telegram_id) {
            return res.status(500).send('Something went wrong!');
         }
-        
+        const geo = geoip.lookup(ip);
         await knex('fraud').insert({
             ip,
-            city,
-            country,
+            city: geo.city,
+            country: geo.country,
             device,
             device_input,
             telegram_id,
