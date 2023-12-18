@@ -40,6 +40,10 @@ bot.action('faqAnswer3', FAQAnswers);
 bot.action('faqAnswer4', FAQAnswers);
 bot.action('faqAnswer5', FAQAnswers);
 bot.action('faqAnswer6', FAQAnswers);
+bot.action('faqAnswer7', FAQAnswers);
+bot.action('faqAnswer8', FAQAnswers);
+bot.action('faqAnswer9', FAQAnswers);
+bot.action('faqAnswer10', FAQAnswers);
 
 bot.launch();
 

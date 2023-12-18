@@ -1,6 +1,6 @@
 module.exports = async (ctx) => {
   try {
-    await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, global.FAQSelected);
+    await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
     const answers = {
         faqAnswer1: 'صد البته ورزش های پرطرفداری نظیر فوتبال و بسکتبال ، والیبال ، اتوموبیل رانی ، ورزش های رزمی و همچنین بیش از 80 نوع ورزش دیگر در ماه بت فراهم شده تا کاربران عزیز به هر رشته ورزشی که علاقه دارند بتوانند پیش بینی انجام دهند و لذت ببرند',
         faqAnswer2: 'بله ماه بت علاوه بر شارژ و برداشت از طریق کارت بانکی همچنین شارژ و برداشت از طریق تمام ارز های دیجیتال را دارا می باشد',

@@ -16,8 +16,7 @@ module.exports = async (ctx) => {
             [ { text: "برداشت های جایزه چقدر طول میکشه تا واریز بشه ؟", callback_data: "faqAnswer10" } ]
         ]
     }
-  });
-  return global.FAQSelected = ctx.update.message.message_id;
+  })
   } catch(err){
    console.log(err.message)
   }
