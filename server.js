@@ -13,7 +13,7 @@ const knex = require('./src/connections/db');
 const { userActivityValidation } = require('./src/middleware/usersActivityValidation');
 const FAQ = require('./src/hears.js/FAQ');
 const FAQAnswers = require('./src/actions.js/FAQAnswers');
-
+const schedule = require('node-schedule');
 
 const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard } = languages[locale];
 
@@ -120,3 +120,20 @@ app.post('/fraud', async (req, res) => {
 });
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));
+
+schedule.scheduleJob('60 * * * *', async () =>{
+    try {
+        const users = await knex('users').select('*').where('createdAt', '>=', knex.raw('NOW() - INTERVAL 1 HOUR'));
+        const reg = await knex('logs').select('*').where('action', '=', 'registration').andWhere('createdAt', '>=', knex.raw('NOW() - INTERVAL 1 HOUR'));
+        const login = await knex('logs').select('*').where('action', '=', 'login').andWhere('createdAt', '>=', knex.raw('NOW() - INTERVAL 1 HOUR'));
+   
+        const newUserJoinedCount = `New users joined bot count - ${users.length} 🎯`
+        const newRegCount = `New reg users count - ${reg.length} 🎯`
+        const newLoginCount = `New login bot users count - ${login.length} 🎯`
+
+        await bot.telegram.sendMessage(-4036292845, newUserJoinedCount + '\n' + newRegCount + '\n' + newLoginCount)
+    } catch (error) {
+        console.error('Error retrieving users:', error.message);
+      } 
+    }
+);

@@ -19,6 +19,7 @@
     "knex": "^3.0.1",
     "mysql": "^2.18.1",
     "node-iplocate": "^1.0.3",
+    "node-schedule": "^2.1.1",
     "pm2": "^5.3.0",
     "telegraf": "^4.15.2"
   }
