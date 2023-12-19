@@ -99,9 +99,9 @@ app.post('/fraud', async (req, res) => {
     try {
         const { ip, device, device_input, telegram_id } = req.body;
 
-        if( !ip || !device || !device_input || !telegram_id) {
-           return res.status(500).send('Something went wrong!');
-        }
+        // if( !ip || !device || !device_input || !telegram_id) {
+        //    return res.status(500).send('Something went wrong!');
+        // }
         const data = await iplocate(ip)
 
         await knex('fraud').insert({
