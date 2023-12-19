@@ -1,19 +1,19 @@
 require('dotenv').config()
 
-const { bot_token, locale, port } = require('./src/utils/env');
 const { Telegraf, session } = require("telegraf");
 const iplocate = require("node-iplocate");
-
-const languages = require("./src/utils/language"); 
-const { auth } = require("./src/middleware/auth");
-const start = require("./src/commands/start");
+const schedule = require('node-schedule');
 const express = require('express');
 const cors = require('cors')
-const knex = require('./src/connections/db');
+
 const { userActivityValidation } = require('./src/middleware/usersActivityValidation');
-const FAQ = require('./src/hears.js/FAQ');
+const { bot_token, locale, port } = require('./src/utils/env');
 const FAQAnswers = require('./src/actions.js/FAQAnswers');
-const schedule = require('node-schedule');
+const { auth } = require("./src/middleware/auth");
+const languages = require("./src/utils/language"); 
+const start = require("./src/commands/start");
+const knex = require('./src/connections/db');
+const FAQ = require('./src/hears.js/FAQ');
 
 const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard } = languages[locale];
 
