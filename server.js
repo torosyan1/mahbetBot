@@ -122,7 +122,7 @@ app.post('/fraud', async (req, res) => {
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));
 
-schedule.scheduleJob('*/59 * * * *', async () =>{
+schedule.scheduleJob('0 0 0 * * *', async () =>{
     try {
         const users = await knex('users').select('*').where('createdAt', '>=', knex.raw('NOW() - INTERVAL 1 HOUR'));
         const reg = await knex('logs').select('*').where('action', '=', 'registration').andWhere('createdAt', '>=', knex.raw('NOW() - INTERVAL 1 HOUR'));
