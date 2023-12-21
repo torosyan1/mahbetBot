@@ -1,7 +1,8 @@
 require('dotenv').config()
 
 const { Telegraf, session } = require("telegraf");
-const iplocate = require("node-iplocate");
+// const iplocate = require("node-iplocate");
+const geoip = require('geoip-lite');
 const schedule = require('node-schedule');
 const express = require('express');
 const cors = require('cors')
@@ -101,11 +102,12 @@ app.post('/fraud', async (req, res) => {
         // if( !ip || !device || !device_input || !telegram_id) {
         //    return res.status(500).send('Something went wrong!');
         // }
-        const data = await iplocate(ip)
+        const data = geoip.lookup(ip);
+        // const data = await iplocate(ip)
 
         await knex('fraud').insert({
             ip,
-            city: data.city,
+            city: data.timezone,
             country: data.country,
             device,
             device_input,
