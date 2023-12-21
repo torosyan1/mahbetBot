@@ -98,7 +98,6 @@ app.post('/registration', async (req, res) => {
 app.post('/fraud', async (req, res) => {
     try {
         const { ip, device, device_input, telegram_id } = req.body;
-           console.log(telegram_id, 'ppppppppppp')
         if( !ip || !device || !device_input || !telegram_id) {
            return res.status(500).send('Something went wrong!');
         }
