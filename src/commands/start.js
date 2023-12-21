@@ -4,7 +4,6 @@ const languages = require("../utils/language");
 
 module.exports = async (ctx) => {
   try {
-  const chatID = ctx.message.from.id;
   const { welcomeMessage, welcomeButtonInline, welcomeButtonKeyboard, suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, forMoreMessage } = languages[locale];
 
   await ctx.replyWithPhoto(welcome_image_url, {
