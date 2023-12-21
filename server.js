@@ -124,9 +124,9 @@ app.listen(port, () => console.log(`Server is running on port ${port}`));
 
 schedule.scheduleJob('0 0 0 * * *', async () =>{
     try {
-        const users = await knex('users').select('*').where('createdAt', '>=', knex.raw('NOW() - INTERVAL 1 HOUR'));
-        const reg = await knex('logs').select('*').where('action', '=', 'registration').andWhere('createdAt', '>=', knex.raw('NOW() - INTERVAL 1 HOUR'));
-        const login = await knex('logs').select('*').where('action', '=', 'login').andWhere('createdAt', '>=', knex.raw('NOW() - INTERVAL 1 HOUR'));
+        const users = await knex('users').select('*').where('createdAt', '>=', knex.raw('NOW() - INTERVAL 24 HOUR'));
+        const reg = await knex('logs').select('*').where('action', '=', 'registration').andWhere('createdAt', '>=', knex.raw('NOW() - INTERVAL 24 HOUR'));
+        const login = await knex('logs').select('*').where('action', '=', 'login').andWhere('createdAt', '>=', knex.raw('NOW() - INTERVAL 24 HOUR'));
    
         const newUserJoinedCount = `New users joined bot count - ${users.length} 🎯`
         const newRegCount = `New reg users count - ${reg.length} 🎯`
