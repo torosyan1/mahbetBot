@@ -10,15 +10,15 @@ module.exports = async (ctx) => {
     caption: welcomeMessage,
     reply_markup: {
       inline_keyboard: [
-      //   [{
-      //     text: login,
-      //     web_app: { url: mahbet_registr }
-      //   },
-      //   {
-      //     text: registration,
-      //     web_app: { url: mahbet_registr }
-      //   }
-      //  ],
+        [{
+          text: login,
+          web_app: { url: mahbet_login }
+        },
+        {
+          text: registration,
+          web_app: { url: mahbet_registr }
+        }
+       ],
         [{
           text: welcomeButtonInline,
           web_app: { url: web_app }
