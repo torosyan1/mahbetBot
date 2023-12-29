@@ -8,6 +8,8 @@ const env = {
   db_password: process.env.DB_PASS,
   db_database: process.env.DB_DATABASE,
   port: process.env.PORT,
+  mahbet_login: process.env.MAHBET_LOGIN,
+  mahbet_registr: process.env.MAHBET_REGISTR
 }
 
 module.exports = {
