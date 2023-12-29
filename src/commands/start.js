@@ -9,7 +9,17 @@ module.exports = async (ctx) => {
   await ctx.replyWithPhoto(welcome_image_url, {
     caption: welcomeMessage,
     reply_markup: {
-      inline_keyboard: [[{
+      inline_keyboard: [
+        [{
+          text: login,
+          web_app: { url: mahbet_registr }
+        },
+        {
+          text: registration,
+          web_app: { url: mahbet_registr }
+        }
+       ],
+        [{
           text: welcomeButtonInline,
           web_app: { url: web_app }
       }]],
@@ -20,8 +30,8 @@ module.exports = async (ctx) => {
   await ctx.reply(
     forMoreMessage,
     Markup.keyboard([
-      [Markup.button.webApp(welcomeButtonKeyboard,  web_app)],
-      [Markup.button.webApp(login,  mahbet_registr), Markup.button.webApp(registration, mahbet_login)],
+      // [Markup.button.webApp(welcomeButtonKeyboard,  web_app)],
+      // [Markup.button.webApp(login,  mahbet_registr), Markup.button.webApp(registration, mahbet_login)],
       [suppotButtonKeyboard, promotionButtonKeyboard],
       [FAQButtonKeyboard, helpMeButtonKeyboard],
     ]).resize()
