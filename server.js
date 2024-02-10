@@ -8,7 +8,7 @@ const express = require('express');
 const cors = require('cors')
 
 const { userActivityValidation } = require('./src/middleware/usersActivityValidation');
-const { bot_token, locale, port } = require('./src/utils/env');
+const { bot_token, locale, port, welcome_image_url, web_app } = require('./src/utils/env');
 const FAQAnswers = require('./src/actions.js/FAQAnswers');
 const { auth } = require("./src/middleware/auth");
 const languages = require("./src/utils/language"); 
@@ -98,21 +98,21 @@ app.post('/registration', async (req, res) => {
 
 app.post('/fraud', async (req, res) => {
     try {
-        const { ip, device, device_input, telegram_id } = req.body;
-        // if( !ip || !device || !device_input || !telegram_id) {
-        //    return res.status(500).send('Something went wrong!');
-        // }
-        const data = geoip.lookup(ip);
-        // const data = await iplocate(ip)
+        // const { ip, device, device_input, telegram_id } = req.body;
+        // // if( !ip || !device || !device_input || !telegram_id) {
+        // //    return res.status(500).send('Something went wrong!');
+        // // }
+        // const data = geoip.lookup(ip);
+        // // const data = await iplocate(ip)
 
-        await knex('fraud').insert({
-            ip,
-            city: data.timezone,
-            country: data.country,
-            device,
-            device_input,
-            telegram_id,
-        })
+        // await knex('fraud').insert({
+        //     ip,
+        //     city: data.timezone,
+        //     country: data.country,
+        //     device,
+        //     device_input,
+        //     telegram_id,
+        // })
         res.status(200).send(true)
     } catch(err){
         console.log(err, 'fraud');
