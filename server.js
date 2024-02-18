@@ -13,7 +13,7 @@ const FAQAnswers = require('./src/actions.js/FAQAnswers');
 const { auth } = require("./src/middleware/auth");
 const languages = require("./src/utils/language"); 
 const start = require("./src/commands/start");
-const knex = require('./src/connections/db');
+// const knex = require('./src/connections/db');
 const FAQ = require('./src/hears.js/FAQ');
 
 const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard } = languages[locale];
@@ -65,11 +65,11 @@ app.post('/login', async (req, res) => {
             return res.status(500).send('Something went wrong!');
          }
          
-        await knex('logs').insert({
-            action,
-            telegram_id,
-            mahbet_id: user_id
-        })
+        // await knex('logs').insert({
+        //     action,
+        //     telegram_id,
+        //     mahbet_id: user_id
+        // })
         res.status(200).send(true)
     } catch(err){
         console.log(err);
@@ -84,11 +84,11 @@ app.post('/registration', async (req, res) => {
            return res.status(500).send('Something went wrong!');
         }
         
-        await knex('logs').insert({
-            action,
-            telegram_id,
-            mahbet_id: user_id
-        })
+        // await knex('logs').insert({
+        //     action,
+        //     telegram_id,
+        //     mahbet_id: user_id
+        // })
         res.status(200).send(true)
     } catch(err){
         console.log(err);
@@ -122,19 +122,19 @@ app.post('/fraud', async (req, res) => {
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));
 
-schedule.scheduleJob('0 0 0 * * *', async () =>{
-    try {
-        const users = await knex('users').select('*').where('createdAt', '>=', knex.raw('NOW() - INTERVAL 24 HOUR'));
-        const reg = await knex('logs').select('*').where('action', '=', 'registration').andWhere('createdAt', '>=', knex.raw('NOW() - INTERVAL 24 HOUR'));
-        const login = await knex('logs').select('*').where('action', '=', 'login').andWhere('createdAt', '>=', knex.raw('NOW() - INTERVAL 24 HOUR'));
+// schedule.scheduleJob('0 0 0 * * *', async () =>{
+//     try {
+//         const users = await knex('users').select('*').where('createdAt', '>=', knex.raw('NOW() - INTERVAL 24 HOUR'));
+//         const reg = await knex('logs').select('*').where('action', '=', 'registration').andWhere('createdAt', '>=', knex.raw('NOW() - INTERVAL 24 HOUR'));
+//         const login = await knex('logs').select('*').where('action', '=', 'login').andWhere('createdAt', '>=', knex.raw('NOW() - INTERVAL 24 HOUR'));
    
-        const newUserJoinedCount = `New users joined bot count - ${users.length} 🎯`
-        const newRegCount = `New reg users count - ${reg.length} 🎯`
-        const newLoginCount = `New login bot users count - ${login.length} 🎯`
+//         const newUserJoinedCount = `New users joined bot count - ${users.length} 🎯`
+//         const newRegCount = `New reg users count - ${reg.length} 🎯`
+//         const newLoginCount = `New login bot users count - ${login.length} 🎯`
 
-        await bot.telegram.sendMessage(-4036292845, newUserJoinedCount + '\n' + newRegCount + '\n' + newLoginCount)
-    } catch (error) {
-        console.error('Error retrieving users:', error.message);
-      } 
-    }
-);
+//         await bot.telegram.sendMessage(-4036292845, newUserJoinedCount + '\n' + newRegCount + '\n' + newLoginCount)
+//     } catch (error) {
+//         console.error('Error retrieving users:', error.message);
+//       } 
+//     }
+// );

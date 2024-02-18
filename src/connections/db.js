@@ -13,6 +13,6 @@ const connectionInfo = {
   },
 };
 
-console.info(`Knex connects to: ${connectionInfo.connection.host}`);
+// console.info(`Knex connects to: ${connectionInfo.connection.host}`);
 
-module.exports = require('knex')(connectionInfo);
+// module.exports = require('knex')(connectionInfo);

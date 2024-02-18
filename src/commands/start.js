@@ -1,5 +1,5 @@
 const { Markup } = require("telegraf");
-const { welcome_image_url, web_app, locale, mahbet_registr, mahbet_login } = require("../utils/env");
+const { welcome_image_url, web_app, locale } = require("../utils/env");
 const languages = require("../utils/language");
 
 module.exports = async (ctx) => {
@@ -32,8 +32,8 @@ module.exports = async (ctx) => {
     Markup.keyboard([
       // [Markup.button.webApp(welcomeButtonKeyboard,  web_app)],
       // [Markup.button.webApp(login,  mahbet_registr), Markup.button.webApp(registration, mahbet_login)],
-      [suppotButtonKeyboard, promotionButtonKeyboard],
-      [FAQButtonKeyboard, helpMeButtonKeyboard],
+      [suppotButtonKeyboard],
+      // [FAQButtonKeyboard, helpMeButtonKeyboard],
     ]).resize()
   );
 
