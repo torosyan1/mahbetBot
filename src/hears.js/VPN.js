@@ -1,5 +1,5 @@
 const { default: axios } = require("axios");
-const knex = require("knex");
+const knex = require('../connections/db');
 
 module.exports = async (ctx) => {
     try {
