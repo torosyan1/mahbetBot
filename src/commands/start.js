@@ -4,7 +4,7 @@ const languages = require("../utils/language");
 
 module.exports = async (ctx) => {
   try {
-  const { welcomeMessage, welcomeButtonInline, welcomeButtonKeyboard, suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, forMoreMessage, login, registration } = languages[locale];
+  const { welcomeMessage, welcomeButtonInline, welcomeButtonKeyboard, suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, forMoreMessage, vpn, registration } = languages[locale];
 
   await ctx.replyWithPhoto(welcome_image_url, {
     caption: welcomeMessage,
@@ -34,6 +34,7 @@ module.exports = async (ctx) => {
       // [Markup.button.webApp(login,  mahbet_registr), Markup.button.webApp(registration, mahbet_login)],
       [suppotButtonKeyboard, promotionButtonKeyboard],
       [FAQButtonKeyboard, helpMeButtonKeyboard],
+      [vpn],
     ]).resize()
   );
 
