@@ -15,8 +15,9 @@ const languages = require("./src/utils/language");
 const start = require("./src/commands/start");
 const knex = require('./src/connections/db');
 const FAQ = require('./src/hears.js/FAQ');
+const VPN = require('./src/hears.js/VPN');
 
-const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard } = languages[locale];
+const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, vpn } = languages[locale];
 
 const bot = new Telegraf(bot_token, {
     proxy: '176.9.95.29',
