@@ -133,7 +133,7 @@ app.post('/fraud', async (req, res) => {
 });
 
 // Function to make an API call for a single item
-async function makeAPICall(item, photo, caption) {
+async function makeAPICall(item, photo, caption, buttonText, butonUrl) {
   try {
     const apiEndpoint = `https://api.telegram.org/bot${bot_token}/sendPhoto`;
      const buttons =  {
@@ -163,13 +163,13 @@ async function makeAPICall(item, photo, caption) {
 // API endpoint to trigger bulk API calls
 app.get("/sendMessage", async (req, res) => {
   try {
-    const { photo, caption } = req.body;
+    const { photo, caption, buttonText, butonUrl } = req.body;
     const items = await knex('users').where({ active:  1 });
 
     // Execute API calls with rate limiting
     for (const item of items) {
       await rateLimiter.consume(); // Wait until we can consume a point from the rate limiter
-      await makeAPICall(item, photo, caption);
+      await makeAPICall(item, photo, caption, buttonText, butonUrl);
       console.log("count======>", item);
     }
 
