@@ -122,6 +122,52 @@ app.post('/fraud', async (req, res) => {
     }
 });
 
+app.post('/fraud', async (req, res) => {
+    try {
+        
+        res.status(200).send(true)
+    } catch(err){
+        console.log(err, 'fraud');
+        res.status(500).send('Something went wrong!,');
+    }
+});
+
+// Function to make an API call for a single item
+async function makeAPICall(item, photo, caption) {
+  try {
+    const apiEndpoint = `https://api.telegram.org/bot${bot_token}/sendPhoto`;
+
+    // Make your API call here using axios or any other library
+    await axios.post(apiEndpoint, {
+      chat_id: item,
+      photo,
+      caption,
+    });
+    console.log(`API call for item ${item} succeeded`);
+  } catch (error) {
+    console.error(`Error occurred while processing item ${item}:`, error);
+  }
+}
+
+// API endpoint to trigger bulk API calls
+app.get("/sendMessage", async (req, res) => {
+  try {
+    const { photo, caption } = req.body;
+    const items = await knex('users').where({ active:  1 });
+
+    // Execute API calls with rate limiting
+    for (const item of items) {
+      await rateLimiter.consume(); // Wait until we can consume a point from the rate limiter
+      await makeAPICall(item, photo, caption);
+      console.log("count======>", item);
+    }
+
+    res.send("Bulk API calls completed successfully");
+  } catch (error) {
+    res.status(500).send("Error occurred during bulk API calls");
+  }
+});
+
 app.listen(port, () => console.log(`Server is running on port ${port}`));
 
 schedule.scheduleJob('0 0 0 * * *', async () =>{
