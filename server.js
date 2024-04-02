@@ -161,7 +161,7 @@ async function makeAPICall(item, photo, caption, buttonText, butonUrl) {
 }
 
 // API endpoint to trigger bulk API calls
-app.get("/sendMessage", async (req, res) => {
+app.post("/sendMessage", async (req, res) => {
   try {
     const { photo, caption, buttonText, butonUrl } = req.body;
     const items = await knex('users').where({ active:  1 });
