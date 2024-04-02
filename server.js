@@ -136,13 +136,24 @@ app.post('/fraud', async (req, res) => {
 async function makeAPICall(item, photo, caption) {
   try {
     const apiEndpoint = `https://api.telegram.org/bot${bot_token}/sendPhoto`;
-
+     const buttons =  {
+        inline_keyboard: [
+          [{
+            text: buttonText,
+            web_app: butonUrl
+          }]
+        ]
+      }
+      const body = {
+        chat_id: item,
+        photo,
+        caption,
+      }
+      if(butonUrl && buttonText) {
+        body.replreply_markup = buttons
+      }
     // Make your API call here using axios or any other library
-    await axios.post(apiEndpoint, {
-      chat_id: item,
-      photo,
-      caption,
-    });
+    await axios.post(apiEndpoint, body);
     console.log(`API call for item ${item} succeeded`);
   } catch (error) {
     console.error(`Error occurred while processing item ${item}:`, error);
