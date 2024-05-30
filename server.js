@@ -101,7 +101,7 @@ bot.action('1', async (ctx)=>{
 
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
             console.log(getPromo)
-            await knex('promo_codes').where({ codes: getPromo[0].codes  }).update({ active: 1 });            
+            await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
             await ctx.reply(`
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
             اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و شناسه کاربری خود را ارسال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و دوباره برگردید همینجا و شناسه کاربری خود را ارسال کنید تا جایزه شما فعال شود.
@@ -144,7 +144,7 @@ bot.action('2', async(ctx)=>{
             
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
             console.log(getPromo)
-            await knex('promo_codes').where({ codes:  getPromo[0].codes }).update({ active: 1 });     
+            await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
             await ctx.reply(`
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
             اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و شناسه کاربری خود را ارسال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و دوباره برگردید همینجا و شناسه کاربری خود را ارسال کنید تا جایزه شما فعال شود.
@@ -186,7 +186,7 @@ bot.action('3', async(ctx)=>{
             
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
             console.log(getPromo)
-            await knex('promo_codes').where({ codes: getPromo[0].codes }).update({ active: 1 });     
+            await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
             await ctx.reply( `
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
             اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و شناسه کاربری خود را ارسال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و دوباره برگردید همینجا و شناسه کاربری خود را ارسال کنید تا جایزه شما فعال شود.
@@ -228,7 +228,7 @@ bot.action('4', async(ctx)=>{
             
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
             console.log(getPromo)
-            await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1 });     
+            await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
             await ctx.reply( `
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
             اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و شناسه کاربری خود را ارسال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و دوباره برگردید همینجا و شناسه کاربری خود را ارسال کنید تا جایزه شما فعال شود.
@@ -270,7 +270,7 @@ bot.action('5', async(ctx)=>{
             
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
             console.log(getPromo)
-            await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1 });     
+            await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
             await ctx.reply( `
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
             اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و شناسه کاربری خود را ارسال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و دوباره برگردید همینجا و شناسه کاربری خود را ارسال کنید تا جایزه شما فعال شود.
@@ -312,7 +312,7 @@ bot.action('6', async(ctx)=>{
             
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
             console.log(getPromo)
-            await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1 });     
+            await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
             await ctx.reply( `
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
             اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و شناسه کاربری خود را ارسال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و دوباره برگردید همینجا و شناسه کاربری خود را ارسال کنید تا جایزه شما فعال شود.
