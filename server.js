@@ -110,7 +110,7 @@ bot.action('1', async (ctx)=>{
             `, {
                 reply_markup: {
                   inline_keyboard: [[{
-                    text: `ورود به سایت`,
+                    text: `ورود به سایت 📌`,
                     web_app: { url: web_app }
                   }]],
                   one_time_keyboard: true,
@@ -121,7 +121,7 @@ bot.action('1', async (ctx)=>{
             await ctx.reply(`بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی. 🥲`, {
                 reply_markup: {
                   inline_keyboard: [[{
-                    text: `ورود به سایت`,
+                    text: `ورود به سایت 📌`,
                     web_app: { url: web_app }
                   }]],
                   one_time_keyboard: true,
@@ -153,7 +153,7 @@ bot.action('2', async(ctx)=>{
             `, {
                 reply_markup: {
                   inline_keyboard: [[{
-                    text: `ورود به سایت`,
+                    text: `ورود به سایت 📌`,
                     web_app: { url: web_app }
                   }]],
                   one_time_keyboard: true,
@@ -164,7 +164,7 @@ bot.action('2', async(ctx)=>{
             await ctx.reply( `بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی. 🥲`, {
                 reply_markup: {
                   inline_keyboard: [[{
-                    text: `ورود به سایت`,
+                    text: `ورود به سایت 📌`,
                     web_app: { url: web_app }
                   }]],
                   one_time_keyboard: true,
@@ -195,7 +195,7 @@ bot.action('3', async(ctx)=>{
             `, {
                 reply_markup: {
                   inline_keyboard: [[{
-                    text: `ورود به سایت`,
+                    text: `ورود به سایت 📌`,
                     web_app: { url: web_app }
                   }]],
                   one_time_keyboard: true,
@@ -206,7 +206,7 @@ bot.action('3', async(ctx)=>{
             await ctx.reply(`بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی. 🥲`, {
                 reply_markup: {
                   inline_keyboard: [[{
-                    text: `ورود به سایت`,
+                    text: `ورود به سایت 📌`,
                     web_app: { url: web_app }
                   }]],
                   one_time_keyboard: true,
@@ -237,7 +237,7 @@ bot.action('4', async(ctx)=>{
             `, {
                 reply_markup: {
                   inline_keyboard: [[{
-                    text: `ورود به سایت`,
+                    text: `ورود به سایت 📌`,
                     web_app: { url: web_app }
                   }]],
                   one_time_keyboard: true,
@@ -248,7 +248,7 @@ bot.action('4', async(ctx)=>{
             await ctx.reply( `بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی. 🥲`, {
                 reply_markup: {
                   inline_keyboard: [[{
-                    text: `ورود به سایت`,
+                    text: `ورود به سایت 📌`,
                     web_app: { url: web_app }
                   }]],
                   one_time_keyboard: true,
@@ -279,7 +279,7 @@ bot.action('5', async(ctx)=>{
             `, {
                 reply_markup: {
                   inline_keyboard: [[{
-                    text: `ورود به سایت`,
+                    text: `ورود به سایت 📌`,
                     web_app: { url: web_app }
                   }]],
                   one_time_keyboard: true,
@@ -290,7 +290,7 @@ bot.action('5', async(ctx)=>{
             await ctx.reply(`بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی. 🥲`, {
                 reply_markup: {
                   inline_keyboard: [[{
-                    text: `ورود به سایت`,
+                    text: `ورود به سایت 📌`,
                     web_app: { url: web_app }
                   }]],
                   one_time_keyboard: true,
@@ -321,7 +321,7 @@ bot.action('6', async(ctx)=>{
             `, {
                 reply_markup: {
                   inline_keyboard: [[{
-                    text: `ورود به سایت`,
+                    text: `ورود به سایت 📌`,
                     web_app: { url: web_app }
                   }]],
                   one_time_keyboard: true,
@@ -332,7 +332,7 @@ bot.action('6', async(ctx)=>{
             await ctx.reply( `بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی. 🥲`, {
                 reply_markup: {
                   inline_keyboard: [[{
-                    text: `ورود به سایت`,
+                    text: `ورود به سایت 📌`,
                     web_app: { url: web_app }
                   }]],
                   one_time_keyboard: true,
