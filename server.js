@@ -401,17 +401,17 @@ app.post('/fraud', async (req, res) => {
         // if( !ip || !device || !device_input || !telegram_id) {
         //    return res.status(500).send('Something went wrong!');
         // }
-        const data = geoip.lookup(ip);
+        // const data = geoip.lookup(ip);
         // const data = await iplocate(ip)
 
-        await knex('fraud').insert({
-            ip,
-            city: data.timezone,
-            country: data.country,
-            device,
-            device_input,
-            telegram_id,
-        })
+        // await knex('fraud').insert({
+        //     ip,
+        //     city: data.timezone,
+        //     country: data.country,
+        //     device,
+        //     device_input,
+        //     telegram_id,
+        // })
         res.status(200).send(true)
     } catch(err){
         console.log(err, 'fraud');
