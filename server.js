@@ -37,8 +37,8 @@ bot.hears(FAQButtonKeyboard, FAQ);
 bot.hears(helpMeButtonKeyboard,(ctx)=>ctx.telegram.sendMessage(ctx.message.from.id, languages[locale]['helpMessage']));
 
 bot.hears('تاس بنداز جایزه بگیر 🎲',async (ctx)=>{
-    console.log(ctx.chat.id)
     const isUsed = await client.get(ctx.chat.id + '');
+    console.log(ctx.chat.id, isUsed)
     if(isUsed) {
          return ctx.reply(`بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی.`)
     }
