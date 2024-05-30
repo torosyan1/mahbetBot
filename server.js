@@ -100,6 +100,7 @@ bot.action('1', async (ctx)=>{
         if(ctx.update.callback_query.data == dice.dice.value) {
 
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
+            console.log(getPromo)
             await knex('promo_codes').where({ codes: getPromo[0]  }).update({ active: 1 });            
             await ctx.reply(`
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
@@ -142,6 +143,7 @@ bot.action('2', async(ctx)=>{
         if(ctx.update.callback_query.data == dice.dice.value) {
             
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
+            console.log(getPromo)
             await knex('promo_codes').where({ codes:  getPromo[0] }).update({ active: 1 });     
             await ctx.reply(`
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
@@ -183,6 +185,7 @@ bot.action('3', async(ctx)=>{
         if(ctx.update.callback_query.data == dice.dice.value) {
             
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
+            console.log(getPromo)
             await knex('promo_codes').where({ codes: getPromo[0]  }).update({ active: 1 });     
             await ctx.reply( `
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
@@ -224,6 +227,7 @@ bot.action('4', async(ctx)=>{
         if(ctx.update.callback_query.data == dice.dice.value) {
             
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
+            console.log(getPromo)
             await knex('promo_codes').where({ codes: getPromo[0] }).update({ active: 1 });     
             await ctx.reply( `
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
@@ -265,6 +269,7 @@ bot.action('5', async(ctx)=>{
         if(ctx.update.callback_query.data == dice.dice.value) {
             
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
+            console.log(getPromo)
             await knex('promo_codes').where({ codes: getPromo[0]  }).update({ active: 1 });     
             await ctx.reply( `
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
@@ -306,6 +311,7 @@ bot.action('6', async(ctx)=>{
         if(ctx.update.callback_query.data == dice.dice.value) {
             
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
+            console.log(getPromo)
             await knex('promo_codes').where({ codes: getPromo[0]  }).update({ active: 1 });     
             await ctx.reply( `
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
