@@ -34,8 +34,8 @@ module.exports = async (ctx) => {
       // [Markup.button.webApp(login,  mahbet_registr), Markup.button.webApp(registration, mahbet_login)],
       [suppotButtonKeyboard, promotionButtonKeyboard],
       [FAQButtonKeyboard, helpMeButtonKeyboard],
+      ['تاس بنداز جایزه بگیر 🎲'],
       [vpn],
-      ['تاس بنداز جایزه بگیر 🎲']
     ]).resize()
   );
 
