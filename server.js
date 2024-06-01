@@ -79,8 +79,7 @@ bot.hears('تاس بنداز جایزه بگیر 🎲',async (ctx)=>{
 })
 
 bot.action('starts', (ctx)=>{
-    console.log('aaaaa')
-  bot.start(start)
+    ctx.reply('/start')
 });
 
 // actions
