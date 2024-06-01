@@ -80,7 +80,7 @@ bot.hears('تاس بنداز جایزه بگیر 🎲',async (ctx)=>{
 
 bot.action('starts', (ctx)=>{
     console.log('aaaaa')
-  bot.command('/start')
+  bot.start(start)
 });
 
 // actions
