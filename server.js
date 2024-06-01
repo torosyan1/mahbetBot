@@ -78,9 +78,7 @@ bot.hears('تاس بنداز جایزه بگیر 🎲',async (ctx)=>{
 
 })
 
-bot.action('starts', (ctx)=>{
-    ctx.reply('/start')
-});
+bot.action('starts', start);
 
 // actions
 bot.action('faqAnswer1', FAQAnswers);
