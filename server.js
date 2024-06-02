@@ -27,7 +27,7 @@ client.connect();
 const subscriber = redis.createClient();
 const KEY_EXPIRING_TIME = 10; // seconds
 
-client.setex('myKey', KEY_EXPIRING_TIME, 'myValue');
+client.setEx('myKey', KEY_EXPIRING_TIME, 'myValue');
 
 subscriber.on('message', function(channel, msg) {
   console.log( `On ${channel} received ${msg} event`);
