@@ -35,6 +35,8 @@ subscriber.on('error', (err) => {
     console.error('Redis subscriber error', err);
 });
 
+client.set('test-key', 'value', 'EX', 10); // Expires in 10 seconds
+
 // Subscribe to the key expiration events
 subscriber.subscribe('test-key', (err, count) => {
     if (err) {
@@ -50,7 +52,6 @@ subscriber.on('message', (channel, key) => {
 });
 
 // Example: Set a key with an expiration to test
-client.set('test-key', 'value', 'EX', 10); // Expires in 10 seconds
 
 bot.use(session());
 
