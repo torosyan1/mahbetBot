@@ -35,7 +35,7 @@ module.exports = async (ctx) => {
       [suppotButtonKeyboard, promotionButtonKeyboard],
       [FAQButtonKeyboard, helpMeButtonKeyboard],
       ['تاس بنداز جایزه بگیر 🎲'],
-      [vpn],
+      // [vpn],
     ]).resize()
   );
 
