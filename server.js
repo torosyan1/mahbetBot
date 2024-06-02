@@ -23,19 +23,16 @@ const bot = new Telegraf(bot_token);
 const client = redis.createClient();
 client.connect();
 
+const sub=client.duplicate();
+sub.connect();
 
-const subscriber = redis.createClient();
-const KEY_EXPIRING_TIME = 10; // seconds
 
-client.setEx('myKey', KEY_EXPIRING_TIME, 'myValue');
+await client.setEx('qqqqq', 10 , 'qqqqqq');
 
-subscriber.on('message', function(channel, msg) {
-  console.log( `On ${channel} received ${msg} event`);
-});
 
-subscriber.subscribe('myKey', function (err) {
-  console.log('subscribed!');
-});
+sub.subscribe("__keyevent@0__:expired", (key) => {
+    console.log("key=> ", key)
+})
 
 bot.use(session());
 
