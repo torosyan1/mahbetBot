@@ -29,10 +29,13 @@ sub.connect();
 
 client.setEx('qqqqq', 10 , 'qqqqqq');
 
+    // Subscribe to key expiration events
+sub.subscribe('__keyevent@0__:expired', (message) => {
+      console.log('Key expired:', message);
+});
 
-sub.subscribe("qqqqq@0__:expired", (key) => {
-    console.log("key=> ", key)
-})
+// Enable keyspace notifications if not already enabled
+client.sendCommand(['CONFIG', 'SET', 'notify-keyspace-events', 'Ex']);
 
 bot.use(session());
 
