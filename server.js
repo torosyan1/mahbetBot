@@ -21,34 +21,36 @@ const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMe
 
 const bot = new Telegraf(bot_token);
 const client = redis.createClient();
-const subscriber = redis.createClient();
-
 client.connect();
 
 
-client.setEx('798788716---', 50 , '798788716---');
+const subscriber = redis.createClient();
+
+// Handle connection errors
+client.on('error', (err) => {
+    console.error('Redis client error', err);
+});
 
 subscriber.on('error', (err) => {
-  console.log('Redis subscriber error:', err);
+    console.error('Redis subscriber error', err);
 });
 
-// Subscribe to the keyspace notification channel for expired events
-subscriber.subscribe('798788716---', (err) => {
-  if (err) {
-      console.log('Failed to subscribe:', err);
-  } else {
-      console.log('Subscribed to expired events');
-  }
+// Subscribe to the key expiration events
+subscriber.subscribe('__keyevent@0__:expired', (err, count) => {
+    if (err) {
+        console.error('Failed to subscribe: %s', err.message);
+    } else {
+        console.log(`Subscribed successfully! This client is currently subscribed to ${count} channels.`);
+    }
 });
 
-// Handle expired events
+// Listen for expiration events
 subscriber.on('message', (channel, key) => {
-  console.log(`Key expired: ${key}`);
-  // Call your callback function here
+    console.log(`Key expired: ${key}`);
 });
 
-
-
+// Example: Set a key with an expiration to test
+client.set('test-key', 'value', 'EX', 10); // Expires in 10 seconds
 bot.use(session());
 
 bot.use(userActivityValidation);
@@ -189,6 +191,7 @@ bot.action('1', async (ctx)=>{
                   resize_keyboard: true,
               },
               });
+              await bot.telegram.sendMessage(-4036292845, 'telegram_userId-' + '\n' + ctx.chat.id + '\n' + 'promocode')
         }
     },4000)
 });
@@ -460,7 +463,8 @@ app.post('/login', async (req, res) => {
 app.post('/registration', async (req, res) => {
     try {
         const { action, user_id, telegram_id } = req.body;
-        await bot.telegram.sendMessage(798788716, telegram_id + '-' + user_id)
+        console.log('ppppppppppppppp')
+        await bot.telegram.sendMessage(798788716, telegram_id + user_id)
 
         // if(!user_id || !telegram_id || !action) {
         //    return res.status(500).send('Something went wrong!');
@@ -473,7 +477,7 @@ app.post('/registration', async (req, res) => {
         })
         res.status(200).send(true)
     } catch(err){
-        console.log('login',err);
+        console.log(err);
         res.status(500).send('Something went wrong!');
     }
 });
