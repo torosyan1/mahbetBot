@@ -21,6 +21,38 @@ const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMe
 
 const bot = new Telegraf(bot_token);
 const client = redis.createClient();
+const subscriber = redis.createClient();
+
+
+client.set('798788716', '798788716', 'EX', 10, (err, reply) => {
+  if (err) {
+      console.log('Error setting key:', err);
+  } else {
+      console.log('Set key:', reply);
+  }
+});
+
+subscriber.on('error', (err) => {
+  console.log('Redis subscriber error:', err);
+});
+
+// Subscribe to the keyspace notification channel for expired events
+subscriber.subscribe('798788716', (err) => {
+  if (err) {
+      console.log('Failed to subscribe:', err);
+  } else {
+      console.log('Subscribed to expired events');
+  }
+});
+
+// Handle expired events
+subscriber.on('message', (channel, key) => {
+  console.log(`Key expired: ${key}`);
+  // Call your callback function here
+  myCallbackFunction(key);
+});
+
+
 client.connect();
 
 bot.use(session());
