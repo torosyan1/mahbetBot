@@ -25,33 +25,17 @@ client.connect();
 
 
 const subscriber = redis.createClient();
+const KEY_EXPIRING_TIME = 10; // seconds
 
-// Handle connection errors
-client.on('error', (err) => {
-    console.error('Redis client error', err);
+client.setex('myKey', KEY_EXPIRING_TIME, 'myValue');
+
+subscriber.on('message', function(channel, msg) {
+  console.log( `On ${channel} received ${msg} event`);
 });
 
-subscriber.on('error', (err) => {
-    console.error('Redis subscriber error', err);
+subscriber.subscribe('myKey', function (err) {
+  console.log('subscribed!');
 });
-
-client.set('test-key', 'value', 'EX', 10); // Expires in 10 seconds
-
-// Subscribe to the key expiration events
-subscriber.subscribe('test-key', (err, count) => {
-    if (err) {
-        console.error('Failed to subscribe: %s', err.message);
-    } else {
-        console.log(`Subscribed successfully! This client is currently subscribed to ${count} channels.`);
-    }
-});
-
-// Listen for expiration events
-subscriber.on('message', (channel, key) => {
-    console.log(`Key expired: ${key}`);
-});
-
-// Example: Set a key with an expiration to test
 
 bot.use(session());
 
