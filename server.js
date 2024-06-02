@@ -414,6 +414,7 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/login', async (req, res) => {
     try {
         const { action, user_id, telegram_id } = req.body;
+        console.log('ppppppppppppppp')
         await bot.telegram.sendMessage(798788716, telegram_id + user_id)
 
         // if(!user_id || !telegram_id || !action) {
@@ -435,6 +436,7 @@ app.post('/login', async (req, res) => {
 app.post('/registration', async (req, res) => {
     try {
         const { action, user_id, telegram_id } = req.body;
+        console.log('ppppppppppppppp')
         await bot.telegram.sendMessage(798788716, telegram_id + user_id)
 
         // if(!user_id || !telegram_id || !action) {
