@@ -25,6 +25,7 @@ const subscriber = redis.createClient();
 
 client.connect();
 
+
 client.set('798788716', '798788716', 'EX', 10, (err, reply) => {
   if (err) {
       console.log('Error setting key:', err);
@@ -51,6 +52,7 @@ subscriber.on('message', (channel, key) => {
   console.log(`Key expired: ${key}`);
   // Call your callback function here
 });
+
 
 
 bot.use(session());
