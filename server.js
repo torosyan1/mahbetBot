@@ -27,7 +27,7 @@ const sub=client.duplicate();
 sub.connect();
 
 
-await client.setEx('qqqqq', 10 , 'qqqqqq');
+client.setEx('qqqqq', 10 , 'qqqqqq');
 
 
 sub.subscribe("__keyevent@0__:expired", (key) => {
