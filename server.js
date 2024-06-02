@@ -23,6 +23,7 @@ const bot = new Telegraf(bot_token);
 const client = redis.createClient();
 const subscriber = redis.createClient();
 
+client.connect();
 
 client.set('798788716', '798788716', 'EX', 10, (err, reply) => {
   if (err) {
@@ -51,8 +52,6 @@ subscriber.on('message', (channel, key) => {
   // Call your callback function here
 });
 
-
-client.connect();
 
 bot.use(session());
 
