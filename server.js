@@ -26,20 +26,14 @@ const subscriber = redis.createClient();
 client.connect();
 
 
-client.set('798788716', '798788716', 'EX', 10, (err, reply) => {
-  if (err) {
-      console.log('Error setting key:', err);
-  } else {
-      console.log('Set key:', reply);
-  }
-});
+client.setEx('798788716---', 50 , '798788716---');
 
 subscriber.on('error', (err) => {
   console.log('Redis subscriber error:', err);
 });
 
 // Subscribe to the keyspace notification channel for expired events
-subscriber.subscribe('798788716', (err) => {
+subscriber.subscribe('798788716---', (err) => {
   if (err) {
       console.log('Failed to subscribe:', err);
   } else {
@@ -195,7 +189,6 @@ bot.action('1', async (ctx)=>{
                   resize_keyboard: true,
               },
               });
-              await bot.telegram.sendMessage(-4036292845, 'telegram_userId-' + '\n' + ctx.chat.id + '\n' + 'promocode')
         }
     },4000)
 });
