@@ -49,7 +49,6 @@ subscriber.subscribe('798788716', (err) => {
 subscriber.on('message', (channel, key) => {
   console.log(`Key expired: ${key}`);
   // Call your callback function here
-  myCallbackFunction(key);
 });
 
 
