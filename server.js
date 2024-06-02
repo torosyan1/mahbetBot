@@ -26,12 +26,41 @@ client.connect();
 const sub=client.duplicate();
 sub.connect();
 
-
-client.setEx('qqqqq', 10 , 'qqqqqq');
+client.setEx('798788716', 10, '798788716')
 
     // Subscribe to key expiration events
-sub.subscribe('__keyevent@0__:expired', (message) => {
-      console.log('Key expired:', message);
+sub.subscribe('__keyevent@0__:expired', async (chatId) => {
+      console.log('Key expired:', chatId);
+      try {
+        await bot.telegram.sendMessage(chatId, `
+            هدیه 🎁... هدیه🎁 ... هدیه 🎁.... 
+
+            🤩کاملا مجانی بازی کن هدیه بگیر🤩
+
+            🎲تاس بنداز و کاملا مجانی از ماه بت هدیه بگیر🎲
+
+            همین حالا بر روی دریافت بونوس کلیک کنید و از داخل منو گزینه تاس بندازید و جایزه بگیرید را انتخاب کنید و تاس بندازید و هدیه های نفیس دریافت کنید. 
+
+            نیاز به حتی خرج کردن یک ریال هم نیست،،،،
+
+            همچین جالبیه ماه بت🤣🤣
+        `, {
+            parse_mode: 'Markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [
+                        {
+                            text: "دریافت بونوس",
+                            callback_data: "starts",
+                        },
+                    ],
+                ],
+            },
+        });
+        console.log('Message sent successfully');
+    } catch (error) {
+        console.error('Error sending message:', error);
+    }
 });
 
 // Enable keyspace notifications if not already enabled
