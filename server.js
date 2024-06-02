@@ -36,7 +36,7 @@ subscriber.on('error', (err) => {
 });
 
 // Subscribe to the key expiration events
-subscriber.subscribe('__keyevent@0__:expired', (err, count) => {
+subscriber.subscribe('test-key', (err, count) => {
     if (err) {
         console.error('Failed to subscribe: %s', err.message);
     } else {
@@ -51,6 +51,7 @@ subscriber.on('message', (channel, key) => {
 
 // Example: Set a key with an expiration to test
 client.set('test-key', 'value', 'EX', 10); // Expires in 10 seconds
+
 bot.use(session());
 
 bot.use(userActivityValidation);
