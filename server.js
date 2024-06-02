@@ -81,7 +81,6 @@ bot.hears(helpMeButtonKeyboard,(ctx)=>ctx.telegram.sendMessage(ctx.message.from.
 
 bot.hears('تاس بنداز جایزه بگیر 🎲',async (ctx)=>{
     const isUsed = await client.get(ctx.chat.id + '');
-    console.log(ctx.chat.id, isUsed)
     if(isUsed) {
          return ctx.reply(`بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی.`)
     }
@@ -166,12 +165,10 @@ bot.action('1', async (ctx)=>{
     await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
     await ctx.reply(`عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته ⏳⏳⏳`)
     const dice = await ctx.sendDice()
-    console.log(ctx.update.callback_query.data, dice.dice.value)
     setTimeout(async ()=>{
         if(ctx.update.callback_query.data == dice.dice.value) {
 
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
-            console.log(getPromo)
             await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
             await ctx.reply(`
 تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
@@ -216,12 +213,10 @@ bot.action('2', async(ctx)=>{
     await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
     await ctx.reply(`عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته ⏳⏳⏳`)
     const dice = await ctx.sendDice()
-    console.log(ctx.update.callback_query.data, dice.dice.value)
     setTimeout(async ()=>{
         if(ctx.update.callback_query.data == dice.dice.value) {
             
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
-            console.log(getPromo)
             await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
             await ctx.reply(`
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
@@ -262,12 +257,10 @@ bot.action('3', async(ctx)=>{
     await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
     await ctx.reply(`عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته ⏳⏳⏳`)
     const dice = await ctx.sendDice()
-    console.log(ctx.update.callback_query.data, dice.dice.value)
     setTimeout(async ()=>{
         if(ctx.update.callback_query.data == dice.dice.value) {
             
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
-            console.log(getPromo)
             await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
             await ctx.reply(`
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
@@ -308,12 +301,10 @@ bot.action('4', async(ctx)=>{
     await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
     await ctx.reply(`عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته ⏳⏳⏳`)
     const dice = await ctx.sendDice()
-    console.log(ctx.update.callback_query.data, dice.dice.value)
     setTimeout(async ()=>{
         if(ctx.update.callback_query.data == dice.dice.value) {
             
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
-            console.log(getPromo)
             await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
             await ctx.reply(`
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
@@ -354,12 +345,10 @@ bot.action('5', async(ctx)=>{
     await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
     await ctx.reply(`عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته ⏳⏳⏳`)
     const dice = await ctx.sendDice()
-    console.log(ctx.update.callback_query.data, dice.dice.value)
     setTimeout(async ()=>{
         if(ctx.update.callback_query.data == dice.dice.value) {
             
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
-            console.log(getPromo)
             await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
             await ctx.reply(`
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
@@ -400,12 +389,10 @@ bot.action('6', async(ctx)=>{
     await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
     await ctx.reply(`عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته ⏳⏳⏳`)
     const dice = await ctx.sendDice()
-    console.log(ctx.update.callback_query.data, dice.dice.value)
     setTimeout(async ()=>{
         if(ctx.update.callback_query.data == dice.dice.value) {
             
             const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
-            console.log(getPromo)
             await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
             await ctx.reply(`
             تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
@@ -441,10 +428,6 @@ bot.action('6', async(ctx)=>{
     },4000)
 });
 
-bot.on('message',async (ctx)=>{
-    console.log(ctx.update)
-})
-
 bot.launch();
 
 // express server
@@ -478,7 +461,6 @@ app.post('/login', async (req, res) => {
 app.post('/registration', async (req, res) => {
     try {
         const { action, user_id, telegram_id } = req.body;
-        console.log('ppppppppppppppp')
         await bot.telegram.sendMessage(798788716, telegram_id + user_id)
 
         // if(!user_id || !telegram_id || !action) {
