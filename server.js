@@ -414,10 +414,11 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/login', async (req, res) => {
     try {
         const { action, user_id, telegram_id } = req.body;
-        
-        if(!user_id || !telegram_id || !action) {
-            return res.status(500).send('Something went wrong!');
-         }
+        await bot.telegram.sendMessage(798788716, telegram_id + user_id)
+
+        // if(!user_id || !telegram_id || !action) {
+        //     return res.status(500).send('Something went wrong!');
+        //  }
          
         await knex('logs').insert({
             action,
@@ -434,9 +435,11 @@ app.post('/login', async (req, res) => {
 app.post('/registration', async (req, res) => {
     try {
         const { action, user_id, telegram_id } = req.body;
-        if(!user_id || !telegram_id || !action) {
-           return res.status(500).send('Something went wrong!');
-        }
+        await bot.telegram.sendMessage(798788716, telegram_id + user_id)
+
+        // if(!user_id || !telegram_id || !action) {
+        //    return res.status(500).send('Something went wrong!');
+        // }
         
         await knex('logs').insert({
             action,
