@@ -30,7 +30,7 @@ sub.connect();
 client.setEx('qqqqq', 10 , 'qqqqqq');
 
 
-sub.subscribe("__keyevent@0__:expired", (key) => {
+sub.subscribe("qqqqq@0__:expired", (key) => {
     console.log("key=> ", key)
 })
 
