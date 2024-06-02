@@ -448,7 +448,7 @@ app.post('/registration', async (req, res) => {
         })
         res.status(200).send(true)
     } catch(err){
-        console.log(err);
+        console.log('login',err);
         res.status(500).send('Something went wrong!');
     }
 });
