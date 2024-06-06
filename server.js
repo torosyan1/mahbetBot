@@ -228,7 +228,6 @@ bot.action(['1', '2', '3', '4', '5', '6'], async (ctx)=>{
                   resize_keyboard: true,
               },
               });
-              await bot.telegram.sendMessage(-4036292845, 'telegram_userId-' + '\n' + ctx.chat.id + '\n' + 'promocode')
         }
     },4000)
 });
