@@ -159,7 +159,7 @@ bot.action('faqAnswer8', FAQAnswers);
 bot.action('faqAnswer9', FAQAnswers);
 bot.action('faqAnswer10', FAQAnswers);
 
-bot.action('1', async (ctx)=>{
+bot.action(['1', '2', '3', '4', '5', '6'], async (ctx)=>{
     await client.setEx(ctx.chat.id + '', 86400 , ctx.chat.id + '');
     await ctx.telegram.answerCbQuery(ctx.update.callback_query.id, `عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته`, true)
     await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
@@ -204,226 +204,6 @@ bot.action('1', async (ctx)=>{
               },
               });
               await bot.telegram.sendMessage(-4036292845, 'telegram_userId-' + '\n' + ctx.chat.id + '\n' + 'promocode')
-        }
-    },4000)
-});
-bot.action('2', async(ctx)=>{
-    await client.setEx(ctx.chat.id + '', 86400 , ctx.chat.id + '');
-    await ctx.telegram.answerCbQuery(ctx.update.callback_query.id, `عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته`, true)
-    await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
-    await ctx.reply(`عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته ⏳⏳⏳`)
-    const dice = await ctx.sendDice()
-    setTimeout(async ()=>{
-        if(ctx.update.callback_query.data == dice.dice.value) {
-            
-            const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
-            await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
-            await ctx.reply(`
-            تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
-            اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و کد هدیه ارسال شده زیر این پیام را در حساب کاربری خود وارد کنید و جایزه خود را فعال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و در موقع ثبت نام کد هدیه ارسال شده در زیر این پیام را در کادر مخصوص کد هدیه در فرم ثبت نام وارد کنید تا جایزه شما فعال شود.
-            
-            کد هدیه شما : ${getPromo[0].codes }
-                        `, {
-                reply_markup: {
-                  inline_keyboard: [[{
-                    text: `ورود به سایت 📌`,
-                    web_app: { url: web_app }
-                  }],
-                  [{
-                    text: `نحوه فعال سازی کد هدیه`,
-                    callback_data: `نحوه فعال سازی کد هدیه`
-                  }]],
-                  one_time_keyboard: true,
-                  resize_keyboard: true,
-              },
-              });
-        } else {
-            await ctx.reply( `بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی. 🥲`, {
-                reply_markup: {
-                  inline_keyboard: [[{
-                    text: `ورود به سایت 📌`,
-                    web_app: { url: web_app }
-                  }]],
-                  one_time_keyboard: true,
-                  resize_keyboard: true,
-              },
-              });       
-        }
-    },4000)
-});
-bot.action('3', async(ctx)=>{
-    await client.setEx(ctx.chat.id + '', 86400 , ctx.chat.id + '');
-    await ctx.telegram.answerCbQuery(ctx.update.callback_query.id, `عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته`, true)
-    await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
-    await ctx.reply(`عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته ⏳⏳⏳`)
-    const dice = await ctx.sendDice()
-    setTimeout(async ()=>{
-        if(ctx.update.callback_query.data == dice.dice.value) {
-            
-            const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
-            await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
-            await ctx.reply(`
-            تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
-            اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و کد هدیه ارسال شده زیر این پیام را در حساب کاربری خود وارد کنید و جایزه خود را فعال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و در موقع ثبت نام کد هدیه ارسال شده در زیر این پیام را در کادر مخصوص کد هدیه در فرم ثبت نام وارد کنید تا جایزه شما فعال شود.
-            
-            کد هدیه شما : ${getPromo[0].codes }
-                        `, {
-                reply_markup: {
-                  inline_keyboard: [[{
-                    text: `ورود به سایت 📌`,
-                    web_app: { url: web_app }
-                  }],
-                  [{
-                    text: `نحوه فعال سازی کد هدیه`,
-                    callback_data: `نحوه فعال سازی کد هدیه`
-                  }]],
-                  one_time_keyboard: true,
-                  resize_keyboard: true,
-              },
-              });
-        } else {
-            await ctx.reply(`بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی. 🥲`, {
-                reply_markup: {
-                  inline_keyboard: [[{
-                    text: `ورود به سایت 📌`,
-                    web_app: { url: web_app }
-                  }]],
-                  one_time_keyboard: true,
-                  resize_keyboard: true,
-              },
-              });       
-        }
-    },4000)
-});
-bot.action('4', async(ctx)=>{
-    await client.setEx(ctx.chat.id + '', 86400 , ctx.chat.id + '');
-    await ctx.telegram.answerCbQuery(ctx.update.callback_query.id, `عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته`, true)
-    await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
-    await ctx.reply(`عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته ⏳⏳⏳`)
-    const dice = await ctx.sendDice()
-    setTimeout(async ()=>{
-        if(ctx.update.callback_query.data == dice.dice.value) {
-            
-            const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
-            await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
-            await ctx.reply(`
-            تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
-            اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و کد هدیه ارسال شده زیر این پیام را در حساب کاربری خود وارد کنید و جایزه خود را فعال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و در موقع ثبت نام کد هدیه ارسال شده در زیر این پیام را در کادر مخصوص کد هدیه در فرم ثبت نام وارد کنید تا جایزه شما فعال شود.
-            
-            کد هدیه شما : ${getPromo[0].codes }
-                        `, {
-                reply_markup: {
-                  inline_keyboard: [[{
-                    text: `ورود به سایت 📌`,
-                    web_app: { url: web_app }
-                  }],
-                  [{
-                    text: `نحوه فعال سازی کد هدیه`,
-                    callback_data: `نحوه فعال سازی کد هدیه`
-                  }]],
-                  one_time_keyboard: true,
-                  resize_keyboard: true,
-              },
-              });
-        } else {
-            await ctx.reply( `بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی. 🥲`, {
-                reply_markup: {
-                  inline_keyboard: [[{
-                    text: `ورود به سایت 📌`,
-                    web_app: { url: web_app }
-                  }]],
-                  one_time_keyboard: true,
-                  resize_keyboard: true,
-              },
-              });       
-        }
-    },4000)
-});
-bot.action('5', async(ctx)=>{
-    await client.setEx(ctx.chat.id + '', 86400 , ctx.chat.id + '');
-    await ctx.telegram.answerCbQuery(ctx.update.callback_query.id, `عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته`, true)
-    await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
-    await ctx.reply(`عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته ⏳⏳⏳`)
-    const dice = await ctx.sendDice()
-    setTimeout(async ()=>{
-        if(ctx.update.callback_query.data == dice.dice.value) {
-            
-            const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
-            await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
-            await ctx.reply(`
-            تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
-            اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و کد هدیه ارسال شده زیر این پیام را در حساب کاربری خود وارد کنید و جایزه خود را فعال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و در موقع ثبت نام کد هدیه ارسال شده در زیر این پیام را در کادر مخصوص کد هدیه در فرم ثبت نام وارد کنید تا جایزه شما فعال شود.
-            
-            کد هدیه شما : ${getPromo[0].codes }
-                        `, {
-                reply_markup: {
-                  inline_keyboard: [[{
-                    text: `ورود به سایت 📌`,
-                    web_app: { url: web_app }
-                  }],
-                  [{
-                    text: `نحوه فعال سازی کد هدیه`,
-                    callback_data: `نحوه فعال سازی کد هدیه`
-                  }]],
-                  one_time_keyboard: true,
-                  resize_keyboard: true,
-              },
-              });
-        } else {
-            await ctx.reply(`بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی. 🥲`, {
-                reply_markup: {
-                  inline_keyboard: [[{
-                    text: `ورود به سایت 📌`,
-                    web_app: { url: web_app }
-                  }]],
-                  one_time_keyboard: true,
-                  resize_keyboard: true,
-              },
-              });       
-        }
-    },4000)
-});
-bot.action('6', async(ctx)=>{
-    await client.setEx(ctx.chat.id + '', 86400 , ctx.chat.id + '');
-    await ctx.telegram.answerCbQuery(ctx.update.callback_query.id, `عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته`, true)
-    await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
-    await ctx.reply(`عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته ⏳⏳⏳`)
-    const dice = await ctx.sendDice()
-    setTimeout(async ()=>{
-        if(ctx.update.callback_query.data == dice.dice.value) {
-            
-            const getPromo = await knex('promo_codes').select('*').where({active: 0}).limit(1);
-            await knex('promo_codes').where({ codes: getPromo[0].codes}).update({ active: 1, telegram_id: ctx.chat.id + '' });     
-            await ctx.reply(`
-            تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
-            اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و کد هدیه ارسال شده زیر این پیام را در حساب کاربری خود وارد کنید و جایزه خود را فعال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و در موقع ثبت نام کد هدیه ارسال شده در زیر این پیام را در کادر مخصوص کد هدیه در فرم ثبت نام وارد کنید تا جایزه شما فعال شود.
-            
-            کد هدیه شما : ${getPromo[0].codes }
-                        `, {
-                reply_markup: {
-                  inline_keyboard: [[{
-                    text: `ورود به سایت 📌`,
-                    web_app: { url: web_app }
-                  }],
-                  [{
-                    text: `نحوه فعال سازی کد هدیه`,
-                    callback_data: `نحوه فعال سازی کد هدیه`
-                  }]],
-                  one_time_keyboard: true,
-                  resize_keyboard: true,
-              },
-              });
-        } else {
-            await ctx.reply( `بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی. 🥲`, {
-                reply_markup: {
-                  inline_keyboard: [[{
-                    text: `ورود به سایت 📌`,
-                    web_app: { url: web_app }
-                  }]],
-                  one_time_keyboard: true,
-                  resize_keyboard: true,
-              },
-              });       
         }
     },4000)
 });
