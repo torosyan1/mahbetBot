@@ -80,6 +80,9 @@ bot.hears(FAQButtonKeyboard, FAQ);
 bot.hears(helpMeButtonKeyboard, (ctx) => ctx.telegram.sendMessage(ctx.message.from.id, languages[locale]['helpMessage']));
 
 bot.hears('تاس بنداز جایزه بگیر 🎲', async (ctx) => {
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000); // Calculate 24 hours ago
+  const checkUser = await knex('promo_codes').where('telegram_id', ctx.chat.id + '').andWhere('created_at', '>=', oneDayAgo)
+  console.log(checkUser)
   const isUsed = await client.get(ctx.chat.id + '');
   if (isUsed) {
     return ctx.reply(
@@ -185,6 +188,9 @@ bot.action('faqAnswer9', FAQAnswers);
 bot.action('faqAnswer10', FAQAnswers);
 
 bot.action(['1', '2', '3', '4', '5', '6'], async (ctx) => {
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000); // Calculate 24 hours ago
+  const checkUser = await knex('promo_code').where('telegram_id', ctx.chat.id + '').andWhere('created_at', '>=', oneDayAgo)
+  console.log(checkUser)
   await client.setEx(ctx.chat.id + '', 86400, ctx.chat.id + '');
   await ctx.telegram.answerCbQuery(ctx.update.callback_query.id, `عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته`, true)
   await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
