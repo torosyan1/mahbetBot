@@ -82,9 +82,10 @@ bot.hears(helpMeButtonKeyboard, (ctx) => ctx.telegram.sendMessage(ctx.message.fr
 bot.hears('تاس بنداز جایزه بگیر 🎲', async (ctx) => {
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000); // Calculate 24 hours ago
   const checkUser = await knex('promo_codes').where('telegram_id', ctx.chat.id + '').andWhere('created_at', '>=', oneDayAgo)
-  console.log(checkUser)
+
   const isUsed = await client.get(ctx.chat.id + '');
-  if (isUsed) {
+
+  if (isUsed || checkUser.length > 0) {
     return ctx.reply(
       `بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی.`
       ,
@@ -188,16 +189,16 @@ bot.action('faqAnswer9', FAQAnswers);
 bot.action('faqAnswer10', FAQAnswers);
 
 bot.action(['1', '2', '3', '4', '5', '6'], async (ctx) => {
-  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000); // Calculate 24 hours ago
-  const checkUser = await knex('promo_codes').where('telegram_id', ctx.chat.id + '').andWhere('created_at', '>=', oneDayAgo)
-  console.log(checkUser)
   await client.setEx(ctx.chat.id + '', 86400, ctx.chat.id + '');
   await ctx.telegram.answerCbQuery(ctx.update.callback_query.id, `عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته`, true)
   await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
   await ctx.reply(`عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته ⏳⏳⏳`)
   const dice = await ctx.sendDice()
   setTimeout(async () => {
-    if (ctx.update.callback_query.data == dice.dice.value) {
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000); // Calculate 24 hours ago
+    const checkUser = await knex('promo_codes').where('telegram_id', ctx.chat.id + '').andWhere('created_at', '>=', oneDayAgo)
+
+    if (ctx.update.callback_query.data == dice.dice.value && checkUser.length > 0) {
 
       const getPromo = await knex('promo_codes').select('*').where({ active: 0 }).limit(1);
       await knex('promo_codes').where({ codes: getPromo[0].codes }).update({ active: 1, telegram_id: ctx.chat.id + '' });
