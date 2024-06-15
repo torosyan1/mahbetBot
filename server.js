@@ -84,7 +84,7 @@ bot.hears('تاس بنداز جایزه بگیر 🎲', async (ctx) => {
   const checkUser = await knex('promo_codes').where('telegram_id', ctx.chat.id + '').andWhere('created_at', '>=', oneDayAgo)
 
   const isUsed = await client.get(ctx.chat.id + '');
-
+  console.log(checkUser.length, checkUser)
   if (isUsed || checkUser.length > 0) {
     return ctx.reply(
       `بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی.`
