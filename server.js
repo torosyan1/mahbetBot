@@ -189,7 +189,7 @@ bot.action('faqAnswer10', FAQAnswers);
 
 bot.action(['1', '2', '3', '4', '5', '6'], async (ctx) => {
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000); // Calculate 24 hours ago
-  const checkUser = await knex('promo_code').where('telegram_id', ctx.chat.id + '').andWhere('created_at', '>=', oneDayAgo)
+  const checkUser = await knex('promo_codes').where('telegram_id', ctx.chat.id + '').andWhere('created_at', '>=', oneDayAgo)
   console.log(checkUser)
   await client.setEx(ctx.chat.id + '', 86400, ctx.chat.id + '');
   await ctx.telegram.answerCbQuery(ctx.update.callback_query.id, `عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته`, true)
