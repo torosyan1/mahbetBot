@@ -122,7 +122,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
     const latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
 
     let dataCheck = null;
-    console.log(latestRecordQuery)
+    console.log(latestRecordQuery.created_at, DateTime.fromISO(latestRecordQuery.created_at))
     if(!latestRecordQuery) {
       dataCheck = DateTime.now().toISO()
       console.log(dataCheck)
