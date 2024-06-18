@@ -96,8 +96,8 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   
   const now = DateTime.now();
   const hoursPassed = now.diff(dataCheck, 'hours').hours;
-  console.log(hoursPassed)
-  if (hoursPassed >= 24) { {
+  console.log(isUsed, hoursPassed, '++++>', !isUsed && hoursPassed >= 24)
+  if (!isUsed && hoursPassed >= 24) { {
     console.log('Mtavvvvv')
     await ctx.reply(`دارت را پرتاب کنید و اگر به هدف برخورد کرد شما برنده شرط رایگان در سایت ماه بت خواهید شد.`)
     const drotic  = await ctx.replyWithDice({ emoji: '🎯' });
