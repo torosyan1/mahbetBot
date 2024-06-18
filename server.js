@@ -93,7 +93,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   const inputDateTime = DateTime.fromFormat(DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss');
   const now = DateTime.now();
   const hoursPassed = now.diff(inputDateTime, 'hours').hours;
-  console.log(isUsed  || !(hoursPassed >= 24), isUsed, hoursPassed, DateTime.now().toISO())
+  console.log(isUsed  || !(hoursPassed >= 24), isUsed, hoursPassed, DateTime.fromISO(DateTime.now()).toFormat('yyyy-MM-dd HH:mm:ss'))
   if (isUsed  || !(hoursPassed >= 24)) {
     return ctx.reply(
       `بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی.`
@@ -116,7 +116,6 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
 
   setTimeout(async () => {
     const latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
-     console.log(latestRecordQuery)
     if(latestRecordQuery) {
       latestRecordQuery = {created_at : DateTime.fromISO(DateTime.now()).toFormat('yyyy-MM-dd HH:mm:ss')}
     }
