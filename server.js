@@ -86,10 +86,11 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   const isUsed = await client.get(ctx.chat.id + '');
   let latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
   let dataCheck = null;
+  console.log(latestRecordQuery)
 // Format the date as yyyy-MM-dd HH:mm:ss
   if(!latestRecordQuery) {
     console.log(DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss'))
-    dataCheck = DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss')
+    dataCheck = DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss');
   } else {
     dataCheck = DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss')
   }
