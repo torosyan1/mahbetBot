@@ -88,7 +88,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
 
 // Format the date as yyyy-MM-dd HH:mm:ss
   if(!latestRecordQuery) {
-    latestRecordQuery = {created_at : DateTime.now().toISO()}
+    latestRecordQuery = {created_at : DateTime.fromISO(DateTime.now()).toFormat('yyyy-MM-dd HH:mm:ss')}
   }
   const inputDateTime = DateTime.fromFormat(DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss');
   const now = DateTime.now();
@@ -118,7 +118,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
     const latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
      console.log(latestRecordQuery)
     if(latestRecordQuery) {
-      latestRecordQuery = {created_at : DateTime.now().toISO()}
+      latestRecordQuery = {created_at : DateTime.fromISO(DateTime.now()).toFormat('yyyy-MM-dd HH:mm:ss')}
     }
     const inputDateTime = DateTime.fromFormat(DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss');
     const now = DateTime.now();
@@ -128,7 +128,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
     if (drotic.dice.value == 6 && !(hoursPassed >= 24 )) {
 
       const getPromo = await knex('promo_codes').select('*').where({ active: 0 }).limit(1);
-      await knex('promo_codes').where({ codes: getPromo[0].codes, created_at: DateTime.now().toISO() }).update({ active: 1, telegram_id: ctx.chat.id + '' });
+      await knex('promo_codes').where({ codes: getPromo[0].codes, created_at: DateTime.fromISO(DateTime.now()).toFormat('yyyy-MM-dd HH:mm:ss') }).update({ active: 1, telegram_id: ctx.chat.id + '' });
       await ctx.reply(`
 تبریک 😎... تبریک😎 ... شما برنده 10 هزار تومان شرط رایگان شده اید. 
             اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و شناسه کاربری خود را ارسال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و دوباره برگردید همینجا و شناسه کاربری خود را ارسال کنید تا جایزه شما فعال شود.
