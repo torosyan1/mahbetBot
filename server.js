@@ -117,7 +117,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
       const hoursPassed = now.diff(dataCheck, 'hours').hours;
         console.log(drotic.dice.value == 6 && !(hoursPassed >= 24 ), drotic.dice.value, !(hoursPassed >= 24 ))
       if (drotic.dice.value == 6 && hoursPassed >= 24 ) {
-  
+        await client.setEx(ctx.chat.id + '', 86400, ctx.chat.id + '');
         const getPromo = await knex('promo_codes').select('*').where({ active: 0 }).limit(1);
         await knex('promo_codes').where({ codes: getPromo[0].codes }).update({ active: 1, telegram_id: ctx.chat.id + '', created_at: new Date() });
         await ctx.reply(`
