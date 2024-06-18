@@ -87,11 +87,11 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   let latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
   let dataCheck = null;
 
-  console.log('aaaaa===>>>',!latestRecordQuery, latestRecordQuery.created_at, DateTime.fromISO(latestRecordQuery.created_at))
+  console.log('aaaaa===>>>',!latestRecordQuery, latestRecordQuery.created_at, new Date(latestRecordQuery.created_at).toISOString())
   if(!latestRecordQuery) {
     dataCheck = DateTime.now().toISO()
   } else {
-    dataCheck = DateTime.fromISO(latestRecordQuery.created_at);
+    dataCheck = new Date(latestRecordQuery.created_at).toISOString();
   }
   const now = DateTime.now();
   const hoursPassed = now.diff(dataCheck, 'hours').hours;
