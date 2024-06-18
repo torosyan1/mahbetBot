@@ -88,12 +88,14 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   let dataCheck = null;
 // Format the date as yyyy-MM-dd HH:mm:ss
   if(!latestRecordQuery) {
-    dataCheck =  DateTime.fromISO(DateTime.now()).toFormat('yyyy-MM-dd HH:mm:ss')
+    dataCheck =  DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss')
   } else {
     dataCheck = DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss')
   }
   const inputDateTime = DateTime.fromFormat(dataCheck, 'yyyy-MM-dd HH:mm:ss');
+
   console.log(inputDateTime, 'testttttt', dataCheck);
+  
   const now = DateTime.now();
   const hoursPassed = now.diff(inputDateTime, 'hours').hours;
   console.log(hoursPassed, 'hoursPassed');
@@ -125,7 +127,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
     let dataCheck = null;
   // Format the date as yyyy-MM-dd HH:mm:ss
     if(!latestRecordQuery) {
-      dataCheck =  DateTime.fromISO(DateTime.now()).toFormat('yyyy-MM-dd HH:mm:ss')
+      dataCheck = DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss')
     } else {
       dataCheck = DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss')
     }
