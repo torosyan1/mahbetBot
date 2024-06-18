@@ -85,13 +85,15 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
 
   const isUsed = await client.get(ctx.chat.id + '');
   let latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
-
+  let dataCheck = null;
 // Format the date as yyyy-MM-dd HH:mm:ss
   if(!latestRecordQuery) {
-    latestRecordQuery = {created_at : DateTime.fromISO(DateTime.now()).toFormat('yyyy-MM-dd HH:mm:ss')}
+    dataCheck =  DateTime.fromISO(DateTime.now()).toFormat('yyyy-MM-dd HH:mm:ss')
+  } else {
+    dataCheck = DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss')
   }
-  const inputDateTime = DateTime.fromFormat(DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss');
-  console.log(inputDateTime, 'testttttt', DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss'));
+  const inputDateTime = DateTime.fromFormat(dataCheck, 'yyyy-MM-dd HH:mm:ss');
+  console.log(inputDateTime, 'testttttt', dataCheck);
   const now = DateTime.now();
   const hoursPassed = now.diff(inputDateTime, 'hours').hours;
   console.log(hoursPassed, 'hoursPassed');
@@ -119,10 +121,15 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
 
   setTimeout(async () => {
     const latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
-    if(latestRecordQuery) {
-      latestRecordQuery = {created_at : DateTime.fromISO(DateTime.now()).toFormat('yyyy-MM-dd HH:mm:ss')}
+
+    let dataCheck = null;
+  // Format the date as yyyy-MM-dd HH:mm:ss
+    if(!latestRecordQuery) {
+      dataCheck =  DateTime.fromISO(DateTime.now()).toFormat('yyyy-MM-dd HH:mm:ss')
+    } else {
+      dataCheck = DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss')
     }
-    const inputDateTime = DateTime.fromFormat(DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss');
+    const inputDateTime = DateTime.fromFormat(dataCheck, 'yyyy-MM-dd HH:mm:ss');
     const now = DateTime.now();
     
     const hoursPassed = now.diff(inputDateTime, 'hours').hours;
