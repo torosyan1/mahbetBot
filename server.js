@@ -92,7 +92,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   if (!latestRecordQuery || !latestRecordQuery.created_at) {
     dataCheck = DateTime.now().toISO();
   } else {
-    dataCheck = DateTime.fromISO(latestRecordQuery.created_at);
+    dataCheck = DateTime.fromISO(latestRecordQuery.created_at + '');
   }
   
   const now = DateTime.now();
