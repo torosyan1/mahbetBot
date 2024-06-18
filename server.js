@@ -16,6 +16,7 @@ const languages = require("./src/utils/language");
 const start = require("./src/commands/start");
 const knex = require('./src/connections/db');
 const FAQ = require('./src/hears.js/FAQ');
+const { DateTime } = require('luxon');
 
 const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard } = languages[locale];
 
@@ -79,13 +80,16 @@ bot.hears(promotionButtonKeyboard, (ctx) => ctx.replyWithHTML(`<a href='https://
 bot.hears(FAQButtonKeyboard, FAQ);
 bot.hears(helpMeButtonKeyboard, (ctx) => ctx.telegram.sendMessage(ctx.message.from.id, languages[locale]['helpMessage']));
 
-bot.hears('تاس بنداز جایزه بگیر 🎲', async (ctx) => {
-  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000); // Calculate 24 hours ago
-  const checkUser = await knex('promo_codes').where('telegram_id', ctx.chat.id + '').andWhere('created_at', '>=', oneDayAgo)
+bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) => {
 
   const isUsed = await client.get(ctx.chat.id + '');
-  console.log(checkUser.length, checkUser)
-  if (isUsed || checkUser.length > 0) {
+  const latestRecordQuery = await knex('promo_codes').select('code', 'active', 'id', 'created_at').where('id', ctx.chat.id + '').orderBy('date', 'desc').first();
+  console.log(latestRecordQuery)
+  const inputDateTime = DateTime.fromFormat(latestRecordQuery.created_at, 'yyyy-MM-dd HH:mm:ss');
+  const now = DateTime.now();
+  const hoursPassed = now.diff(inputDateTime, 'hours').hours;
+
+  if (isUsed  || !(hoursPassed >= 24)) {
     return ctx.reply(
       `بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی.`
       ,
@@ -102,65 +106,80 @@ bot.hears('تاس بنداز جایزه بگیر 🎲', async (ctx) => {
       }
     )
   }
+  await ctx.reply(`دارت را پرتاب کنید و اگر به هدف برخورد کرد شما برنده شرط رایگان در سایت ماه بت خواهید شد.`)
+  const drotic  = await ctx.replyWithDice({ emoji: '🎯' });
 
-  await ctx.reply('عدد شانس خود را انتخاب کنید و تاس بریزید. 🎁 🎁 🎁', {
-    reply_markup: {
-      inline_keyboard: [[{
-        text: '1',
-        callback_data: '1'
-      },
-      {
-        text: '2',
-        callback_data: '2'
-      },
-      {
-        text: '3',
-        callback_data: '3'
-      },
-      ],
-      [{
-        text: '4',
-        callback_data: '4'
-      },
-      {
-        text: '5',
-        callback_data: '5'
-      },
-      {
-        text: '6',
-        callback_data: '6'
-      },
-      ]],
-      one_time_keyboard: true,
-      resize_keyboard: true,
-    },
-  });
+  setTimeout(async () => {
+    const latestRecordQuery = await knex('promo_codes').select('code', 'active', 'id', 'created_at').where('id', ctx.chat.id + '').orderBy('date', 'desc').first();
+    const inputDateTime = DateTime.fromFormat(latestRecordQuery.created_at, 'yyyy-MM-dd HH:mm:ss');
+    const now = DateTime.now();
+    const hoursPassed = now.diff(inputDateTime, 'hours').hours;
 
+    if (drotic.dice.value == 6 && !(hoursPassed >= 24 )) {
+
+      const getPromo = await knex('promo_codes').select('*').where({ active: 0 }).limit(1);
+      await knex('promo_codes').where({ codes: getPromo[0].codes }).update({ active: 1, telegram_id: ctx.chat.id + '' });
+      await ctx.reply(`
+تبریک 😎... تبریک😎 ... شما برنده 10 هزار تومان شرط رایگان شده اید. 
+            اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و شناسه کاربری خود را ارسال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و دوباره برگردید همینجا و شناسه کاربری خود را ارسال کنید تا جایزه شما فعال شود.
+          ${getPromo[0].codes}
+            `, {
+        reply_markup: {
+          inline_keyboard: [[{
+            text: `ورود به سایت 📌`,
+            web_app: { url: web_app }
+          }],
+          [{
+            text: `نحوه فعال سازی کد هدیه`,
+            callback_data: `نحوه فعال سازی کد هدیه`
+          }]
+          ],
+          one_time_keyboard: true,
+          resize_keyboard: true,
+        },
+      });
+    } else {
+      await ctx.reply(`
+بد شانسی ☹️ حیف شد 😏 متاسفانه پرتاب شما به هدف برخورد نکرد 😎😎 ولی اشکال نداره میتونی دوباره بعد از 24 ساعت شانستو امتحان کنی.
+⚠️فقط دقت کنید از لحظه ای که شانستو امتحان میکنی از اون لحظه تا 24 ساعت بعد باید صبر کنی بعد دوباره میتونی شانستو امتحان کنی و دوباره دارت پرتاب کنی یعنی هر 24 ساعت فقط یک بار میتونی دارت پرتاب کنی و جایزه بگیری🔥🔥🔥🔥`, {
+        reply_markup: {
+          inline_keyboard: [[{
+            text: `ورود به سایت 📌`,
+            web_app: { url: web_app }
+          }],
+
+          ],
+          one_time_keyboard: true,
+          resize_keyboard: true,
+        },
+      });
+    }
+  }, 3000)
 })
 
 bot.action('starts', start);
 
 bot.action('نحوه فعال سازی کد هدیه', (ctx) => {
-  return ctx.reply(
-    `نحوه استفاده و فعال سازی کد هدیه
+  return ctx.reply(`نحوه استفاده و فعال سازی کد هدیه
 
 
     اگر قبلا ثبت نام کرده اید : 
     1- وارد حساب کاربری خود شوید و بر روی گزینه آدمک در بالای صفحه کلیک کنید
     2- در انتهای صفحه در کادر مخصوص کد تبلیغاتی ، کد هدیه خود را وارد کنید و گزینه اعمال کردن را بزنید.
     3- پیام موفقیت را دریافت میکنید.
-    4- سپس وارد قسمت بونوس ها شوید
-    5- وارد قسمت چرخش های رایگان کازینو شوید
-    6- بونوس مورد نظر را با فشردن گزینه دریافت بونوس فعال کنید
-    7- وارد بازی مورد نظر شوید و لذت ببرید.
+    4- سپس اگر وارد قسمت بونوس ها و قسمت بونوس ورزشی شوید میتوانید بونوسی که فعال کردید را مشاهده نمایید و شرایط استفاده از بونوس را مطالعه کنید.
+    5- حالا وارد قسمت مسابقات یورو 2024 شوید
+    6- بازی مورد نظر خود را انتخاب کنید دقت داشته باشید که تمام شرایط بونوس را رعایت نمایید ( ضریب حداقل 1.8 ، فقط مسابقات یورو 2024 ، میکس و تکی )
+    7- شرط خود را ثبت کنید وگزینه ای دریافت میکنید که از شما سوال میکند که آیا میخواهید از بونوس شرط رایگان استفاده کنید یا خیر و شما با تایید این گزینه میتوانید با استفاده از شرط رایگان داده شده ثبت شرط نمایید.
     
     اگر هنوز ثبت نام نکرده اید : 
     1- روی دکمه ورود به سایت کلیک کنید
     2- در سایت ثبت نام کنید در فرم اولیه ثبت نام در انتهای فرم در قسمت کد تبلیغاتی ، کد هدیه خود را وارد کنید و ثبت نام را تکمیل کنید.
     3-- سپس بر روی گزینه آدمک بالای صفحه کلیک کنید و وارد قسمت بونوس ها شوید
-    4- وارد قسمت چرخش های رایگان کازینو شوید
-    5- بونوس مورد نظر را با فشردن گزینه دریافت بونوس فعال کنید
-    6- وارد بازی مورد نظر شوید و لذت ببرید.
+    4-  سپس اگر وارد قسمت بونوس ها و قسمت بونوس ورزشی شوید میتوانید بونوسی که فعال کردید را مشاهده نمایید و شرایط استفاده از بونوس را مطالعه کنید.
+    5- حالا وارد قسمت مسابقات یورو 2024 شوید
+    6- بازی مورد نظر خود را انتخاب کنید دقت داشته باشید که تمام شرایط بونوس را رعایت نمایید ( ضریب حداقل 1.8 ، فقط مسابقات یورو 2024 ، میکس و تکی )
+    7- شرط خود را ثبت کنید وگزینه ای دریافت میکنید که از شما سوال میکند که آیا میخواهید از بونوس شرط رایگان استفاده کنید یا خیر و شما با تایید این گزینه میتوانید با استفاده از شرط رایگان داده شده ثبت شرط نمایید.
     
     در صورت وجود هر گونه سوال یا نیاز به راهنمایی لطفا به پشتیبانی زنده سایت مراجعه نمایید.`,
     {
@@ -188,56 +207,14 @@ bot.action('faqAnswer8', FAQAnswers);
 bot.action('faqAnswer9', FAQAnswers);
 bot.action('faqAnswer10', FAQAnswers);
 
-bot.action(['1', '2', '3', '4', '5', '6'], async (ctx) => {
-  await client.setEx(ctx.chat.id + '', 86400, ctx.chat.id + '');
-  await ctx.telegram.answerCbQuery(ctx.update.callback_query.id, `عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته`, true)
-  await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
-  await ctx.reply(`عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته ⏳⏳⏳`)
-  const dice = await ctx.sendDice()
-  setTimeout(async () => {
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000); // Calculate 24 hours ago
-    const checkUser = await knex('promo_codes').where('telegram_id', ctx.chat.id + '').andWhere('created_at', '>=', oneDayAgo)
+// bot.action(['1', '2', '3', '4', '5', '6'], async (ctx) => {
+//   await client.setEx(ctx.chat.id + '', 86400, ctx.chat.id + '');
+//   // await ctx.telegram.answerCbQuery(ctx.update.callback_query.id, `عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته`, true)
+//   // await ctx.telegram.deleteMessage(ctx.update.callback_query.from.id, ctx.update.callback_query.message.message_id);
+//   // await ctx.reply(`عدد انتخابی شما ${ctx.update.callback_query.data} می باشد ... ببینیم چه عددی میوفته ⏳⏳⏳`)
+//   // const dice = await ctx.sendDice()
 
-    if (ctx.update.callback_query.data == dice.dice.value && checkUser.length > 0) {
-
-      const getPromo = await knex('promo_codes').select('*').where({ active: 0 }).limit(1);
-      await knex('promo_codes').where({ codes: getPromo[0].codes }).update({ active: 1, telegram_id: ctx.chat.id + '' });
-      await ctx.reply(`
-تبریک ... تبریک ... شما برنده 10 چرخش رایگان کازینو اسلات شده اید. 
-اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و کد هدیه ارسال شده زیر این پیام را در حساب کاربری خود وارد کنید و جایزه خود را فعال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و در موقع ثبت نام کد هدیه ارسال شده در زیر این پیام را در کادر مخصوص کد هدیه در فرم ثبت نام وارد کنید تا جایزه شما فعال شود.
-
-کد هدیه شما : ${getPromo[0].codes}
-            `, {
-        reply_markup: {
-          inline_keyboard: [[{
-            text: `ورود به سایت 📌`,
-            web_app: { url: web_app }
-          }],
-          [{
-            text: `نحوه فعال سازی کد هدیه`,
-            callback_data: `نحوه فعال سازی کد هدیه`
-          }]
-          ],
-          one_time_keyboard: true,
-          resize_keyboard: true,
-        },
-      });
-    } else {
-      await ctx.reply(`بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی. 🥲`, {
-        reply_markup: {
-          inline_keyboard: [[{
-            text: `ورود به سایت 📌`,
-            web_app: { url: web_app }
-          }],
-
-          ],
-          one_time_keyboard: true,
-          resize_keyboard: true,
-        },
-      });
-    }
-  }, 4000)
-});
+// });
 
 bot.launch();
 
