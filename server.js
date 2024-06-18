@@ -97,7 +97,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   const now = DateTime.now();
   const hoursPassed = now.diff(dataCheck, 'hours').hours;
   console.log(!isUsed || hoursPassed < 24, isUsed , hoursPassed)
-  if (!isUsed || hoursPassed >= 24) { {
+  if (isUsed || hoursPassed >= 24) {
     await client.setEx(ctx.chat.id + '', 86400, ctx.chat.id + '');
     await ctx.reply(`دارت را پرتاب کنید و اگر به هدف برخورد کرد شما برنده شرط رایگان در سایت ماه بت خواهید شد.`)
     const drotic  = await ctx.replyWithDice({ emoji: '🎯' });
@@ -156,7 +156,6 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
         });
       }
     }, 3000)
-  }
 } else  {
   return ctx.reply(
     `بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی.`
@@ -173,7 +172,8 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
       },
     }
   )
-}});
+}
+});
 
 bot.action('starts', start);
 
