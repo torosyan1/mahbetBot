@@ -128,6 +128,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
     } else {
       dataCheck = DateTime.fromISO(latestRecordQuery.created_at);
     }
+    console.log(dataCheck)
     const now = DateTime.now();
     
     const hoursPassed = now.diff(dataCheck, 'hours').hours;
