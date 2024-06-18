@@ -87,7 +87,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   let latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
   let dataCheck = null;
 
-  console.log('aaaaa===>>>',DateTime.fromISO(latestRecordQuery.created_at).toISO(), !latestRecordQuery, latestRecordQuery.created_at, new Date(latestRecordQuery.created_at).toISOString())
+  console.log('aaaaa===>>>',DateTime.fromISO(latestRecordQuery.created_at + ''))
   // Check if latestRecordQuery exists and has a valid created_at timestamp
   if (!latestRecordQuery || !latestRecordQuery.created_at) {
     dataCheck = DateTime.now().toISO();
