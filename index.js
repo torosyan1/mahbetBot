@@ -10,7 +10,7 @@ let dataCheck;
 if (!latestRecordQuery || !latestRecordQuery.created_at) {
   dataCheck = DateTime.now().toISO();
 } else {
-  dataCheck = DateTime.fromISO(latestRecordQuery.created_at);
+  dataCheck = DateTime.fromISO(String(latestRecordQuery.created_at));
 }
 
 const now = DateTime.now();
