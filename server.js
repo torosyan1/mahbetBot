@@ -91,8 +91,11 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
     latestRecordQuery = {created_at : DateTime.fromISO(DateTime.now()).toFormat('yyyy-MM-dd HH:mm:ss')}
   }
   const inputDateTime = DateTime.fromFormat(DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss');
+  console.log(inputDateTime, 'testttttt');
   const now = DateTime.now();
   const hoursPassed = now.diff(inputDateTime, 'hours').hours;
+  console.log(hoursPassed, 'hoursPassed');
+
   console.log(isUsed  || !(hoursPassed >= 24), isUsed, hoursPassed, DateTime.fromISO(DateTime.now()).toFormat('yyyy-MM-dd HH:mm:ss'))
   if (isUsed  || !(hoursPassed >= 24)) {
     return ctx.reply(
