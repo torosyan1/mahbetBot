@@ -83,11 +83,10 @@ bot.hears(helpMeButtonKeyboard, (ctx) => ctx.telegram.sendMessage(ctx.message.fr
 bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) => {
 
   const isUsed = await client.get(ctx.chat.id + '');
-  const latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
-  console.log(latestRecordQuery)
+  let latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
 
-  if(!latestRecordQuery.created_at) {
-    latestRecordQuery.created_at = DateTime.now();
+  if(!latestRecordQuery) {
+    latestRecordQuery = {created_at : DateTime.now()}
   }
   const inputDateTime = DateTime.fromFormat(DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss');
   const now = DateTime.now();
@@ -116,8 +115,8 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   setTimeout(async () => {
     const latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
      console.log(latestRecordQuery)
-    if(latestRecordQuery && !latestRecordQuery.created_at) {
-      latestRecordQuery.created_at = DateTime.now();
+    if(latestRecordQuery) {
+      latestRecordQuery = {created_at : DateTime.now()}
     }
     const inputDateTime = DateTime.fromFormat(DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss');
     const now = DateTime.now();
