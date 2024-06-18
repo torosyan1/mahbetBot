@@ -85,7 +85,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   const isUsed = await client.get(ctx.chat.id + '');
   const latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
   console.log(latestRecordQuery)
-  const inputDateTime = DateTime.fromFormat(latestRecordQuery.created_at, 'yyyy-MM-dd HH:mm:ss');
+  const inputDateTime = DateTime.fromFormat(DateTime.fromISO(latestRecordQuery.created_at), 'yyyy-MM-dd HH:mm:ss');
   const now = DateTime.now();
   const hoursPassed = now.diff(inputDateTime, 'hours').hours;
 
