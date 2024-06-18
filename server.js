@@ -91,7 +91,11 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   if(!latestRecordQuery) {
     dataCheck = DateTime.now().toISO()
   } else {
-    dataCheck = new Date(latestRecordQuery.created_at).toISOString();
+    const dt = DateTime.fromISO(latestRecordQuery.created_at, { zone: 'utc' });
+    dataCheck = dt.setZone('Asia/Yerevan').toLocaleString({
+      locale: 'hy-AM',
+      format: "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
+    });
   }
   const now = DateTime.now();
   const hoursPassed = now.diff(dataCheck, 'hours').hours;
