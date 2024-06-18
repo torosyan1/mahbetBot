@@ -89,7 +89,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
 
   // Check if latestRecordQuery exists and has a valid created_at timestamp
   if (!latestRecordQuery) {
-    dataCheck =DateTime.fromISO(DateTime.now().toISOString());
+    dataCheck =DateTime.fromISO(new Date().toISOString());
   } else {
     dataCheck = DateTime.fromISO(new Date(latestRecordQuery.created_at).toISOString());
   }
@@ -107,7 +107,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   
       let dataCheck = null;
       if(!latestRecordQuery) {
-        dataCheck =DateTime.fromISO(DateTime.now().toISOString());
+        dataCheck =DateTime.fromISO(new Date().toISOString());
       } else {
         dataCheck = DateTime.fromISO(new Date(latestRecordQuery.created_at).toISOString());
       }
