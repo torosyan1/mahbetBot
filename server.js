@@ -127,7 +127,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
       console.log(dataCheck)
     } else {
       dataCheck = DateTime.fromISO(latestRecordQuery.created_at);
-      console.log(dataCheck)
+      console.log(dataCheck, latestRecordQuery.created_at)
     }
     console.log(dataCheck)
     const now = DateTime.now();
