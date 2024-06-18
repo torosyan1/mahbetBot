@@ -96,7 +96,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   
   const now = DateTime.now();
   const hoursPassed = now.diff(dataCheck, 'hours').hours;
-  console.log(!isUsed || !(hoursPassed >= 24),isUsed ,(hoursPassed >= 24), isUsed , hoursPassed)
+  console.log(isUsed || !(hoursPassed >= 24))
   if (isUsed || !(hoursPassed >= 24)) {
     await client.setEx(ctx.chat.id + '', 86400, ctx.chat.id + '');
     await ctx.reply(`دارت را پرتاب کنید و اگر به هدف برخورد کرد شما برنده شرط رایگان در سایت ماه بت خواهید شد.`)
