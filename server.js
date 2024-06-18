@@ -96,7 +96,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   
   const now = DateTime.now();
   const hoursPassed = now.diff(dataCheck, 'hours').hours;
-  console.log(hoursPassed)
+  console.log(hoursPassed, isUsed  || !(hoursPassed >= 24))
   if (isUsed  || !(hoursPassed >= 24)) {
     return ctx.reply(
       `بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی.`
@@ -113,64 +113,66 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
         },
       }
     )
+  } else {
+
+    await ctx.reply(`دارت را پرتاب کنید و اگر به هدف برخورد کرد شما برنده شرط رایگان در سایت ماه بت خواهید شد.`)
+    const drotic  = await ctx.replyWithDice({ emoji: '🎯' });
+  
+    setTimeout(async () => {
+      const latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
+  
+      let dataCheck = null;
+      if(!latestRecordQuery) {
+        dataCheck =DateTime.fromISO(DateTime.now().toISOString());
+      } else {
+        dataCheck = DateTime.fromISO(new Date(latestRecordQuery.created_at).toISOString());
+      }
+  
+      const now = DateTime.now();
+      
+      const hoursPassed = now.diff(dataCheck, 'hours').hours;
+  
+      if (drotic.dice.value == 6 && !(hoursPassed >= 24 )) {
+  
+        const getPromo = await knex('promo_codes').select('*').where({ active: 0 }).limit(1);
+        await knex('promo_codes').where({ codes: getPromo[0].codes, created_at: DateTime.fromISO(DateTime.now()).toFormat('yyyy-MM-dd HH:mm:ss') }).update({ active: 1, telegram_id: ctx.chat.id + '' });
+        await ctx.reply(`
+  تبریک 😎... تبریک😎 ... شما برنده 10 هزار تومان شرط رایگان شده اید. 
+              اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و شناسه کاربری خود را ارسال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و دوباره برگردید همینجا و شناسه کاربری خود را ارسال کنید تا جایزه شما فعال شود.
+            ${getPromo[0].codes}
+              `, {
+          reply_markup: {
+            inline_keyboard: [[{
+              text: `ورود به سایت 📌`,
+              web_app: { url: web_app }
+            }],
+            [{
+              text: `نحوه فعال سازی کد هدیه`,
+              callback_data: `نحوه فعال سازی کد هدیه`
+            }]
+            ],
+            one_time_keyboard: true,
+            resize_keyboard: true,
+          },
+        });
+      } else {
+        await ctx.reply(`
+  بد شانسی ☹️ حیف شد 😏 متاسفانه پرتاب شما به هدف برخورد نکرد 😎😎 ولی اشکال نداره میتونی دوباره بعد از 24 ساعت شانستو امتحان کنی.
+  ⚠️فقط دقت کنید از لحظه ای که شانستو امتحان میکنی از اون لحظه تا 24 ساعت بعد باید صبر کنی بعد دوباره میتونی شانستو امتحان کنی و دوباره دارت پرتاب کنی یعنی هر 24 ساعت فقط یک بار میتونی دارت پرتاب کنی و جایزه بگیری🔥🔥🔥🔥`, {
+          reply_markup: {
+            inline_keyboard: [[{
+              text: `ورود به سایت 📌`,
+              web_app: { url: web_app }
+            }],
+  
+            ],
+            one_time_keyboard: true,
+            resize_keyboard: true,
+          },
+        });
+      }
+    }, 3000)
   }
-  await ctx.reply(`دارت را پرتاب کنید و اگر به هدف برخورد کرد شما برنده شرط رایگان در سایت ماه بت خواهید شد.`)
-  const drotic  = await ctx.replyWithDice({ emoji: '🎯' });
-
-  setTimeout(async () => {
-    const latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
-
-    let dataCheck = null;
-    if(!latestRecordQuery) {
-      dataCheck =DateTime.fromISO(DateTime.now().toISOString());
-    } else {
-      dataCheck = DateTime.fromISO(new Date(latestRecordQuery.created_at).toISOString());
-    }
-
-    const now = DateTime.now();
-    
-    const hoursPassed = now.diff(dataCheck, 'hours').hours;
-
-    if (drotic.dice.value == 6 && !(hoursPassed >= 24 )) {
-
-      const getPromo = await knex('promo_codes').select('*').where({ active: 0 }).limit(1);
-      await knex('promo_codes').where({ codes: getPromo[0].codes, created_at: DateTime.fromISO(DateTime.now()).toFormat('yyyy-MM-dd HH:mm:ss') }).update({ active: 1, telegram_id: ctx.chat.id + '' });
-      await ctx.reply(`
-تبریک 😎... تبریک😎 ... شما برنده 10 هزار تومان شرط رایگان شده اید. 
-            اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و شناسه کاربری خود را ارسال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و دوباره برگردید همینجا و شناسه کاربری خود را ارسال کنید تا جایزه شما فعال شود.
-          ${getPromo[0].codes}
-            `, {
-        reply_markup: {
-          inline_keyboard: [[{
-            text: `ورود به سایت 📌`,
-            web_app: { url: web_app }
-          }],
-          [{
-            text: `نحوه فعال سازی کد هدیه`,
-            callback_data: `نحوه فعال سازی کد هدیه`
-          }]
-          ],
-          one_time_keyboard: true,
-          resize_keyboard: true,
-        },
-      });
-    } else {
-      await ctx.reply(`
-بد شانسی ☹️ حیف شد 😏 متاسفانه پرتاب شما به هدف برخورد نکرد 😎😎 ولی اشکال نداره میتونی دوباره بعد از 24 ساعت شانستو امتحان کنی.
-⚠️فقط دقت کنید از لحظه ای که شانستو امتحان میکنی از اون لحظه تا 24 ساعت بعد باید صبر کنی بعد دوباره میتونی شانستو امتحان کنی و دوباره دارت پرتاب کنی یعنی هر 24 ساعت فقط یک بار میتونی دارت پرتاب کنی و جایزه بگیری🔥🔥🔥🔥`, {
-        reply_markup: {
-          inline_keyboard: [[{
-            text: `ورود به سایت 📌`,
-            web_app: { url: web_app }
-          }],
-
-          ],
-          one_time_keyboard: true,
-          resize_keyboard: true,
-        },
-      });
-    }
-  }, 3000)
 })
 
 bot.action('starts', start);
