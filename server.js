@@ -92,7 +92,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
     console.log(DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss'))
     dataCheck = DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss');
   } else {
-    dataCheck = DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss')
+    dataCheck = DateTime.fromISO(latestRecordQuery.created_at)
   }
   const now = DateTime.now();
   const hoursPassed = now.diff(dataCheck, 'hours').hours;
