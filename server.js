@@ -86,13 +86,15 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   const isUsed = await client.get(ctx.chat.id + '');
   let latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
   let dataCheck = null;
-  console.log(latestRecordQuery)
-// Format the date as yyyy-MM-dd HH:mm:ss
+  
   if(!latestRecordQuery) {
-    dataCheck = DateTime.now().toISO();
+    dataCheck = DateTime.now().toISO()
+    console.log(dataCheck)
   } else {
     dataCheck = DateTime.fromISO(latestRecordQuery.created_at);
+    console.log(dataCheck, latestRecordQuery.created_at)
   }
+  console.log(dataCheck)
   const now = DateTime.now();
   const hoursPassed = now.diff(dataCheck, 'hours').hours;
   console.log(hoursPassed)
@@ -122,7 +124,6 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
     const latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
 
     let dataCheck = null;
-    console.log(latestRecordQuery.created_at, DateTime.fromISO(latestRecordQuery.created_at))
     if(!latestRecordQuery) {
       dataCheck = DateTime.now().toISO()
       console.log(dataCheck)
