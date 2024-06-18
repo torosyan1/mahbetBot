@@ -89,8 +89,8 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
 
   console.log('aaaaa===>>>', new Date(latestRecordQuery.created_at).toISOString(), DateTime.fromISO(new Date(latestRecordQuery.created_at).toISOString()))
   // Check if latestRecordQuery exists and has a valid created_at timestamp
-  if (!latestRecordQuery || !latestRecordQuery.created_at) {
-    dataCheck = DateTime.now().toISO();
+  if (!latestRecordQuery) {
+    dataCheck =DateTime.fromISO(DateTime.now().toISOString());
   } else {
     dataCheck = DateTime.fromISO(new Date(latestRecordQuery.created_at).toISOString());
   }
@@ -124,9 +124,9 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
 
     let dataCheck = null;
     if(!latestRecordQuery) {
-      dataCheck = DateTime.now().toISO()
+      dataCheck =DateTime.fromISO(DateTime.now().toISOString());
     } else {
-      dataCheck = DateTime.fromISO(latestRecordQuery.created_at + '');
+      dataCheck = DateTime.fromISO(new Date(latestRecordQuery.created_at).toISOString());
     }
 
     const now = DateTime.now();
