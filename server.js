@@ -87,15 +87,11 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   let latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
   let dataCheck = null;
 
-  console.log('aaaaa===>>>',!latestRecordQuery, latestRecordQuery.created_at, new Date(latestRecordQuery.created_at).toISOString())
+  console.log('aaaaa===>>>',DateTime.fromISO(latestRecordQuery.created_at), !latestRecordQuery, latestRecordQuery.created_at, new Date(latestRecordQuery.created_at).toISOString())
   if(!latestRecordQuery) {
     dataCheck = DateTime.now().toISO()
   } else {
-    const dt = DateTime.fromISO(latestRecordQuery.created_at, { zone: 'utc' });
-    dataCheck = dt.setZone('Asia/Yerevan').toLocaleString({
-      locale: 'hy-AM',
-      format: "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
-    });
+    dataCheck = DateTime.fromISO(latestRecordQuery.created_at);
   }
   const now = DateTime.now();
   const hoursPassed = now.diff(dataCheck, 'hours').hours;
