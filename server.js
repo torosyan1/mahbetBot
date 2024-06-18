@@ -89,9 +89,9 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   console.log(latestRecordQuery)
 // Format the date as yyyy-MM-dd HH:mm:ss
   if(!latestRecordQuery) {
-    dataCheck = DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss');
+    dataCheck = DateTime.now().toISO();
   } else {
-    dataCheck = format(latestRecordQuery.created_at, 'yyyy-MM-dd HH:mm:ss')
+    dataCheck = DateTime.fromISO(latestRecordQuery.created_at);
   }
   const now = DateTime.now();
   const hoursPassed = now.diff(dataCheck, 'hours').hours;
@@ -124,7 +124,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
     let dataCheck = null;
   // Format the date as yyyy-MM-dd HH:mm:ss
     if(!latestRecordQuery) {
-      dataCheck = DateTime.now().toISO('yyyy-MM-dd HH:mm:ss')
+      dataCheck = DateTime.now().toISO()
     } else {
       dataCheck = DateTime.fromISO(latestRecordQuery.created_at);
     }
