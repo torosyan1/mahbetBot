@@ -128,10 +128,9 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
     } else {
       dataCheck = DateTime.fromISO(latestRecordQuery.created_at);
     }
-    const inputDateTime = DateTime.fromFormat(dataCheck, 'yyyy-MM-dd HH:mm:ss');
     const now = DateTime.now();
     
-    const hoursPassed = now.diff(inputDateTime, 'hours').hours;
+    const hoursPassed = now.diff(dataCheck, 'hours').hours;
 
     if (drotic.dice.value == 6 && !(hoursPassed >= 24 )) {
 
