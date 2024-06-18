@@ -88,7 +88,8 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   let dataCheck = null;
 // Format the date as yyyy-MM-dd HH:mm:ss
   if(!latestRecordQuery) {
-    dataCheck = DateTime.fromISO(DateTime.now()).toFormat('yyyy-MM-dd HH:mm:ss')
+    console.log(DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss'))
+    dataCheck = DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss')
   } else {
     dataCheck = DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss')
   }
