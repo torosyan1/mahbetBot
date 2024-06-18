@@ -17,6 +17,7 @@ const start = require("./src/commands/start");
 const knex = require('./src/connections/db');
 const FAQ = require('./src/hears.js/FAQ');
 const { DateTime } = require('luxon');
+const { format } = require('date-fns');
 
 const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard } = languages[locale];
 
@@ -84,14 +85,15 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
 
   const isUsed = await client.get(ctx.chat.id + '');
   let latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
-  
+
+// Format the date as yyyy-MM-dd HH:mm:ss
   if(!latestRecordQuery) {
-    latestRecordQuery = {created_at : new Date('yyyy-MM-dd HH:mm:ss')}
+    latestRecordQuery = {created_at : DateTime.now().toISO()}
   }
   const inputDateTime = DateTime.fromFormat(DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss');
   const now = DateTime.now();
   const hoursPassed = now.diff(inputDateTime, 'hours').hours;
-  console.log(isUsed  || !(hoursPassed >= 24), isUsed, hoursPassed)
+  console.log(isUsed  || !(hoursPassed >= 24), isUsed, hoursPassed, DateTime.now().toISO())
   if (isUsed  || !(hoursPassed >= 24)) {
     return ctx.reply(
       `بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی.`
@@ -116,7 +118,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
     const latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
      console.log(latestRecordQuery)
     if(latestRecordQuery) {
-      latestRecordQuery = {created_at : new Date('yyyy-MM-dd HH:mm:ss')}
+      latestRecordQuery = {created_at : DateTime.now().toISO()}
     }
     const inputDateTime = DateTime.fromFormat(DateTime.fromISO(latestRecordQuery.created_at).toFormat('yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss');
     const now = DateTime.now();
@@ -126,7 +128,7 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
     if (drotic.dice.value == 6 && !(hoursPassed >= 24 )) {
 
       const getPromo = await knex('promo_codes').select('*').where({ active: 0 }).limit(1);
-      await knex('promo_codes').where({ codes: getPromo[0].codes, created_at: new Date('yyyy-MM-dd HH:mm:ss') }).update({ active: 1, telegram_id: ctx.chat.id + '' });
+      await knex('promo_codes').where({ codes: getPromo[0].codes, created_at: DateTime.now().toISO() }).update({ active: 1, telegram_id: ctx.chat.id + '' });
       await ctx.reply(`
 تبریک 😎... تبریک😎 ... شما برنده 10 هزار تومان شرط رایگان شده اید. 
             اگر در سایت ماه بت ثبت نام کرده اید لطفا" وارد سایت شوید و شناسه کاربری خود را ارسال کنید و اگر هنوز ثبت نام نکرده اید لطفا از طریق گزینه زیر ثبت نام کنید و دوباره برگردید همینجا و شناسه کاربری خود را ارسال کنید تا جایزه شما فعال شود.
