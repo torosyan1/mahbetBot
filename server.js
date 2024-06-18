@@ -86,20 +86,15 @@ bot.hears('دارت پرتاب کن و جایزه بگیر 🎯', async (ctx) =>
   const isUsed = await client.get(ctx.chat.id + '');
   let latestRecordQuery = await knex('promo_codes').select('codes', 'active', 'created_at').where('telegram_id', ctx.chat.id + '').orderBy('created_at', 'desc').first();
   let dataCheck = null;
-  
+  console.log(!latestRecordQuery, latestRecordQuery.created_at, DateTime.fromISO(latestRecordQuery.created_at))
   if(!latestRecordQuery) {
     dataCheck = DateTime.now().toISO()
-    console.log(dataCheck)
   } else {
     dataCheck = DateTime.fromISO(latestRecordQuery.created_at);
-    console.log(dataCheck, latestRecordQuery.created_at)
   }
-  console.log(dataCheck)
   const now = DateTime.now();
   const hoursPassed = now.diff(dataCheck, 'hours').hours;
-  console.log(hoursPassed)
-  
-  console.log(isUsed, dataCheck, hoursPassed, 'lllllllllllllllllllllllllllll')
+
   if (isUsed  || !(hoursPassed >= 24)) {
     return ctx.reply(
       `بد شانسی ... حیف شد ... متاسفانه عدد انتخابی شما درست نبود ولی اشکال نداره میتونید 24 ساعت بعد دوباره همینجا شانستو امتحان کنی.`
