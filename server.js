@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('env').config()
 
 const { Telegraf, session } = require("telegraf");
 // const iplocate = require("node-iplocate");
