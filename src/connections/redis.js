@@ -7,7 +7,7 @@ let redisClient;
 const initializeRedis = async () => {
   if (!redisClient) {
     redisClient = redis.createClient({
-      url: REDIS_URL, // Replace with your Redis server URL
+      url: process.env.REDIS_URL, // Replace with your Redis server URL
     });
 
     redisClient.on('error', (err) => {
