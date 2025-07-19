@@ -303,24 +303,6 @@ const caption = `📣 *بازی روز ——- بازی روز*
 
     for (const user of users) {
       await rateLimiter.removeTokens(1); // Fixed rate limit handling
-      console.log(user.telegram_id, users.length, {
-        chat_id: user.telegram_id,
-        photo: todayData.image,
-        caption,
-        parse_mode: 'Markdown',
-        reply_markup: {
-          inline_keyboard: [[{
-            text: 'کلیک کن و الان بازی کن',
-            web_app: { url: todayData.web_app }
-          }]],
-        },
-      }, {
-          inline_keyboard: [[{
-            text: 'کلیک کن و الان بازی کن',
-            web_app: { url: todayData.web_app }
-          }]],
-        }, )
-
       try {
       await axios.post(`https://api.telegram.org/bot${bot_token}/sendPhoto`, {
         chat_id: user.telegram_id,
