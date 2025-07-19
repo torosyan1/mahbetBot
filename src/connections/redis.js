@@ -1,6 +1,5 @@
 // redisClient.js
 const redis = require('redis');
-const { REDIS_URL } = require('../config');
 
 let redisClient;
 
