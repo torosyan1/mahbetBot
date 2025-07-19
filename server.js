@@ -57,9 +57,6 @@ bot.action('faqAnswer8', FAQAnswers);
 bot.action('faqAnswer9', FAQAnswers);
 bot.action('faqAnswer10', FAQAnswers);
 
-bot.launch();
-
-
 (async () => {
   const redisClient = await initializeRedis();
   global.redisClient = redisClient;
