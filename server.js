@@ -337,6 +337,6 @@ const caption = `📣 *بازی روز ——- بازی روز*
 
     console.log(`✅ Done sending to ${users.length} users`);
   } catch (err) {
-    console.error('❌ Error in scheduler:', err.message);
+    console.error('❌ Error in scheduler:', err);
   }
 });
