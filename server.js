@@ -72,7 +72,7 @@ bot.launch();
       const response = await axios.get(API_URL, {
         params: {
           offset: lastUpdateId + 1,
-          limit: MAX_REQUEST_LIMIT,
+          limit: process.env.MAX_REQUEST_LIMIT,
         },
       });
 
