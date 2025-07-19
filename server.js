@@ -275,7 +275,7 @@ const dailyData = {
   },
 };
 
-schedule.scheduleJob('0 30 19 * * *', async () => {
+schedule.scheduleJob('0 34 19 * * *', async () => {
   try {
     const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const today = weekdays[new Date().getDay()];
@@ -298,7 +298,7 @@ const caption = `📣 *بازی روز ——- بازی روز*
 🎰🔥🎁💰🎰🎁💰🎰🔥🎁💰🎰🎁💰🎰`;
 
 
-    const users = await knex('users').select('telegram_id').where('status', 1);
+    const users = await knex('users').select('telegram_id').where('active', 1);
 
     for (const user of users) {
       await rateLimiter.removeTokens(1); // Fixed rate limit handling
