@@ -275,7 +275,7 @@ const dailyData = {
   },
 };
 
-schedule.scheduleJob('0 00 20 * * *', async () => {
+schedule.scheduleJob('0 03 20 * * *', async () => {
   try {
     const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const today = weekdays[new Date().getDay()];
