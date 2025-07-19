@@ -248,6 +248,7 @@ async function sendTelegramMedia(chat_id, photo, video, caption, i) {
     console.error(`❌ Error for chat_id ${chat_id}:`, error.message);
   }
 }
+const rateLimiter = new RateLimiter({ tokensPerInterval: 25, interval: 'second' });
 
 app.post("/trigger", async (req, res) => {
   try {
@@ -264,7 +265,7 @@ app.post("/trigger", async (req, res) => {
       const chat_id = user.telegram_id;
       if (!chat_id) continue;
 
-      await limiter.removeTokens(1);
+      await rateLimiter.removeTokens(1);
       await sendTelegramMedia(chat_id, photo, video, caption, i++);
     }
 
@@ -295,7 +296,6 @@ schedule.scheduleJob('0 0 0 * * *', async () =>{
 );
 
 
-const rateLimiter = new RateLimiter({ tokensPerInterval: 25, interval: 'second' });
 
 const dailyData = {
   monday: {
