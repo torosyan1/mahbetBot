@@ -275,7 +275,7 @@ const dailyData = {
   },
 };
 
-schedule.scheduleJob('0 49 19 * * *', async () => {
+schedule.scheduleJob('0 51 19 * * *', async () => {
   try {
     const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const today = weekdays[new Date().getDay()];
@@ -333,7 +333,7 @@ const caption = `📣 *بازی روز ——- بازی روز*
           }]],
         },
       });
-      } catch(e){
+      } catch(err){
             console.error('❌ Error in scheduler:', err.message);
       }
       console.log(`📷 Sent to ${user.telegram_id}`);
