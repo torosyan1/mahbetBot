@@ -222,6 +222,59 @@ app.post("/sendMessage", async (req, res) => {
   }
 });
 
+async function sendTelegramMedia(chat_id, photo, video, caption, i) {
+  try {
+    const type = photo ? "photo" : video ? "video" : null;
+    if (!type) throw new Error("Missing 'photo' or 'video' field.");
+
+    const apiEndpoint = `https://api.telegram.org/bot${bot_token}/send${type.charAt(0).toUpperCase() + type.slice(1)}`;
+
+    await axios.post(apiEndpoint, {
+      chat_id,
+      [type]: photo || video,
+      caption,
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: "ازتباط با پشتیبانی آنلاین  ماه بت", url: "https://direct.lc.chat/14697702" }],
+          [{ text: "کانال تلگرامی ماه بت", url: "https://t.me/Mahbet_official" }],
+          [{ text: "دانلود اپلیکیشن ماه بت", url: "https://files.igmobile.io/storage/v1/object/public/Shared/MahBv1.0.2.apk" }],
+          [{ text: "ورود به سایت 📌", web_app: { url: "https://torosyan1.github.io/mahbet_html_en" } }]
+        ]
+      }
+    });
+
+    console.log(`✅ Sent ${type} to chat_id ${chat_id}`, i);
+  } catch (error) {
+    console.error(`❌ Error for chat_id ${chat_id}:`, error.message);
+  }
+}
+
+app.post("/trigger", async (req, res) => {
+  try {
+    const { photo, video, caption } = req.body;
+
+    if ((!photo && !video) || !caption) {
+      return res.status(400).json({ error: "Request body must contain photo or video and caption" });
+    }
+
+    const users = await knex('users').select('telegram_id').where('active', 1);
+    let i = 1;
+
+    for (const user of users) {
+      const chat_id = user.telegram_id;
+      if (!chat_id) continue;
+
+      await limiter.removeTokens(1);
+      await sendTelegramMedia(chat_id, photo, video, caption, i++);
+    }
+
+    res.send("✅ Trigger complete. Messages sent.");
+  } catch (err) {
+    console.error("❌ Error in /trigger:", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.listen(port, () => console.log(`Server is running on port ${port}`));
 
 schedule.scheduleJob('0 0 0 * * *', async () =>{
