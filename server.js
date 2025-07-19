@@ -319,6 +319,8 @@ const caption = `📣 *بازی روز ——- بازی روز*
             web_app: { url: todayData.web_app }
           }]],
         }, )
+
+      try {
       await axios.post(`https://api.telegram.org/bot${bot_token}/sendPhoto`, {
         chat_id: user.telegram_id,
         photo: todayData.image,
@@ -331,12 +333,14 @@ const caption = `📣 *بازی روز ——- بازی روز*
           }]],
         },
       });
-
+      } catch(e){
+            console.error('❌ Error in scheduler:', err.message);
+      }
       console.log(`📷 Sent to ${user.telegram_id}`);
     }
 
     console.log(`✅ Done sending to ${users.length} users`);
   } catch (err) {
-    console.error('❌ Error in scheduler:', err);
+    console.error('❌ Error in scheduler:', err.message);
   }
 });
