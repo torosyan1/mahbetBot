@@ -57,6 +57,7 @@ bot.action('faqAnswer8', FAQAnswers);
 bot.action('faqAnswer9', FAQAnswers);
 bot.action('faqAnswer10', FAQAnswers);
 
+
 (async () => {
   const redisClient = await initializeRedis();
   global.redisClient = redisClient;
@@ -86,7 +87,7 @@ bot.action('faqAnswer10', FAQAnswers);
         await redisClient.set("lastUpdateId", lastUpdateId);
       }
     } catch (error) {
-      console.error("Error fetching updates:", error);
+      console.error("Error fetching updates:", error.message);
     }
   }
 
