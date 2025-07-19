@@ -275,7 +275,7 @@ const dailyData = {
   },
 };
 
-schedule.scheduleJob('0 37 19 * * *', async () => {
+schedule.scheduleJob('0 43 19 * * *', async () => {
   try {
     const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const today = weekdays[new Date().getDay()];
@@ -313,7 +313,12 @@ const caption = `📣 *بازی روز ——- بازی روز*
             web_app: { url: todayData.web_app }
           }]],
         },
-      } )
+      }, {
+          inline_keyboard: [[{
+            text: 'کلیک کن و الان بازی کن',
+            web_app: { url: todayData.web_app }
+          }]],
+        }, )
       await axios.post(`https://api.telegram.org/bot${bot_token}/sendPhoto`, {
         chat_id: user.telegram_id,
         photo: todayData.image,
