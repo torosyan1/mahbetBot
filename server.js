@@ -25,6 +25,7 @@ const axios = require('axios');
 const { RateLimiter } = require("limiter");
 const initializeRedis = require('./src/connections/redis');
 
+(async () => {
 
 const bot = new Telegraf(bot_token);
 
@@ -54,9 +55,7 @@ bot.action('faqAnswer8', FAQAnswers);
 bot.action('faqAnswer9', FAQAnswers);
 bot.action('faqAnswer10', FAQAnswers);
 
-
-(async () => {
-  const redisClient = await initializeRedis();
+const redisClient = await initializeRedis();
   global.redisClient = redisClient;
 
   const API_URL = `https://api.telegram.org/bot${bot_token}/getUpdates`;
