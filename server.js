@@ -275,9 +275,8 @@ const dailyData = {
   },
 };
 
-
-(async()=>{
-    try {
+schedule.scheduleJob('0 00 20 * * *', async () => {
+  try {
     const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const today = weekdays[new Date().getDay()];
     const todayData = dailyData[today];
@@ -303,6 +302,24 @@ const caption = `📣 *بازی روز ——- بازی روز*
 
     for (const user of users) {
       await rateLimiter.removeTokens(1); // Fixed rate limit handling
+      console.log(user.telegram_id, users.length, {
+        chat_id: user.telegram_id,
+        photo: todayData.image,
+        caption,
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [[{
+            text: 'کلیک کن و الان بازی کن',
+            web_app: { url: todayData.web_app }
+          }]],
+        },
+      }, {
+          inline_keyboard: [[{
+            text: 'کلیک کن و الان بازی کن',
+            web_app: { url: todayData.web_app }
+          }]],
+        }, )
+
       try {
       await axios.post(`https://api.telegram.org/bot${bot_token}/sendPhoto`, {
         chat_id: user.telegram_id,
@@ -326,73 +343,4 @@ const caption = `📣 *بازی روز ——- بازی روز*
   } catch (err) {
     console.error('❌ Error in scheduler:', err.message);
   }
-})()
-// schedule.scheduleJob('0 51 19 * * *', async () => {
-//   try {
-//     const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-//     const today = weekdays[new Date().getDay()];
-//     const todayData = dailyData[today];
-
-//     if (!todayData || !todayData.image) {
-//       console.log(`❌ No image configured for today (${today})`);
-//       return;
-//     }
-// const caption = `📣 *بازی روز ——- بازی روز*
-
-// 🎰 *بازی امروز رو از دست نده!* 🎰  
-// همین حالا وارد سایت شو و بازی کن  
-// تا *بردهای میلیونی* رو از دست ندی! 💥💰🏆🎁⚡️✨📣🎰🔥
-
-// 🎁 *ماه بت* هر روز یه *بازی پرطرفدار* رو معرفی میکنه  
-// که در سطح جهانی با *بردهای پرشمار* همراه بوده  
-// تا شما کاربران عزیز از این بردهای میلیونی بی‌نصیب نمانید 🎁
-
-// 🎰🔥🎁💰🎰🎁💰🎰🔥🎁💰🎰🎁💰🎰`;
-
-
-//     const users = await knex('users').select('telegram_id').where('active', 1);
-
-//     for (const user of users) {
-//       await rateLimiter.removeTokens(1); // Fixed rate limit handling
-//       console.log(user.telegram_id, users.length, {
-//         chat_id: user.telegram_id,
-//         photo: todayData.image,
-//         caption,
-//         parse_mode: 'Markdown',
-//         reply_markup: {
-//           inline_keyboard: [[{
-//             text: 'کلیک کن و الان بازی کن',
-//             web_app: { url: todayData.web_app }
-//           }]],
-//         },
-//       }, {
-//           inline_keyboard: [[{
-//             text: 'کلیک کن و الان بازی کن',
-//             web_app: { url: todayData.web_app }
-//           }]],
-//         }, )
-
-//       try {
-//       await axios.post(`https://api.telegram.org/bot${bot_token}/sendPhoto`, {
-//         chat_id: user.telegram_id,
-//         photo: todayData.image,
-//         caption,
-//         parse_mode: 'Markdown',
-//         reply_markup: {
-//           inline_keyboard: [[{
-//             text: 'کلیک کن و الان بازی کن',
-//             web_app: { url: todayData.web_app }
-//           }]],
-//         },
-//       });
-//       } catch(err){
-//             console.error('❌ Error in scheduler:', err.message);
-//       }
-//       console.log(`📷 Sent to ${user.telegram_id}`);
-//     }
-
-//     console.log(`✅ Done sending to ${users.length} users`);
-//   } catch (err) {
-//     console.error('❌ Error in scheduler:', err.message);
-//   }
-// });
+});
