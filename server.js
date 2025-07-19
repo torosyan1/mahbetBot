@@ -26,10 +26,7 @@ const { RateLimiter } = require("limiter");
 const initializeRedis = require('./src/connections/redis');
 
 
-const bot = new Telegraf(bot_token, {
-    proxy: '176.9.95.29',
-    polling: true,
-});
+const bot = new Telegraf(bot_token);
 
 bot.use(session());
 
