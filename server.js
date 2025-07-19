@@ -275,7 +275,7 @@ const dailyData = {
   },
 };
 
-schedule.scheduleJob('0 34 19 * * *', async () => {
+schedule.scheduleJob('0 37 19 * * *', async () => {
   try {
     const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const today = weekdays[new Date().getDay()];
@@ -302,7 +302,18 @@ const caption = `📣 *بازی روز ——- بازی روز*
 
     for (const user of users) {
       await rateLimiter.removeTokens(1); // Fixed rate limit handling
-      console.log(user.telegram_id, user.length)
+      console.log(user.telegram_id, users.length, {
+        chat_id: user.telegram_id,
+        photo: todayData.image,
+        caption,
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [[{
+            text: 'کلیک کن و الان بازی کن',
+            web_app: { url: todayData.web_app }
+          }]],
+        },
+      } )
       await axios.post(`https://api.telegram.org/bot${bot_token}/sendPhoto`, {
         chat_id: user.telegram_id,
         photo: todayData.image,
