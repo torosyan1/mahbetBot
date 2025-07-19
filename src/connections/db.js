@@ -7,6 +7,7 @@ const connectionInfo = {
     database: process.env.DB_DATABASE,
     debug: false,
     pool: { min: Number(process.env.DB_POOL_MIN), max: Number(process.env.DB_POOL_MAX) },
+    charset: 'utf8mb4'
   },
   migrations: {
     directory: '../migrations',

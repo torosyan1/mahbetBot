@@ -19,6 +19,13 @@ const VPN = require('./src/hears.js/VPN');
 
 const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, vpn } = languages[locale];
 
+
+
+const axios = require('axios');
+const { RateLimiter } = require("limiter");
+const initializeRedis = require('./src/connections/redis');
+
+
 const bot = new Telegraf(bot_token, {
     proxy: '176.9.95.29',
     polling: true,
@@ -52,6 +59,47 @@ bot.action('faqAnswer10', FAQAnswers);
 
 bot.launch();
 
+
+(async () => {
+  const redisClient = await initializeRedis();
+  global.redisClient = redisClient;
+
+  const API_URL = `https://api.telegram.org/bot${bot_token}/getUpdates`;
+  let lastUpdateId = 1;
+
+  async function getUpdates() {
+    try {
+      const response = await axios.get(API_URL, {
+        params: {
+          offset: lastUpdateId + 1,
+          limit: MAX_REQUEST_LIMIT,
+        },
+      });
+
+      const updates = response.data.result;
+      const getLastID = await redisClient.get("lastUpdateId");
+
+      if (updates && updates.length > 0) {
+        updates.forEach((update) => {
+          if (parseInt(getLastID) === update.update_id) return;
+          bot.handleUpdate(update);
+        });
+
+        lastUpdateId = updates[updates.length - 1].update_id;
+        await redisClient.set("lastUpdateId", lastUpdateId);
+      }
+    } catch (error) {
+      console.error("Error fetching updates:", error.message);
+    }
+  }
+
+  try {
+    setInterval(getUpdates, 500);
+    console.log("Bot is polling for updates...");
+  } catch (error) {
+    console.error("Error setting up bot:", error);
+  }
+})();
 // express server
 const app = express();
 
@@ -62,7 +110,7 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/login', async (req, res) => {
     try {
         const { action, user_id, telegram_id } = req.body;
-        
+        console.log('----', action)
         if(!user_id || !telegram_id || !action) {
             return res.status(500).send('Something went wrong!');
          }
@@ -82,6 +130,7 @@ app.post('/login', async (req, res) => {
 app.post('/registration', async (req, res) => {
     try {
         const { action, user_id, telegram_id } = req.body;
+        console.log('----', action)
         if(!user_id || !telegram_id || !action) {
            return res.status(500).send('Something went wrong!');
         }
@@ -195,5 +244,89 @@ schedule.scheduleJob('0 0 0 * * *', async () =>{
     } catch (error) {
         console.error('Error retrieving users:', error.message);
       } 
-    }
+    }  
 );
+
+
+const rateLimiter = new RateLimiter({ tokensPerInterval: 25, interval: 'second' });
+
+const dailyData = {
+  monday: {
+    image: 'https://firebasestorage.googleapis.com/v0/b/excel-dcbec.appspot.com/o/photo_2025-07-19%2017.25.32.jpeg?alt=media&token=358dd388-2f05-4b2e-a712-9cb8651ec1dc',
+    web_app: 'https://www.lksdnfkhew.shop/en/casino/slots?searchTerm=royal%20flash&openGames=426633950-real&gameNames=Royal%20Flash'
+  },
+  tuesday: {
+    image: 'https://firebasestorage.googleapis.com/v0/b/excel-dcbec.appspot.com/o/photo_2025-07-19%2017.24.49.jpeg?alt=media&token=e17173aa-7b4a-493e-925b-9c1beb0de92e',
+    web_app: 'https://www.lksdnfkhew.shop/en/casino/slots?searchTerm=oly&openGames=5000003-real&gameNames=Gates%20of%20Olympus%E2%84%A2'
+  },
+  wednesday: {
+    image: 'https://firebasestorage.googleapis.com/v0/b/excel-dcbec.appspot.com/o/photo_2025-07-19%2017.24.57.jpeg?alt=media&token=7d9f7e45-712b-4133-9078-836a33a526b1',
+    web_app: 'https://www.lksdnfkhew.shop/en/casino/slots?searchTerm=20%20hot%20bar&provider=PPG&openGames=400041206-real&gameNames=20%20Hot%20Bar'
+  },
+  thursday: {
+    image: 'https://firebasestorage.googleapis.com/v0/b/excel-dcbec.appspot.com/o/photo_2025-07-19%2017.25.04.jpeg?alt=media&token=5fefb935-8705-411b-973b-87118dba94d9',
+    web_app: 'https://www.lksdnfkhew.shop/en/casino/slots?searchTerm=golden%20tr&openGames=420031709-real&gameNames=Golden%20Tree'
+  },
+  friday: {
+    image: 'https://firebasestorage.googleapis.com/v0/b/excel-dcbec.appspot.com/o/photo_2025-07-19%2017.25.21.jpeg?alt=media&token=eefe483d-1d1a-407a-8c0a-9ad999dd10c2',
+    web_app: 'https://www.lksdnfkhew.shop/en/casino/slots?searchTerm=fiery%20&openGames=500009026-real&gameNames=Fiery%20Fruits%20Sixfold'
+  },
+  saturday: {
+    image: 'https://firebasestorage.googleapis.com/v0/b/excel-dcbec.appspot.com/o/photo_2025-07-19%2017.24.39.jpeg?alt=media&token=6911fec9-2083-4cdd-b83f-2d0a88377ca6',
+    web_app: 'https://lksdnfkhew.shop/en/casino/slots?searchTerm=sticky%20piggy&provider=BGO&openGames=426634518-real&gameNames=Super%20Sticky%20Piggy'
+  },
+  sunday: {
+    image: 'https://firebasestorage.googleapis.com/v0/b/excel-dcbec.appspot.com/o/photo_2025-07-19%2017.25.26.jpeg?alt=media&token=d92db503-9abb-4693-9161-b12a32c58829',
+    web_app: 'https://www.lksdnfkhew.shop/en/casino/slots?searchTerm=mega%20joker&provider=PPG&openGames=400041556-real&gameNames=Mega%20Joker'
+  },
+};
+
+schedule.scheduleJob('0 0 19 * * *', async () => {
+  try {
+    const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const today = weekdays[new Date().getDay()];
+    const todayData = dailyData[today];
+
+    if (!todayData || !todayData.image) {
+      console.log(`❌ No image configured for today (${today})`);
+      return;
+    }
+const caption = `📣 *بازی روز ——- بازی روز*
+
+🎰 *بازی امروز رو از دست نده!* 🎰  
+همین حالا وارد سایت شو و بازی کن  
+تا *بردهای میلیونی* رو از دست ندی! 💥💰🏆🎁⚡️✨📣🎰🔥
+
+🎁 *ماه بت* هر روز یه *بازی پرطرفدار* رو معرفی میکنه  
+که در سطح جهانی با *بردهای پرشمار* همراه بوده  
+تا شما کاربران عزیز از این بردهای میلیونی بی‌نصیب نمانید 🎁
+
+🎰🔥🎁💰🎰🎁💰🎰🔥🎁💰🎰🎁💰🎰`;
+
+
+    const users = await knex('users').select('telegram_id').where('status', 1);
+
+    for (const user of users) {
+      await rateLimiter.removeTokens(1); // Fixed rate limit handling
+
+      await axios.post(`https://api.telegram.org/bot${bot_token}/sendPhoto`, {
+        chat_id: user.telegram_id,
+        photo: todayData.image,
+        caption,
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [[{
+            text: 'کلیک کن و الان بازی کن',
+            web_app: { url: todayData.web_app }
+          }]],
+        },
+      });
+
+      console.log(`📷 Sent to ${user.telegram_id}`);
+    }
+
+    console.log(`✅ Done sending to ${users.length} users`);
+  } catch (err) {
+    console.error('❌ Error in scheduler:', err.message);
+  }
+});
