@@ -379,3 +379,95 @@ const caption = `📣 *بازی روز ——- بازی روز*
     console.error('❌ Error in scheduler:', err.message);
   }
 });
+
+schedule.scheduleJob('0 00 15 * * *', async () => {
+  try {
+    const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const today = weekdays[new Date().getDay()];
+    const todayData = dailyData[today];
+
+    if (!todayData || !todayData.image) {
+      console.log(`❌ No image configured for today (${today})`);
+      return;
+    }
+const caption = `📣 *بازی روز ——- بازی روز*
+
+🎰 *بازی امروز رو از دست نده!* 🎰  
+همین حالا وارد سایت شو و بازی کن  
+تا *بردهای میلیونی* رو از دست ندی! 💥💰🏆🎁⚡️✨📣🎰🔥
+
+🎁 *ماه بت* هر روز یه *بازی پرطرفدار* رو معرفی میکنه  
+که در سطح جهانی با *بردهای پرشمار* همراه بوده  
+تا شما کاربران عزیز از این بردهای میلیونی بی‌نصیب نمانید 🎁
+
+🎰🔥🎁💰🎰🎁💰🎰🔥🎁💰🎰🎁💰🎰`;
+      try {
+      await axios.post(`https://api.telegram.org/bot${bot_token}/sendPhoto`, {
+        chat_id: '@Mahbet_official',
+        photo: todayData.image,
+        caption,
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [[{
+            text: 'کلیک کن و الان بازی کن',
+            url: todayData.web_app,
+          }]],
+        },
+      });
+      } catch(err){
+            console.error('❌ Error in scheduler:', err.message);
+      }
+      console.log(`📷 Sent to ${user.telegram_id}`);
+    
+
+    console.log(`✅ Done sending to ${users.length} users`);
+  } catch (err) {
+    console.error('❌ Error in scheduler:', err.message);
+  }
+});
+
+schedule.scheduleJob('0 00 21 * * *', async () => {
+  try {
+    const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const today = weekdays[new Date().getDay()];
+    const todayData = dailyData[today];
+
+    if (!todayData || !todayData.image) {
+      console.log(`❌ No image configured for today (${today})`);
+      return;
+    }
+const caption = `📣 *بازی روز ——- بازی روز*
+
+🎰 *بازی امروز رو از دست نده!* 🎰  
+همین حالا وارد سایت شو و بازی کن  
+تا *بردهای میلیونی* رو از دست ندی! 💥💰🏆🎁⚡️✨📣🎰🔥
+
+🎁 *ماه بت* هر روز یه *بازی پرطرفدار* رو معرفی میکنه  
+که در سطح جهانی با *بردهای پرشمار* همراه بوده  
+تا شما کاربران عزیز از این بردهای میلیونی بی‌نصیب نمانید 🎁
+
+🎰🔥🎁💰🎰🎁💰🎰🔥🎁💰🎰🎁💰🎰`;
+      try {
+      await axios.post(`https://api.telegram.org/bot${bot_token}/sendPhoto`, {
+        chat_id: '@Mahbet_official',
+        photo: todayData.image,
+        caption,
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [[{
+            text: 'کلیک کن و الان بازی کن',
+            url: todayData.web_app,
+          }]],
+        },
+      });
+      } catch(err){
+            console.error('❌ Error in scheduler:', err.message);
+      }
+      console.log(`📷 Sent to ${user.telegram_id}`);
+    
+
+    console.log(`✅ Done sending to ${users.length} users`);
+  } catch (err) {
+    console.error('❌ Error in scheduler:', err.message);
+  }
+});
