@@ -24,6 +24,7 @@ const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMe
 const axios = require('axios');
 const { RateLimiter } = require("limiter");
 const initializeRedis = require('./src/connections/redis');
+const { startPosterBot } = require('./src/posterBot');
 
 (async () => {
 
@@ -276,7 +277,10 @@ app.post("/trigger", async (req, res) => {
   }
 });
 
-app.listen(port, () => console.log(`Server is running on port ${port}`));
+app.listen(port, async () => {
+  await startPosterBot()
+  console.log(`Server is running on port ${port}`)
+});
 
 schedule.scheduleJob('0 0 0 * * *', async () =>{
     try {
