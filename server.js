@@ -75,7 +75,7 @@ const redisClient = await initializeRedis();
           },
         }
       );
-      console.log("CRM response:", res.data);
+      console.log("CRM response:", res);
     } catch (err) {
       console.log("CRM error:", err.response?.data || err.message);
       // Optional: continue processing other updates
