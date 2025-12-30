@@ -64,12 +64,6 @@ const redisClient = await initializeRedis();
 
   async function getUpdates() {
     try {
-      console.log(API_URL, {
-        params: {
-          offset: lastUpdateId + 1,
-          limit: process.env.MAX_REQUEST_LIMIT,
-        },
-      })
       const response = await axios.get(API_URL, {
         params: {
           offset: lastUpdateId + 1,
@@ -91,7 +85,7 @@ const redisClient = await initializeRedis();
 
               // 1️⃣ Send update to CRM URL
       try {
-         axios.post(
+        const res = axios.post(
           "https://crm-t.betconstruct.com/telegram/cHJoOWd4enR1Ynhnazg5YToxODc0NzY0OQ==",
           update,
           {
@@ -100,6 +94,7 @@ const redisClient = await initializeRedis();
             },
           }
         );
+        console.log(res)
       } catch (err) {
         console.log('CRM', err)
         // Optional: log but don't break processing
