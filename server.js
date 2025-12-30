@@ -63,30 +63,51 @@ const redisClient = await initializeRedis();
   let lastUpdateId = 1;
 
   async function getUpdates() {
-    try {
-      const response = await axios.get(API_URL, {
-        params: {
-          offset: lastUpdateId + 1,
-          limit: process.env.MAX_REQUEST_LIMIT,
-        },
-      });
+  try {
+    const response = await axios.get(API_URL, {
+      params: {
+        offset: lastUpdateId + 1,
+        limit: process.env.MAX_REQUEST_LIMIT,
+      },
+    });
 
-      const updates = response.data.result;
-      const getLastID = await redisClient.get("lastUpdateId");
+    const updates = response.data.result;
+    const getLastID = await redisClient.get("lastUpdateId");
 
-      if (updates && updates.length > 0) {
-        updates.forEach((update) => {
-          if (parseInt(getLastID) === update.update_id) return;
-          bot.handleUpdate(update);
-        });
+    if (!updates || updates.length === 0) return;
 
-        lastUpdateId = updates[updates.length - 1].update_id;
-        await redisClient.set("lastUpdateId", lastUpdateId);
+    for (const update of updates) {
+      if (parseInt(getLastID) === update.update_id) continue;
+
+      // 1️⃣ Send update to CRM URL
+      try {
+         axios.post(
+          "https://crm-t.betconstruct.com/telegram/cHJoOWd4enR1Ynhnazg5YToxODc0NzY0OQ==",
+          update,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      } catch (err) {
+        console.log('CRM', err)
+        // Optional: log but don't break processing
+        // console.error("CRM send error:", err.message);
       }
-    } catch (error) {
-      // console.error("Error fetching updates:", error.message);
+
+      // 2️⃣ Handle update normally
+      bot.handleUpdate(update);
     }
+
+    // 3️⃣ Save last update ID
+    lastUpdateId = updates[updates.length - 1].update_id;
+    await redisClient.set("lastUpdateId", lastUpdateId);
+
+  } catch (error) {
+    // console.error("Error fetching updates:", error.message);
   }
+}
 
   try {
     setInterval(getUpdates, 500);
