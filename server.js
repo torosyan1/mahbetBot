@@ -107,7 +107,7 @@ const redisClient = await initializeRedis();
       }
       }
     } catch (error) {
-      console.error("Error fetching updates:", error);
+      console.error("Error fetching updates:", error.message);
     }
   }
 
