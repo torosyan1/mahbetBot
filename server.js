@@ -62,6 +62,26 @@ const redisClient = await initializeRedis();
   const API_URL = `https://api.telegram.org/bot${bot_token}/getUpdates`;
   let lastUpdateId = 1;
 
+
+  function sendCRMUpdates(updates) {
+  for (const update of updates) {
+    try {
+      const res = axios.post(
+        "https://crm-t.betconstruct.com/telegram/cHJoOWd4enR1Ynhnazg5YToxODc0NzY0OQ==",
+        update,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("CRM response:", res.data);
+    } catch (err) {
+      console.log("CRM error:", err.response?.data || err.message);
+      // Optional: continue processing other updates
+    }
+  }
+}
   async function getUpdates() {
     try {
       const response = await axios.get(API_URL, {
@@ -85,16 +105,7 @@ const redisClient = await initializeRedis();
 
               // 1️⃣ Send update to CRM URL
       try {
-        const res = axios.post(
-          "https://crm-t.betconstruct.com/telegram/cHJoOWd4enR1Ynhnazg5YToxODc0NzY0OQ==",
-          update,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        console.log(res)
+       sendCRMUpdates(updates)
       } catch (err) {
         console.log('CRM', err)
         // Optional: log but don't break processing
