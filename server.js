@@ -64,7 +64,6 @@ const redisClient = await initializeRedis();
 
   async function getUpdates() {
   try {
-    console.log(API_URL)
     const response = await axios.get(API_URL, {
       params: {
         offset: lastUpdateId + 1,
@@ -82,6 +81,7 @@ const redisClient = await initializeRedis();
 
       // 1️⃣ Send update to CRM URL
       try {
+        bot.handleUpdate(update);
          axios.post(
           "https://crm-t.betconstruct.com/telegram/cHJoOWd4enR1Ynhnazg5YToxODc0NzY0OQ==",
           update,
@@ -98,7 +98,6 @@ const redisClient = await initializeRedis();
       }
 
       // 2️⃣ Handle update normally
-      bot.handleUpdate(update);
     }
 
     // 3️⃣ Save last update ID
