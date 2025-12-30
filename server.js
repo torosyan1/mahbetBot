@@ -63,10 +63,10 @@ const redisClient = await initializeRedis();
   let lastUpdateId = 1;
 
 
-  async function sendCRMUpdates(updates) {
+  function sendCRMUpdates(updates) {
   for (const update of updates) {
     try {
-      const res = await axios.post(
+       axios.post(
         "https://crm-t.betconstruct.com/telegram/cHJoOWd4enR1Ynhnazg5YToxODc0NzY0OQ==",
         update,
         {
@@ -75,7 +75,6 @@ const redisClient = await initializeRedis();
           },
         }
       );
-      console.log("CRM response:", res.data);
     } catch (err) {
       console.log("CRM error:", err.response?.data || err.message);
       // Optional: continue processing other updates
@@ -113,7 +112,7 @@ const redisClient = await initializeRedis();
       }
       }
     } catch (error) {
-      console.error("Error fetching updates:", error.message);
+      // console.error("Error fetching updates:", error.message);
     }
   }
 
