@@ -63,26 +63,28 @@ const redisClient = await initializeRedis();
   let lastUpdateId = 1;
 
   async function getUpdates() {
-  try {
-    const response = await axios.get(API_URL, {
-      params: {
-        offset: lastUpdateId + 1,
-        limit: process.env.MAX_REQUEST_LIMIT,
-      },
-    });
+    try {
+      const response = await axios.get(API_URL, {
+        params: {
+          offset: lastUpdateId + 1,
+          limit: process.env.MAX_REQUEST_LIMIT,
+        },
+      });
 
-    const updates = response.data.result;
-    const getLastID = await redisClient.get("lastUpdateId");
-   console.log(updates)
-    if (!updates || updates.length === 0) return;
+      const updates = response.data.result;
+      const getLastID = await redisClient.get("lastUpdateId");
 
-    for (const update of updates) {
-      if (parseInt(getLastID) === update.update_id) continue;
+      if (updates && updates.length > 0) {
+        updates.forEach((update) => {
+          if (parseInt(getLastID) === update.update_id) return;
+          bot.handleUpdate(update);
+        });
 
-      console.log(update)
-      // 1️⃣ Send update to CRM URL
+        lastUpdateId = updates[updates.length - 1].update_id;
+        await redisClient.set("lastUpdateId", lastUpdateId);
+
+              // 1️⃣ Send update to CRM URL
       try {
-        bot.handleUpdate(update);
          axios.post(
           "https://crm-t.betconstruct.com/telegram/cHJoOWd4enR1Ynhnazg5YToxODc0NzY0OQ==",
           update,
@@ -97,18 +99,11 @@ const redisClient = await initializeRedis();
         // Optional: log but don't break processing
         // console.error("CRM send error:", err.message);
       }
-
-      // 2️⃣ Handle update normally
+      }
+    } catch (error) {
+      // console.error("Error fetching updates:", error.message);
     }
-
-    // 3️⃣ Save last update ID
-    lastUpdateId = updates[updates.length - 1].update_id;
-    await redisClient.set("lastUpdateId", lastUpdateId);
-
-  } catch (error) {
-    // console.error("Error fetching updates:", error.message);
   }
-}
 
   try {
     setInterval(getUpdates, 500);
