@@ -73,12 +73,13 @@ const redisClient = await initializeRedis();
 
     const updates = response.data.result;
     const getLastID = await redisClient.get("lastUpdateId");
-
+   console.log(updates)
     if (!updates || updates.length === 0) return;
 
     for (const update of updates) {
       if (parseInt(getLastID) === update.update_id) continue;
 
+      console.log(update)
       // 1️⃣ Send update to CRM URL
       try {
         bot.handleUpdate(update);
