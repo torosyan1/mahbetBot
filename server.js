@@ -64,6 +64,7 @@ const redisClient = await initializeRedis();
 
   async function getUpdates() {
   try {
+    console.log(API_URL)
     const response = await axios.get(API_URL, {
       params: {
         offset: lastUpdateId + 1,
