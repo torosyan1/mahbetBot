@@ -1,11 +1,18 @@
 const { Markup } = require("telegraf");
 const { welcome_image_url, web_app, locale, mahbet_registr, mahbet_login } = require("../utils/env");
 const languages = require("../utils/language");
+const knex = require('../connections/db');
 
 module.exports = async (ctx) => {
   try {
   const { welcomeMessage, welcomeButtonInline, welcomeButtonKeyboard, suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, forMoreMessage, vpn, registration } = languages[locale];
 
+    const payload = ctx.startPayload;
+
+  if (payload) {
+    await knex('users').update({ mahbet_id: payload }).where({ telegram_id: ctx.from.id });
+     
+  }
   await ctx.replyWithPhoto(welcome_image_url, {
     caption: welcomeMessage,
     reply_markup: {
