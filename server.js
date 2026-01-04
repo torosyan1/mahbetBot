@@ -63,10 +63,10 @@ const redisClient = await initializeRedis();
   let lastUpdateId = 1;
 
 
-  function sendCRMUpdates(updates) {
+  async function sendCRMUpdates(updates) {
   for (const update of updates) {
     try {
-       axios.post(
+      const res = await axios.post(
         "https://crm-t.betconstruct.com/telegram/cHJoOWd4enR1Ynhnazg5YToxODc0NzY0OQ==",
         update,
         {
@@ -75,6 +75,7 @@ const redisClient = await initializeRedis();
           },
         }
       );
+      console.log(res.data, update)
     } catch (err) {
       console.log("CRM error:", err.response?.data || err.message);
       // Optional: continue processing other updates
