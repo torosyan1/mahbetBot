@@ -310,22 +310,22 @@ app.listen(port, async () => {
   console.log(`Server is running on port ${port}`)
 });
 
-schedule.scheduleJob('0 0 0 * * *', async () =>{
-    try {
-        const users = await knex('users').select('*').where('createdAt', '>=', knex.raw('NOW() - INTERVAL 24 HOUR'));
-        const reg = await knex('logs').select('*').where('action', '=', 'registration').andWhere('createdAt', '>=', knex.raw('NOW() - INTERVAL 24 HOUR'));
-        const login = await knex('logs').select('*').where('action', '=', 'login').andWhere('createdAt', '>=', knex.raw('NOW() - INTERVAL 24 HOUR'));
+// schedule.scheduleJob('0 0 0 * * *', async () =>{
+//     try {
+//         const users = await knex('users').select('*').where('createdAt', '>=', knex.raw('NOW() - INTERVAL 24 HOUR'));
+//         const reg = await knex('logs').select('*').where('action', '=', 'registration').andWhere('createdAt', '>=', knex.raw('NOW() - INTERVAL 24 HOUR'));
+//         const login = await knex('logs').select('*').where('action', '=', 'login').andWhere('createdAt', '>=', knex.raw('NOW() - INTERVAL 24 HOUR'));
    
-        const newUserJoinedCount = `New users joined bot count - ${users.length} 🎯`
-        const newRegCount = `New reg users count - ${reg.length} 🎯`
-        const newLoginCount = `New login bot users count - ${login.length} 🎯`
+//         const newUserJoinedCount = `New users joined bot count - ${users.length} 🎯`
+//         const newRegCount = `New reg users count - ${reg.length} 🎯`
+//         const newLoginCount = `New login bot users count - ${login.length} 🎯`
 
-        await bot.telegram.sendMessage(-4036292845, newUserJoinedCount + '\n' + newRegCount + '\n' + newLoginCount)
-    } catch (error) {
-        console.error('Error retrieving users:', error.message);
-      } 
-    }  
-);
+//         await bot.telegram.sendMessage(-4036292845, newUserJoinedCount + '\n' + newRegCount + '\n' + newLoginCount)
+//     } catch (error) {
+//         console.error('Error retrieving users:', error.message);
+//       } 
+//     }  
+// );
 
 
 
@@ -360,152 +360,152 @@ const dailyData = {
   },
 };
 
-schedule.scheduleJob('0 30 19 * * *', async () => {
-  try {
-    const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    const today = weekdays[new Date().getDay()];
-    const todayData = dailyData[today];
+// schedule.scheduleJob('0 30 19 * * *', async () => {
+//   try {
+//     const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+//     const today = weekdays[new Date().getDay()];
+//     const todayData = dailyData[today];
 
-    if (!todayData || !todayData.image) {
-      console.log(`❌ No image configured for today (${today})`);
-      return;
-    }
-const caption = `📣 بازی روز ——- بازی روز 💥
+//     if (!todayData || !todayData.image) {
+//       console.log(`❌ No image configured for today (${today})`);
+//       return;
+//     }
+// const caption = `📣 بازی روز ——- بازی روز 💥
 
-🎰  بازی امروز رو از دست نده!   
-🔥 همین حالا وارد سایت شو و بازی کن  
-💰 تا بردهای میلیونی رو از دست ندی!   
+// 🎰  بازی امروز رو از دست نده!   
+// 🔥 همین حالا وارد سایت شو و بازی کن  
+// 💰 تا بردهای میلیونی رو از دست ندی!   
 
-🎁 ماه بت هر روز یه بازی پرطرفدار رو معرفی میکنه  
-🏆 که در سطح جهانی با بردهای پرشمار همراه بوده  
-⚡️ تا شما کاربران عزیز هم از این بردهای میلیونی بی‌نصیب نمانید 
-
-
-
-🎰🔥🎁💰🎰🎁💰🎰🔥🎁💰🎰🎁💰🎰`;
-
-
-    const users = await knex('users').select('telegram_id').where('active', 1);
-
-    for (const user of users) {
-      await rateLimiter.removeTokens(1); // Fixed rate limit handling
-      try {
-      await axios.post(`https://api.telegram.org/bot${bot_token}/sendPhoto`, {
-        chat_id: Number(user.telegram_id),
-        photo: todayData.image,
-        caption,
-        parse_mode: 'Markdown',
-        reply_markup: {
-          inline_keyboard: [[{
-            text: 'کلیک کن و الان بازی کن',
-            web_app: { url: todayData.web_app }
-          }]],
-        },
-      });
-      } catch(err){
-            console.error('❌ Error in scheduler:', err.message);
-      }
-      console.log(`📷 Sent to ${user.telegram_id}`);
-    }
-
-    console.log(`✅ Done sending to ${users.length} users`);
-  } catch (err) {
-    console.error('❌ Error in scheduler:', err.message);
-  }
-});
-
-schedule.scheduleJob('0 00 15 * * *', async () => {
-  try {
-    const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    const today = weekdays[new Date().getDay()];
-    const todayData = dailyData[today];
-
-    if (!todayData || !todayData.image) {
-      console.log(`❌ No image configured for today (${today})`);
-      return;
-    }
-const caption = `📣 بازی روز ——- بازی روز 💥
-
-🎰  بازی امروز رو از دست نده!   
-🔥 همین حالا وارد سایت شو و بازی کن  
-💰 تا بردهای میلیونی رو از دست ندی!   
-
-🎁 ماه بت هر روز یه بازی پرطرفدار رو معرفی میکنه  
-🏆 که در سطح جهانی با بردهای پرشمار همراه بوده  
-⚡️ تا شما کاربران عزیز هم از این بردهای میلیونی بی‌نصیب نمانید 
+// 🎁 ماه بت هر روز یه بازی پرطرفدار رو معرفی میکنه  
+// 🏆 که در سطح جهانی با بردهای پرشمار همراه بوده  
+// ⚡️ تا شما کاربران عزیز هم از این بردهای میلیونی بی‌نصیب نمانید 
 
 
 
-🎰🔥🎁💰🎰🎁💰🎰🔥🎁💰🎰🎁💰🎰`;
-      try {
-      await axios.post(`https://api.telegram.org/bot${bot_token}/sendPhoto`, {
-        chat_id: '@Mahbet_official',
-        photo: todayData.image,
-        caption,
-        parse_mode: 'Markdown',
-        reply_markup: {
-          inline_keyboard: [[{
-            text: 'کلیک کن و الان بازی کن',
-            url: todayData.web_app,
-          }]],
-        },
-      });
-      } catch(err){
-            console.error('❌ Error in scheduler:', err.message);
-      }
-      console.log(`📷 Sent to ${user.telegram_id}`);
+// 🎰🔥🎁💰🎰🎁💰🎰🔥🎁💰🎰🎁💰🎰`;
+
+
+//     const users = await knex('users').select('telegram_id').where('active', 1);
+
+//     for (const user of users) {
+//       await rateLimiter.removeTokens(1); // Fixed rate limit handling
+//       try {
+//       await axios.post(`https://api.telegram.org/bot${bot_token}/sendPhoto`, {
+//         chat_id: Number(user.telegram_id),
+//         photo: todayData.image,
+//         caption,
+//         parse_mode: 'Markdown',
+//         reply_markup: {
+//           inline_keyboard: [[{
+//             text: 'کلیک کن و الان بازی کن',
+//             web_app: { url: todayData.web_app }
+//           }]],
+//         },
+//       });
+//       } catch(err){
+//             console.error('❌ Error in scheduler:', err.message);
+//       }
+//       console.log(`📷 Sent to ${user.telegram_id}`);
+//     }
+
+//     console.log(`✅ Done sending to ${users.length} users`);
+//   } catch (err) {
+//     console.error('❌ Error in scheduler:', err.message);
+//   }
+// });
+
+// schedule.scheduleJob('0 00 15 * * *', async () => {
+//   try {
+//     const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+//     const today = weekdays[new Date().getDay()];
+//     const todayData = dailyData[today];
+
+//     if (!todayData || !todayData.image) {
+//       console.log(`❌ No image configured for today (${today})`);
+//       return;
+//     }
+// const caption = `📣 بازی روز ——- بازی روز 💥
+
+// 🎰  بازی امروز رو از دست نده!   
+// 🔥 همین حالا وارد سایت شو و بازی کن  
+// 💰 تا بردهای میلیونی رو از دست ندی!   
+
+// 🎁 ماه بت هر روز یه بازی پرطرفدار رو معرفی میکنه  
+// 🏆 که در سطح جهانی با بردهای پرشمار همراه بوده  
+// ⚡️ تا شما کاربران عزیز هم از این بردهای میلیونی بی‌نصیب نمانید 
+
+
+
+// 🎰🔥🎁💰🎰🎁💰🎰🔥🎁💰🎰🎁💰🎰`;
+//       try {
+//       await axios.post(`https://api.telegram.org/bot${bot_token}/sendPhoto`, {
+//         chat_id: '@Mahbet_official',
+//         photo: todayData.image,
+//         caption,
+//         parse_mode: 'Markdown',
+//         reply_markup: {
+//           inline_keyboard: [[{
+//             text: 'کلیک کن و الان بازی کن',
+//             url: todayData.web_app,
+//           }]],
+//         },
+//       });
+//       } catch(err){
+//             console.error('❌ Error in scheduler:', err.message);
+//       }
+//       console.log(`📷 Sent to ${user.telegram_id}`);
     
 
-    console.log(`✅ Done sending to ${users.length} users`);
-  } catch (err) {
-    console.error('❌ Error in scheduler:', err.message);
-  }
-});
+//     console.log(`✅ Done sending to ${users.length} users`);
+//   } catch (err) {
+//     console.error('❌ Error in scheduler:', err.message);
+//   }
+// });
 
-schedule.scheduleJob('0 00 21 * * *', async () => {
-  try {
-    const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    const today = weekdays[new Date().getDay()];
-    const todayData = dailyData[today];
+// schedule.scheduleJob('0 00 21 * * *', async () => {
+//   try {
+//     const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+//     const today = weekdays[new Date().getDay()];
+//     const todayData = dailyData[today];
 
-    if (!todayData || !todayData.image) {
-      console.log(`❌ No image configured for today (${today})`);
-      return;
-    }
-const caption = `📣 بازی روز ——- بازی روز 💥
+//     if (!todayData || !todayData.image) {
+//       console.log(`❌ No image configured for today (${today})`);
+//       return;
+//     }
+// const caption = `📣 بازی روز ——- بازی روز 💥
 
-🎰  بازی امروز رو از دست نده!   
-🔥 همین حالا وارد سایت شو و بازی کن  
-💰 تا بردهای میلیونی رو از دست ندی!   
+// 🎰  بازی امروز رو از دست نده!   
+// 🔥 همین حالا وارد سایت شو و بازی کن  
+// 💰 تا بردهای میلیونی رو از دست ندی!   
 
-🎁 ماه بت هر روز یه بازی پرطرفدار رو معرفی میکنه  
-🏆 که در سطح جهانی با بردهای پرشمار همراه بوده  
-⚡️ تا شما کاربران عزیز هم از این بردهای میلیونی بی‌نصیب نمانید 
+// 🎁 ماه بت هر روز یه بازی پرطرفدار رو معرفی میکنه  
+// 🏆 که در سطح جهانی با بردهای پرشمار همراه بوده  
+// ⚡️ تا شما کاربران عزیز هم از این بردهای میلیونی بی‌نصیب نمانید 
 
 
 
-🎰🔥🎁💰🎰🎁💰🎰🔥🎁💰🎰🎁💰🎰`;
-      try {
-      await axios.post(`https://api.telegram.org/bot${bot_token}/sendPhoto`, {
-        chat_id: '@Mahbet_official',
-        photo: todayData.image,
-        caption,
-        parse_mode: 'Markdown',
-        reply_markup: {
-          inline_keyboard: [[{
-            text: 'کلیک کن و الان بازی کن',
-            url: todayData.web_app,
-          }]],
-        },
-      });
-      } catch(err){
-            console.error('❌ Error in scheduler:', err.message);
-      }
-      console.log(`📷 Sent to ${user.telegram_id}`);
+// 🎰🔥🎁💰🎰🎁💰🎰🔥🎁💰🎰🎁💰🎰`;
+//       try {
+//       await axios.post(`https://api.telegram.org/bot${bot_token}/sendPhoto`, {
+//         chat_id: '@Mahbet_official',
+//         photo: todayData.image,
+//         caption,
+//         parse_mode: 'Markdown',
+//         reply_markup: {
+//           inline_keyboard: [[{
+//             text: 'کلیک کن و الان بازی کن',
+//             url: todayData.web_app,
+//           }]],
+//         },
+//       });
+//       } catch(err){
+//             console.error('❌ Error in scheduler:', err.message);
+//       }
+//       console.log(`📷 Sent to ${user.telegram_id}`);
     
 
-    console.log(`✅ Done sending to ${users.length} users`);
-  } catch (err) {
-    console.error('❌ Error in scheduler:', err.message);
-  }
-});
+//     console.log(`✅ Done sending to ${users.length} users`);
+//   } catch (err) {
+//     console.error('❌ Error in scheduler:', err.message);
+//   }
+// });
