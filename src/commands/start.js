@@ -46,6 +46,6 @@ module.exports = async (ctx) => {
   );
 
   } catch(err){
-   console.log(err.message)
+   console.log(err.message, 'ppp')
   }
 };
