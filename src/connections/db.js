@@ -1,5 +1,5 @@
 const connectionInfo = {
-  client: 'mysql',
+  client: 'mysql2',
   connection: {
     host: process.env.DB_HOST, // 149.202.207.211
     user: process.env.DB_USER,
