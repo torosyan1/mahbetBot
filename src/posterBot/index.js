@@ -2,15 +2,14 @@ const { Telegraf } = require('telegraf');
 
 const POSTER_BOT_TOKEN = process.env.POSTER_BOT_TOKEN;
 const CHANNEL_USERNAME = '@Mahbet_official';
+const ALLOWED_USER_ID = 5810118485; // 👈 only this user can post
 
 function startPosterBot() {
   const bot = new Telegraf(POSTER_BOT_TOKEN);
 
   const inlineKeyboard = {
     inline_keyboard: [
-      [
-        { text: "ورود به سایت 📌", url: "https://fsgfhshrb.shop/" }
-      ],
+      [{ text: "ورود به سایت 📌", url: "https://fsgfhshrb.shop/" }],
       [
         { text: "اینستاگرام", url: "https://www.instagram.com/mahbet_official/?hl=en" },
         { text: "پشتیبانی", url: "https://direct.lc.chat/14697702/" }
@@ -22,10 +21,19 @@ function startPosterBot() {
     ]
   };
 
+  // 🔒 Access check middleware
+  bot.use((ctx, next) => {
+    if (ctx.from?.id !== ALLOWED_USER_ID) {
+      console.log(`⛔ Blocked user: ${ctx.from?.id}`);
+      return; // ignore message
+    }
+    return next();
+  });
+
   bot.on('photo', async (ctx) => {
     const caption = ctx.message.caption || '';
-    const photoArray = ctx.message.photo;
-    const fileId = photoArray[photoArray.length - 1].file_id;
+    const photos = ctx.message.photo;
+    const fileId = photos[photos.length - 1].file_id;
 
     try {
       await ctx.telegram.sendPhoto(CHANNEL_USERNAME, fileId, {
@@ -54,7 +62,7 @@ function startPosterBot() {
   });
 
   bot.launch();
-  console.log('🚀 Poster bot is running...');
+  console.log('🚀 Poster bot is running (restricted to one user)');
 }
 
 module.exports = { startPosterBot };
