@@ -13,7 +13,7 @@ module.exports = async (ctx) => {
     await knex('users').update({ mahbet_id: payload }).where({ telegram_id: ctx.from.id });
      
   }
-  await ctx.replyWithPhoto(welcome_image_url, {
+  await ctx.replyWithPhoto('https://iili.io/fyGKzas.jpg', {
     caption: welcomeMessage,
     reply_markup: {
       inline_keyboard: [
