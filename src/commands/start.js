@@ -9,10 +9,6 @@ module.exports = async (ctx) => {
 
     const payload = ctx.startPayload;
 
-  if (payload) {
-    await knex('users').update({ mahbet_id: payload }).where({ telegram_id: ctx.from.id });
-     
-  }
   await ctx.replyWithPhoto('https://iili.io/fyGKzas.jpg', {
     caption: welcomeMessage,
     reply_markup: {
@@ -44,7 +40,14 @@ module.exports = async (ctx) => {
       // [vpn],
     ]).resize()
   );
-
+  if (payload) {
+    await knex('users').update({ mahbet_id: payload }).where({ telegram_id: ctx.from.id });
+      await ctx.reply(
+        `🎁 Promo Code Activated!\n\n` +
+        `Your promo code: *${payload}*\n\n` +
+        `Bonus has been successfully applied to your account 🚀`,
+      );
+  }
   } catch(err){
    console.log(err.message, 'ppp')
   }
