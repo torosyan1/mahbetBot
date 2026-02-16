@@ -22,7 +22,7 @@ module.exports = async (ctx) => {
     const payload = ctx.startPayload;
 
     // Send welcome image with inline keyboard
-    // icon_custom_emoji_id ONLY works with inline buttons
+    // ✅ Inline buttons support: icon_custom_emoji_id and style
     await ctx.replyWithPhoto('https://iili.io/fyGKzas.jpg', {
       caption: welcomeMessage,
       reply_markup: {
@@ -31,7 +31,8 @@ module.exports = async (ctx) => {
             {
               text: welcomeButtonInline,
               web_app: { url: web_app },
-              icon_custom_emoji_id: '5334646924081394109'  // ✅ Animated custom emoji (works here)
+              icon_custom_emoji_id: '5334646924081394109',  // ✅ Custom animated emoji
+              style: 'success'  // ✅ Button color: "success" (green), "danger" (red), or "primary" (blue)
             }
           ]
         ],
@@ -39,7 +40,7 @@ module.exports = async (ctx) => {
     });
 
     // Send menu with regular keyboard
-    // ⚠️ Regular keyboards ONLY support text emojis (no custom emoji, no colors)
+    // ✅ Regular keyboard buttons also support: icon_custom_emoji_id and style (NEW in Bot API 9.4)
     await ctx.reply(
       forMoreMessage,
       {
@@ -47,18 +48,26 @@ module.exports = async (ctx) => {
           keyboard: [
             [
               {
-                text: `${suppotButtonKeyboard}`,  // Standard text emoji
+                text: suppotButtonKeyboard,
+                icon_custom_emoji_id: '5334646924081394109',  // ✅ Custom animated emoji
+                style: 'primary',  // ✅ Blue button
               },
               {
-                text: `${promotionButtonKeyboard}`,
+                text: promotionButtonKeyboard,
+                icon_custom_emoji_id: '5334646924081394109',  // ✅ Custom animated emoji
+                style: 'success'  // ✅ Green button
               }
             ],
             [
               {
-                text: `${FAQButtonKeyboard}`,
+                text: FAQButtonKeyboard,
+                icon_custom_emoji_id: '5334646924081394109',  // ✅ Custom animated emoji
+                style: 'primary'  // ✅ Blue button
               },
               {
-                text: `${helpMeButtonKeyboard}`,
+                text: helpMeButtonKeyboard,
+                icon_custom_emoji_id: '5334646924081394109',  // ✅ Custom animated emoji
+                style: 'danger'  // ✅ Red button
               }
             ],
           ],
