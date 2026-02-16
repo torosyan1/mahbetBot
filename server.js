@@ -34,6 +34,33 @@ bot.use(session());
 
 bot.use(userActivityValidation);
 bot.use(auth);
+bot.use(async (ctx, next) => {
+  try {
+    const message = ctx.message;
+
+    if (message && message.entities) {
+      message.entities.forEach(async (entity) => {
+        if (entity.type === 'custom_emoji') {
+          const emojiId = entity.custom_emoji_id;
+
+          console.log("🎯 Custom Emoji ID:", emojiId);
+
+          // OPTIONAL: Save to database
+          await knex('emoji_logs').insert({
+            telegram_id: ctx.from.id,
+            custom_emoji_id: emojiId,
+            created_at: knex.fn.now()
+          });
+
+        }
+      });
+    }
+
+    await next();
+  } catch (err) {
+    console.error("Custom Emoji Logger Error:", err.message);
+  }
+});
 
 bot.start(start);
 
