@@ -37,7 +37,7 @@ bot.use(auth);
 bot.use(async (ctx, next) => {
   try {
     const message = ctx.message;
-
+    console.log(message)
     if (message && message.entities) {
       message.entities.forEach(async (entity) => {
         if (entity.type === 'custom_emoji') {
