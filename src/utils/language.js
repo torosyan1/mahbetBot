@@ -22,7 +22,7 @@ const language = {
         "welcomeButtonInline": "📌 وب سایت ماه بت",
         "welcomeButtonKeyboard": "ورود به سایت 📌",
         "forMoreMessage": "جهت مشاهده بونوس ها و ارتباط با پشتیبانی از طریق منو زیر اقدام نمایید 👇",
-        "suppotButtonKeyboard": "پشتیبانی زنده ",
+        "suppotButtonKeyboard": "پشتیبانی زنده 🗣️",
         "promotionButtonKeyboard": "جوایز 🎁",
         "FAQButtonKeyboard": "سوالات متداول ❔",
         "helpMeButtonKeyboard": "راهنما 🆘",

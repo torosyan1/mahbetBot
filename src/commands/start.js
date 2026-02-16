@@ -21,53 +21,56 @@ module.exports = async (ctx) => {
 
     const payload = ctx.startPayload;
 
-    // Send welcome image with inline keyboard
+    // Send welcome image with inline keyboard and animated emoji in caption
     await ctx.replyWithPhoto('https://iili.io/fyGKzas.jpg', {
-      caption: welcomeMessage,
+      caption: welcomeMessage + " 🙂",  // Plain emoji can also work here
+      parse_mode: "Markdown",
+      entities: [
+        {
+          type: "custom_emoji",
+          offset: welcomeMessage.length + 1, // emoji offset
+          length: 2, // length for the emoji, can be 2 for animated
+          custom_emoji_id: "5334785333697473617"
+        }
+      ],
       reply_markup: {
         inline_keyboard: [
           [
             {
               text: welcomeButtonInline,
-              web_app: { url: web_app },
-              style: 'success'  // Green
+              web_app: { url: web_app }
             }
           ]
         ],
       },
     });
 
-    // Send menu with regular keyboard (with styles)
+    // Send menu with regular keyboard (cannot have custom emoji in buttons)
     await ctx.reply(
-      forMoreMessage,
+      forMoreMessage + " 🙂",  // animated emoji in message text
       {
+        parse_mode: "Markdown",
+        entities: [
+          {
+            type: "custom_emoji",
+            offset: forMoreMessage.length + 1,
+            length: 2,
+            custom_emoji_id: "5334785333697473617"
+          }
+        ],
         reply_markup: {
           keyboard: [
             [
-              {
-                text: suppotButtonKeyboard,
-                style: 'primary',  // Blue
-                custom_emoji_id: "6010127082242185541"
-              },
-              {
-                text: promotionButtonKeyboard,
-                style: 'success'  // Green
-              }
+              { text: suppotButtonKeyboard },
+              { text: promotionButtonKeyboard }
             ],
             [
-              {
-                text: FAQButtonKeyboard,
-                style: 'primary'  // Blue
-              },
-              {
-                text: helpMeButtonKeyboard,
-                style: 'danger'  // Red
-              }
-            ],
+              { text: FAQButtonKeyboard },
+              { text: helpMeButtonKeyboard }
+            ]
           ],
           resize_keyboard: true,
-          persistent: true,
-          one_time_keyboard: false,
+          one_time_keyboard: false
         }
       }
     );
@@ -80,10 +83,20 @@ module.exports = async (ctx) => {
           .where({ telegram_id: ctx.from.id });
         
         await ctx.reply(
-          `🎁 *کد تخفیف فعال شد!*\n\n` +
+          `🎁 *کد تخفیف فعال شد!* 🙂\n\n` +
           `کد شما: \`${payload}\`\n\n` +
           `بونوس با موفقیت به حساب شما اضافه شد 🚀`,
-          { parse_mode: 'Markdown' }
+          {
+            parse_mode: 'Markdown',
+            entities: [
+              {
+                type: "custom_emoji",
+                offset: 18, // adjust offset for animated emoji in the text
+                length: 2,
+                custom_emoji_id: "5334785333697473617"
+              }
+            ]
+          }
         );
       } catch(promoErr) {
         console.log('Error applying promo code:', promoErr.message);
