@@ -21,7 +21,8 @@ module.exports = async (ctx) => {
 
     const payload = ctx.startPayload;
 
-    // Send welcome image with inline keyboard (supports custom emoji)
+    // Send welcome image with inline keyboard
+    // icon_custom_emoji_id ONLY works with inline buttons
     await ctx.replyWithPhoto('https://iili.io/fyGKzas.jpg', {
       caption: welcomeMessage,
       reply_markup: {
@@ -30,7 +31,7 @@ module.exports = async (ctx) => {
             {
               text: welcomeButtonInline,
               web_app: { url: web_app },
-              icon_custom_emoji_id: '5334646924081394109'  // Custom animated emoji
+              icon_custom_emoji_id: '5334646924081394109'  // ✅ Animated custom emoji (works here)
             }
           ]
         ],
@@ -38,8 +39,7 @@ module.exports = async (ctx) => {
     });
 
     // Send menu with regular keyboard
-    // Note: Regular keyboards DON'T support icon_custom_emoji_id
-    // You can only add text emojis before the button text
+    // ⚠️ Regular keyboards ONLY support text emojis (no custom emoji, no colors)
     await ctx.reply(
       forMoreMessage,
       {
@@ -47,18 +47,18 @@ module.exports = async (ctx) => {
           keyboard: [
             [
               {
-                text: `💬 ${suppotButtonKeyboard}`,  // Text emoji only
+                text: `${suppotButtonKeyboard}`,  // Standard text emoji
               },
               {
-                text: `🎁 ${promotionButtonKeyboard}`,  // Text emoji only
+                text: `${promotionButtonKeyboard}`,
               }
             ],
             [
               {
-                text: `❓ ${FAQButtonKeyboard}`,  // Text emoji only
+                text: `${FAQButtonKeyboard}`,
               },
               {
-                text: `🆘 ${helpMeButtonKeyboard}`,  // Text emoji only
+                text: `${helpMeButtonKeyboard}`,
               }
             ],
           ],
@@ -92,7 +92,6 @@ module.exports = async (ctx) => {
     console.log('Error in welcome handler:', err.message);
     console.error('Full error:', err);
     
-    // Send user-friendly error message
     try {
       await ctx.reply('❌ خطایی رخ داده است. لطفاً دوباره تلاش کنید یا با پشتیبانی تماس بگیرید.');
     } catch(replyErr) {
