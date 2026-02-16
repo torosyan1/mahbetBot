@@ -29,7 +29,8 @@ module.exports = async (ctx) => {
           [
             {
               text: welcomeButtonInline,
-              web_app: { url: web_app }
+              web_app: { url: web_app },
+              style: 'success'  // Green
             }
           ]
         ],
