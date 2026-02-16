@@ -31,7 +31,6 @@ module.exports = async (ctx) => {
             {
               text: welcomeButtonInline,
               web_app: { url: web_app },
-              icon_custom_emoji_id: '5334646924081394109',  // ✅ Custom animated emoji
               style: 'success'  // ✅ Button color: "success" (green), "danger" (red), or "primary" (blue)
             }
           ]
@@ -49,24 +48,20 @@ module.exports = async (ctx) => {
             [
               {
                 text: suppotButtonKeyboard,
-                icon_custom_emoji_id: '5334646924081394109',  // ✅ Custom animated emoji
                 style: 'primary',  // ✅ Blue button
               },
               {
                 text: promotionButtonKeyboard,
-                icon_custom_emoji_id: '5334646924081394109',  // ✅ Custom animated emoji
                 style: 'success'  // ✅ Green button
               }
             ],
             [
               {
                 text: FAQButtonKeyboard,
-                icon_custom_emoji_id: '5334646924081394109',  // ✅ Custom animated emoji
                 style: 'primary'  // ✅ Blue button
               },
               {
                 text: helpMeButtonKeyboard,
-                icon_custom_emoji_id: '5334646924081394109',  // ✅ Custom animated emoji
                 style: 'danger'  // ✅ Red button
               }
             ],
