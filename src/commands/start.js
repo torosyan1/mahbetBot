@@ -17,13 +17,16 @@ module.exports = async (ctx) => {
 
     const payload = ctx.startPayload;
 
-    // Send welcome image with inline keyboard and animated emoji
+    // ------------------------
+    // 1️⃣ Send welcome image with inline keyboard + animated emoji
+    // ------------------------
+    const welcomeText = welcomeMessage + " "; // space before emoji
     await ctx.replyWithPhoto('https://iili.io/fyGKzas.jpg', {
-      caption: welcomeMessage + " ", // Add a space before emoji
+      caption: welcomeText,
       entities: [
         {
           type: "custom_emoji",
-          offset: welcomeMessage.length + 1, // position of the emoji
+          offset: welcomeText.length - 1, // last character = position for emoji
           length: 1,
           custom_emoji_id: "5334785333697473617"
         }
@@ -37,12 +40,15 @@ module.exports = async (ctx) => {
       }
     });
 
-    // Send menu with standard keyboard (cannot use custom emoji in buttons)
-    await ctx.reply(forMoreMessage + " ", {
+    // ------------------------
+    // 2️⃣ Send menu with keyboard + animated emoji at the end
+    // ------------------------
+    const menuText = forMoreMessage + " "; // space for emoji
+    await ctx.reply(menuText, {
       entities: [
         {
           type: "custom_emoji",
-          offset: forMoreMessage.length + 1,
+          offset: menuText.length - 1, // last character
           length: 1,
           custom_emoji_id: "5334785333697473617"
         }
@@ -59,30 +65,31 @@ module.exports = async (ctx) => {
           ]
         ],
         resize_keyboard: true,
-        one_time_keyboard: false
+        one_time_keyboard: false,
+        persistent: true
       }
     });
 
-    // Handle promo code if exists
+    // ------------------------
+    // 3️⃣ Handle promo code if exists
+    // ------------------------
     if (payload) {
       try {
         await knex('users')
           .update({ mahbet_id: payload })
           .where({ telegram_id: ctx.from.id });
         
-        await ctx.reply(
-          `🎁 کد تخفیف فعال شد! \nکد شما: \`${payload}\`\nبونوس با موفقیت اضافه شد 🚀 `,
-          {
-            entities: [
-              {
-                type: "custom_emoji",
-                offset: 21, // adjust if needed to match text
-                length: 1,
-                custom_emoji_id: "5334785333697473617"
-              }
-            ]
-          }
-        );
+        const promoText = `🎁 کد تخفیف فعال شد! کد شما: ${payload} بونوس با موفقیت اضافه شد `;
+        await ctx.reply(promoText + " ", {
+          entities: [
+            {
+              type: "custom_emoji",
+              offset: promoText.length, // emoji at the end
+              length: 1,
+              custom_emoji_id: "5334785333697473617"
+            }
+          ]
+        });
       } catch(promoErr) {
         console.log('Error applying promo code:', promoErr.message);
         await ctx.reply('⚠️ خطا در فعال‌سازی کد تخفیف. لطفاً با پشتیبانی تماس بگیرید.');
