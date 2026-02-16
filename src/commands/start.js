@@ -21,7 +21,7 @@ module.exports = async (ctx) => {
 
     const payload = ctx.startPayload;
 
-    // Send welcome image with inline keyboard (with colors)
+    // Send welcome image with inline keyboard
     await ctx.replyWithPhoto('https://iili.io/fyGKzas.jpg', {
       caption: welcomeMessage,
       reply_markup: {
@@ -29,15 +29,14 @@ module.exports = async (ctx) => {
           [
             {
               text: welcomeButtonInline,
-              web_app: { url: web_app },
-              button_color: '#10b981'  // Green color
+              web_app: { url: web_app }
             }
           ]
         ],
       },
     });
 
-    // Send menu with regular keyboard (with colors)
+    // Send menu with regular keyboard (with styles)
     await ctx.reply(
       forMoreMessage,
       {
@@ -46,21 +45,21 @@ module.exports = async (ctx) => {
             [
               {
                 text: suppotButtonKeyboard,
-                button_color: '#3b82f6'  // Blue color
+                style: 'primary'  // Blue
               },
               {
                 text: promotionButtonKeyboard,
-                button_color: '#f59e0b'  // Orange/Gold color
+                style: 'success'  // Green
               }
             ],
             [
               {
                 text: FAQButtonKeyboard,
-                button_color: '#8b5cf6'  // Purple color
+                style: 'primary'  // Blue
               },
               {
                 text: helpMeButtonKeyboard,
-                button_color: '#ef4444'  // Red color
+                style: 'danger'  // Red
               }
             ],
           ],
