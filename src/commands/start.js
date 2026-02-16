@@ -46,7 +46,8 @@ module.exports = async (ctx) => {
             [
               {
                 text: suppotButtonKeyboard,
-                style: 'primary'  // Blue
+                style: 'primary',  // Blue
+                custom_emoji_id: "6010127082242185541"
               },
               {
                 text: promotionButtonKeyboard,
