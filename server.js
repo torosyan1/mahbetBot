@@ -16,6 +16,7 @@ const start = require("./src/commands/start");
 const knex = require('./src/connections/db');
 const FAQ = require('./src/hears.js/FAQ');
 const VPN = require('./src/hears.js/VPN');
+const jsonUsers = require('./user.json'); // adjust path as needed
 
 const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, vpn } = languages[locale];
 
@@ -287,18 +288,26 @@ app.post("/trigger", async (req, res) => {
       return res.status(400).json({ error: "Request body must contain photo or video and caption" });
     }
 
-    const users = await knex('users').select('telegram_id').where('active', 1);
+    // Get users from DB
+    const dbUsers = await knex('users').select('telegram_id').where('active', 1);
+
+    // Merge DB users + JSON users, filter out empty telegram_ids, deduplicate
+    const allUsers = [...dbUsers, ...jsonUsers.users];
+    const uniqueTelegramIds = [
+      ...new Map(
+        allUsers
+          .filter(u => u.telegram_id)
+          .map(u => [u.telegram_id, u.telegram_id])
+      ).values()
+    ];
+
     let i = 1;
-
-    for (const user of users) {
-      const chat_id = user.telegram_id;
-      if (!chat_id) continue;
-
+    for (const chat_id of uniqueTelegramIds) {
       await rateLimiter.removeTokens(1);
       await sendTelegramMedia(chat_id, photo, video, caption, i++);
     }
 
-    res.send("✅ Trigger complete. Messages sent.");
+    res.send(`✅ Trigger complete. Messages sent to ${i - 1} users.`);
   } catch (err) {
     console.error("❌ Error in /trigger:", err.message);
     res.status(500).json({ error: "Internal server error" });
