@@ -73,25 +73,71 @@ module.exports = async (ctx) => {
       }
     );
 
-    // Handle promo code if exists
-    if (payload) {
-      try {
-        await knex('users')
-          .update({ mahbet_id: payload })
-          .where({ telegram_id: ctx.from.id });
-        
-        await ctx.reply(
-          `🎁 *کد تخفیف فعال شد!*\n\n` +
-          `کد شما: \`${payload}\`\n\n` +
-          `بونوس با موفقیت به حساب شما اضافه شد 🚀`,
-          { parse_mode: 'Markdown' }
-        );
-      } catch(promoErr) {
-        console.log('Error applying promo code:', promoErr.message);
-        await ctx.reply('⚠️ خطا در فعال‌سازی کد تخفیف. لطفاً با پشتیبانی تماس بگیرید.');
-      }
+// Handle promo code if exists
+if (payload) {
+  try {
+    // Check if user already received a promo code (telegram_id exists in promo_codes)
+    const alreadyUsed = await knex('promo_codes')
+      .where({ telegram_id: String(ctx.from.id) })
+      .first();
+
+    if (alreadyUsed) {
+      await ctx.reply(
+        `⚠️ شما قبلاً کد هدیه دریافت کرده‌اید.\n\nهر کاربر فقط یک بار می‌تواند کد هدیه دریافت کند.`,
+        { parse_mode: 'Markdown' }
+      );
+      return;
     }
 
+    // Get an unused promo code (telegram_id is NULL)
+    const promoRow = await knex('promo_codes')
+      .whereNull('telegram_id')
+      .first();
+
+    if (!promoRow) {
+      await ctx.reply('⚠️ کد هدیه‌ای موجود نیست. لطفاً با پشتیبانی تماس بگیرید.');
+      return;
+    }
+
+    // Mark promo code as used
+    await knex('promo_codes')
+      .update({ 
+        telegram_id: String(ctx.from.id),
+        active: 1
+      })
+      .where({ codes: promoRow.codes })
+      .whereNull('telegram_id'); // extra safety to prevent race condition
+
+    // Update user's mahbet_id
+    await knex('users')
+      .update({ mahbet_id: payload })
+      .where({ telegram_id: ctx.from.id });
+
+    await ctx.reply(
+      `🎁 *هدیه شما در راه است*\n\n` +
+      `تبریک، شما کد هدیه دریافت کرده‌اید\n\n` +
+      `\`${promoRow.codes}\`\n\n` +
+      `برای فعال‌سازی و استفاده به قسمت بونوس‌های حساب کاربری مراجعه کنید.`,
+      {
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: welcomeButtonInline,
+                web_app: { url: web_app }
+              }
+            ]
+          ]
+        }
+      }
+    );
+
+  } catch(promoErr) {
+    console.log('Error applying promo code:', promoErr.message);
+    await ctx.reply('⚠️ خطا در فعال‌سازی کد هدیه. لطفاً با پشتیبانی تماس بگیرید.');
+  }
+}
   } catch(err) {
     console.log('Error in welcome handler:', err.message);
     console.error('Full error:', err);
