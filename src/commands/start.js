@@ -125,7 +125,8 @@ if (payload) {
             [
               {
                 text: welcomeButtonInline,
-                web_app: { url: web_app }
+                web_app: { url: web_app },
+                style: 'success'  // ✅ Button color: "success" (green), "danger" (red), or "primary" (blue)
               }
             ]
           ]
