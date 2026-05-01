@@ -9,7 +9,7 @@ function startPosterBot() {
 
   const inlineKeyboard = {
     inline_keyboard: [
-      [{ text: "ورود به سایت 📌", url: "https://fsgfhshrb.shop/" }],
+      [{ text: "ورود به سایت 📌", url: "https://www.mahbet.com" }],
       [
         { text: "اینستاگرام", url: "https://www.instagram.com/mahbet_official/?hl=en" },
         { text: "پشتیبانی", url: "https://direct.lc.chat/14697702/" }

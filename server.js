@@ -268,7 +268,7 @@ async function sendTelegramMedia(chat_id, photo, video, caption, i) {
           [{ text: "ازتباط با پشتیبانی آنلاین  ماه بت", url: "https://direct.lc.chat/14697702" }],
           [{ text: "کانال تلگرامی ماه بت", url: "https://t.me/Mahbet_official" }],
           [{ text: "دانلود اپلیکیشن ماه بت", url: "https://files.igmobile.io/storage/v1/object/public/Shared/MahBv1.0.2.apk" }],
-          [{ text: "ورود به سایت 📌", web_app: { url: "https://torosyan1.github.io/mahbet_html_en" } }]
+          [{ text: "ورود به سایت 📌", web_app: { url: "https://www.mahbet.com" } }]
         ]
       }
     });
