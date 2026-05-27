@@ -5,7 +5,10 @@ const { Telegraf, session } = require("telegraf");
 const geoip = require('geoip-lite');
 const schedule = require('node-schedule');
 const express = require('express');
-const cors = require('cors')
+const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const { userActivityValidation } = require('./src/middleware/usersActivityValidation');
 const { bot_token, locale, port, welcome_image_url, web_app } = require('./src/utils/env');
@@ -128,8 +131,53 @@ const redisClient = await initializeRedis();
 const app = express();
 
 app.use(cors())
-app.use(express.json()); 
-app.use(express.urlencoded({ extended: true })); 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// ── Static frontend ───────────────────────────────────────────
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// ── Multer file upload config ─────────────────────────────────
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, uploadDir),
+  filename:    (_req, file, cb) => {
+    const ext  = path.extname(file.originalname);
+    const name = `${Date.now()}-${Math.round(Math.random() * 1e6)}${ext}`;
+    cb(null, name);
+  }
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
+  fileFilter: (_req, file, cb) => {
+    const ok = /^(image|video)\//.test(file.mimetype);
+    cb(ok ? null : new Error('Only images and videos are allowed'), ok);
+  }
+});
+
+// ── POST /upload ──────────────────────────────────────────────
+app.post('/upload', panelAuth, upload.single('file'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+  const host     = req.headers['x-forwarded-host']  || req.get('host');
+  const url      = `${protocol}://${host}/uploads/${req.file.filename}`;
+  res.json({ url, filename: req.file.filename, mimetype: req.file.mimetype });
+});
+
+// ── GET /stats ────────────────────────────────────────────────
+app.get('/stats', async (_req, res) => {
+  try {
+    const dbCount  = await knex('users').where('active', 1).count('id as c').first();
+    const jsonCount = (jsonUsers.users || []).filter(u => u.active === 1 && u.telegram_id).length;
+    res.json({ total: (dbCount?.c || 0) + jsonCount });
+  } catch (err) {
+    res.json({ total: 0 });
+  }
+});
 
 app.post('/login', async (req, res) => {
     try {
@@ -252,66 +300,140 @@ app.post("/sendMessage", async (req, res) => {
   }
 });
 
-async function sendTelegramMedia(chat_id, photo, video, caption, i) {
+// ── Panel Auth ────────────────────────────────────────────────
+const PANEL_TOKEN = process.env.PANEL_TOKEN || 'mahbet-panel-secret';
+
+app.post('/panel-login', (req, res) => {
+  const { username, password } = req.body;
+  const validUser = process.env.PANEL_USER || 'admin';
+  const validPass = process.env.PANEL_PASS || 'mahbet2024';
+  if (username === validUser && password === validPass) {
+    return res.json({ token: PANEL_TOKEN });
+  }
+  res.status(401).json({ error: 'Invalid username or password' });
+});
+
+function panelAuth(req, res, next) {
+  const token = req.headers['x-panel-token'] || req.query.token;
+  if (token === PANEL_TOKEN) return next();
+  res.status(401).json({ error: 'Unauthorized' });
+}
+
+// ── In-memory broadcast jobs ──────────────────────────────────
+const broadcastJobs = new Map(); // jobId → { total, sent, failed, done, clients[] }
+
+/**
+ * Build inline_keyboard from frontend buttons array.
+ * Falls back to default MahBet buttons if none supplied.
+ */
+function buildReplyMarkup(buttons) {
+  if (Array.isArray(buttons) && buttons.length > 0) {
+    return {
+      inline_keyboard: buttons.map(b =>
+        b.type === 'web_app'
+          ? [{ text: b.text, web_app: { url: b.url } }]
+          : [{ text: b.text, url: b.url }]
+      )
+    };
+  }
+  return {
+    inline_keyboard: [
+      [{ text: "ارتباط با پشتیبانی آنلاین ماه بت", url: "https://direct.lc.chat/14697702" }],
+      [{ text: "کانال تلگرامی ماه بت",              url: "https://t.me/Mahbet_official" }],
+      [{ text: "دانلود اپلیکیشن ماه بت",            url: "https://files.igmobile.io/storage/v1/object/public/Shared/MahBv1.0.2.apk" }],
+      [{ text: "ورود به سایت 📌",                   web_app: { url: "https://www.mahbet.com" } }]
+    ]
+  };
+}
+
+/** Send one Telegram message. Returns true on success. */
+async function sendTelegramMedia(chat_id, photo, video, caption, buttons) {
   try {
-    const type = photo ? "photo" : video ? "video" : null;
-    if (!type) throw new Error("Missing 'photo' or 'video' field.");
-
-    const apiEndpoint = `https://api.telegram.org/bot${bot_token}/send${type.charAt(0).toUpperCase() + type.slice(1)}`;
-
-    await axios.post(apiEndpoint, {
+    const type = photo ? 'photo' : video ? 'video' : null;
+    if (!type) return false;
+    const endpoint = `https://api.telegram.org/bot${bot_token}/send${type[0].toUpperCase() + type.slice(1)}`;
+    await axios.post(endpoint, {
       chat_id,
       [type]: photo || video,
       caption,
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: "ازتباط با پشتیبانی آنلاین  ماه بت", url: "https://direct.lc.chat/14697702" }],
-          [{ text: "کانال تلگرامی ماه بت", url: "https://t.me/Mahbet_official" }],
-          [{ text: "دانلود اپلیکیشن ماه بت", url: "https://files.igmobile.io/storage/v1/object/public/Shared/MahBv1.0.2.apk" }],
-          [{ text: "ورود به سایت 📌", web_app: { url: "https://www.mahbet.com" } }]
-        ]
-      }
+      reply_markup: buildReplyMarkup(buttons)
     });
-
-    console.log(`✅ Sent ${type} to chat_id ${chat_id}`, i);
-  } catch (error) {
-    console.error(`❌ Error for chat_id ${chat_id}:`, error.message);
+    return true;
+  } catch (err) {
+    console.error(`❌ chat_id ${chat_id}: ${err.message}`);
+    return false;
   }
 }
+
 const rateLimiter = new RateLimiter({ tokensPerInterval: 25, interval: 'second' });
 
-app.post("/trigger", async (req, res) => {
+// ── POST /trigger — start broadcast, respond immediately with jobId ──
+app.post('/trigger', panelAuth, async (req, res) => {
   try {
-    const { photo, video, caption } = req.body;
+    const { photo, video, caption, buttons } = req.body;
 
     if ((!photo && !video) || !caption) {
-      return res.status(400).json({ error: "Request body must contain photo or video and caption" });
+      return res.status(400).json({ error: 'photo or video + caption required' });
     }
 
-    // Get users from DB
-    const dbUsers = await knex('users').select('telegram_id').where('active', 1);
-
-    // Merge DB users + JSON users, filter out empty telegram_ids, deduplicate
-    const allUsers = [...dbUsers, ...jsonUsers.users];
-    const uniqueTelegramIds = [
+    // Build deduplicated user list
+    const dbUsers  = await knex('users').select('telegram_id').where('active', 1);
+    const allUsers = [...dbUsers, ...(jsonUsers.users || [])];
+    const ids = [
       ...new Map(
-        allUsers
-          .filter(u => u.telegram_id)
-          .map(u => [u.telegram_id, u.telegram_id])
+        allUsers.filter(u => u.telegram_id).map(u => [String(u.telegram_id), u.telegram_id])
       ).values()
     ];
 
-    let i = 1;
-    for (const chat_id of uniqueTelegramIds) {
-      await rateLimiter.removeTokens(1);
-      await sendTelegramMedia(chat_id, photo, video, caption, i++);
-    }
+    const jobId = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    const job   = { total: ids.length, sent: 0, failed: 0, done: false, clients: [] };
+    broadcastJobs.set(jobId, job);
 
-    res.send(`✅ Trigger complete. Messages sent to ${i - 1} users.`);
+    // Respond immediately so the client can open the SSE stream
+    res.json({ jobId, total: ids.length });
+
+    // Broadcast in background
+    (async () => {
+      for (let i = 0; i < ids.length; i++) {
+        await rateLimiter.removeTokens(1);
+        const ok = await sendTelegramMedia(ids[i], photo, video, caption, buttons);
+        if (ok) job.sent++; else job.failed++;
+
+        const payload = JSON.stringify({ sent: job.sent, failed: job.failed, total: job.total, done: false });
+        job.clients.forEach(c => c.write(`data: ${payload}\n\n`));
+      }
+
+      job.done = true;
+      const done = JSON.stringify({ sent: job.sent, failed: job.failed, total: job.total, done: true });
+      job.clients.forEach(c => { c.write(`data: ${done}\n\n`); c.end(); });
+      console.log(`✅ Broadcast ${jobId} done — sent:${job.sent} failed:${job.failed}`);
+
+      setTimeout(() => broadcastJobs.delete(jobId), 120_000);
+    })();
+
   } catch (err) {
-    console.error("❌ Error in /trigger:", err.message);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('❌ /trigger:', err.message);
+    res.status(500).json({ error: 'Internal server error' });
   }
+});
+
+// ── GET /trigger-stream/:jobId — SSE progress stream ─────────
+app.get('/trigger-stream/:jobId', panelAuth, (req, res) => {
+  const job = broadcastJobs.get(req.params.jobId);
+  if (!job) return res.status(404).send('Job not found');
+
+  res.setHeader('Content-Type',  'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection',    'keep-alive');
+  res.flushHeaders();
+
+  // Send current snapshot immediately
+  const snap = JSON.stringify({ sent: job.sent, failed: job.failed, total: job.total, done: job.done });
+  res.write(`data: ${snap}\n\n`);
+  if (job.done) { res.end(); return; }
+
+  job.clients.push(res);
+  req.on('close', () => { job.clients = job.clients.filter(c => c !== res); });
 });
 
 app.listen(port, async () => {
