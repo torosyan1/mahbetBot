@@ -134,6 +134,9 @@ app.use(cors())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ── Health check ──────────────────────────────────────────────
+app.get('/', (_req, res) => res.send('ok'));
+
 // ── Static frontend ───────────────────────────────────────────
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
