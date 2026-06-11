@@ -355,13 +355,27 @@ async function sendTelegramMedia(chat_id, photo, video, caption, buttons) {
   try {
     const type = photo ? 'photo' : video ? 'video' : null;
     if (!type) return false;
+    const mediaValue = photo || video;
     const endpoint = `https://api.telegram.org/bot${bot_token}/send${type[0].toUpperCase() + type.slice(1)}`;
-    await axios.post(endpoint, {
-      chat_id,
-      [type]: photo || video,
-      caption,
-      reply_markup: buildReplyMarkup(buttons)
-    });
+
+    const localMatch = mediaValue.match(/\/uploads\/([^?#]+)$/);
+    if (localMatch) {
+      const FormData = require('form-data');
+      const form = new FormData();
+      form.append('chat_id', String(chat_id));
+      form.append(type, fs.createReadStream(path.join(__dirname, 'uploads', localMatch[1])));
+      form.append('caption', caption);
+      const markup = buildReplyMarkup(buttons);
+      if (markup) form.append('reply_markup', JSON.stringify(markup));
+      await axios.post(endpoint, form, { headers: form.getHeaders() });
+    } else {
+      await axios.post(endpoint, {
+        chat_id,
+        [type]: mediaValue,
+        caption,
+        reply_markup: buildReplyMarkup(buttons)
+      });
+    }
     return true;
   } catch (err) {
     const status = err.response?.status;
