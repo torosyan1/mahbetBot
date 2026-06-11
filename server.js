@@ -425,15 +425,26 @@ app.post('/trigger', panelAuth, async (req, res) => {
     // Respond immediately so the client can open the SSE stream
     res.json({ jobId, total: ids.length });
 
-    // Broadcast in background
+    // Broadcast in background — parallel batches of 25/sec
     (async () => {
-      for (let i = 0; i < ids.length; i++) {
-        await rateLimiter.removeTokens(1);
-        const ok = await sendTelegramMedia(ids[i], photo, video, caption, buttons);
-        if (ok) job.sent++; else job.failed++;
+      const BATCH = 25;
+      for (let i = 0; i < ids.length; i += BATCH) {
+        const batch = ids.slice(i, i + BATCH);
+        const start = Date.now();
+
+        const results = await Promise.all(
+          batch.map(id => sendTelegramMedia(id, photo, video, caption, buttons))
+        );
+        results.forEach(ok => { if (ok) job.sent++; else job.failed++; });
 
         const payload = JSON.stringify({ sent: job.sent, failed: job.failed, total: job.total, done: false });
         job.clients.forEach(c => c.write(`data: ${payload}\n\n`));
+
+        // Respect Telegram's 30 msg/sec limit — wait remainder of 1 second
+        const elapsed = Date.now() - start;
+        if (elapsed < 1000 && i + BATCH < ids.length) {
+          await new Promise(r => setTimeout(r, 1000 - elapsed));
+        }
       }
 
       job.done = true;
