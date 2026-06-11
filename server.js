@@ -174,9 +174,10 @@ app.post('/upload', panelAuth, upload.single('file'), (req, res) => {
 // ── GET /stats ────────────────────────────────────────────────
 app.get('/stats', async (_req, res) => {
   try {
-    const dbCount  = await knex('users').where('active', 1).count('id as c').first();
-    const jsonCount = (jsonUsers.users || []).filter(u => u.active === 1 && u.telegram_id).length;
-    res.json({ total: (dbCount?.c || 0) + jsonCount });
+    const dbUsers   = await knex('users').select('telegram_id').where('active', 1);
+    const allUsers  = [...dbUsers, ...(jsonUsers.users || []).filter(u => u.active === 1)];
+    const total = new Set(allUsers.filter(u => u.telegram_id).map(u => String(u.telegram_id))).size;
+    res.json({ total });
   } catch (err) {
     res.json({ total: 0 });
   }
@@ -363,7 +364,22 @@ async function sendTelegramMedia(chat_id, photo, video, caption, buttons) {
     });
     return true;
   } catch (err) {
-    console.error(`❌ chat_id ${chat_id}: ${err.message}`);
+    const status = err.response?.status;
+    const desc   = err.response?.data?.description || err.message;
+    console.error(`❌ chat_id ${chat_id}: [${status}] ${desc}`);
+
+    // Auto-deactivate users who blocked the bot or whose accounts are gone
+    const permanent = status === 403 || (status === 400 && (
+      desc.includes('chat not found') ||
+      desc.includes('user is deactivated') ||
+      desc.includes('bot was kicked')
+    ));
+    if (permanent) {
+      try {
+        await knex('users').where({ telegram_id: String(chat_id) }).update({ active: 0 });
+      } catch { /* ignore if user not in DB */ }
+    }
+
     return false;
   }
 }
@@ -453,9 +469,9 @@ app.get('/trigger-stream/:jobId', panelAuth, (req, res) => {
 // ── GET /dashboard-stats ─────────────────────────────────────
 app.get('/dashboard-stats', panelAuth, async (_req, res) => {
   try {
-    const dbCount = await knex('users').where('active', 1).count('id as c').first();
-    const jsonCount = (jsonUsers.users || []).filter(u => u.active === 1 && u.telegram_id).length;
-    const totalUsers = (Number(dbCount?.c) || 0) + jsonCount;
+    const dbUsers2  = await knex('users').select('telegram_id').where('active', 1);
+    const allUsers2 = [...dbUsers2, ...(jsonUsers.users || []).filter(u => u.active === 1)];
+    const totalUsers = new Set(allUsers2.filter(u => u.telegram_id).map(u => String(u.telegram_id))).size;
 
     let totalBroadcasts = 0, sentToday = 0, failedMessages = 0, successRate = 87;
     try {
