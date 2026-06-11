@@ -19,7 +19,6 @@ const start = require("./src/commands/start");
 const knex = require('./src/connections/db');
 const FAQ = require('./src/hears.js/FAQ');
 const VPN = require('./src/hears.js/VPN');
-const jsonUsers = require('./user.json'); // adjust path as needed
 
 const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, vpn } = languages[locale];
 
@@ -174,12 +173,41 @@ app.post('/upload', panelAuth, upload.single('file'), (req, res) => {
 // ── GET /stats ────────────────────────────────────────────────
 app.get('/stats', async (_req, res) => {
   try {
-    const dbUsers   = await knex('users').select('telegram_id').where('active', 1);
-    const allUsers  = [...dbUsers, ...(jsonUsers.users || []).filter(u => u.active === 1)];
-    const total = new Set(allUsers.filter(u => u.telegram_id).map(u => String(u.telegram_id))).size;
+    const dbUsers = await knex('users').select('telegram_id').where('active', 1);
+    const total = new Set(dbUsers.filter(u => u.telegram_id).map(u => String(u.telegram_id))).size;
     res.json({ total });
   } catch (err) {
     res.json({ total: 0 });
+  }
+});
+
+app.get('/users/registered', panelAuth, async (_req, res) => {
+  try {
+    const users = await knex('users')
+      .whereNotNull('mahbet_id')
+      .where('mahbet_id', '!=', '')
+      .select('id', 'telegram_id', 'username', 'mahbet_id', 'createdAt');
+    res.json({ total: users.length, users });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /users/:id/message — send a direct Telegram message ──
+app.post('/users/:id/message', panelAuth, async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message) return res.status(400).json({ error: 'message required' });
+
+    const user = await knex('users').where({ id: req.params.id }).first();
+    if (!user || !user.telegram_id) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const ok = await sendTelegramText(user.telegram_id, message);
+    res.json({ ok });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -398,6 +426,33 @@ async function sendTelegramMedia(chat_id, photo, video, caption, buttons) {
   }
 }
 
+/** Send a plain text Telegram message. Returns true on success. */
+async function sendTelegramText(chat_id, text) {
+  try {
+    const endpoint = `https://api.telegram.org/bot${bot_token}/sendMessage`;
+    await axios.post(endpoint, { chat_id, text });
+    return true;
+  } catch (err) {
+    const status = err.response?.status;
+    const desc   = err.response?.data?.description || err.message;
+    console.error(`❌ chat_id ${chat_id}: [${status}] ${desc}`);
+
+    // Auto-deactivate users who blocked the bot or whose accounts are gone
+    const permanent = status === 403 || (status === 400 && (
+      desc.includes('chat not found') ||
+      desc.includes('user is deactivated') ||
+      desc.includes('bot was kicked')
+    ));
+    if (permanent) {
+      try {
+        await knex('users').where({ telegram_id: String(chat_id) }).update({ active: 0 });
+      } catch { /* ignore if user not in DB */ }
+    }
+
+    return false;
+  }
+}
+
 const rateLimiter = new RateLimiter({ tokensPerInterval: 25, interval: 'second' });
 
 // ── POST /trigger — start broadcast, respond immediately with jobId ──
@@ -409,12 +464,11 @@ app.post('/trigger', panelAuth, async (req, res) => {
       return res.status(400).json({ error: 'photo or video + caption required' });
     }
 
-    // Build deduplicated user list
-    const dbUsers  = await knex('users').select('telegram_id').where('active', 1);
-    const allUsers = [...dbUsers, ...(jsonUsers.users || [])];
+    // Build user list from DB only
+    const dbUsers = await knex('users').select('telegram_id').where('active', 1);
     const ids = [
       ...new Map(
-        allUsers.filter(u => u.telegram_id).map(u => [String(u.telegram_id), u.telegram_id])
+        dbUsers.filter(u => u.telegram_id).map(u => [String(u.telegram_id), u.telegram_id])
       ).values()
     ];
 
@@ -494,9 +548,8 @@ app.get('/trigger-stream/:jobId', panelAuth, (req, res) => {
 // ── GET /dashboard-stats ─────────────────────────────────────
 app.get('/dashboard-stats', panelAuth, async (_req, res) => {
   try {
-    const dbUsers2  = await knex('users').select('telegram_id').where('active', 1);
-    const allUsers2 = [...dbUsers2, ...(jsonUsers.users || []).filter(u => u.active === 1)];
-    const totalUsers = new Set(allUsers2.filter(u => u.telegram_id).map(u => String(u.telegram_id))).size;
+    const dbUsers2 = await knex('users').select('telegram_id').where('active', 1);
+    const totalUsers = new Set(dbUsers2.filter(u => u.telegram_id).map(u => String(u.telegram_id))).size;
 
     let totalBroadcasts = 0, sentToday = 0, failedMessages = 0, successRate = 87;
     try {
