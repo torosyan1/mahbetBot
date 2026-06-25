@@ -140,7 +140,6 @@ const redisClient = await initializeRedis();
 }
   async function getUpdates() {
     if (isPolling) {
-      console.log('getUpdates: previous call still in flight, skipping this tick');
       return;
     }
     isPolling = true;
