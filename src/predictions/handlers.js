@@ -37,7 +37,12 @@ const predictWizard = new Scenes.WizardScene(
     }
     ctx.wizard.state.pool = pool;
     ctx.wizard.state.home = value;
-    await ctx.reply(`⚽ چند گل می‌زند ${pool.away_team}؟ (یک عدد بفرستید)`);
+    try {
+      await ctx.reply(`⚽ چند گل می‌زند ${pool.away_team}؟ (یک عدد بفرستید)`);
+    } catch (err) {
+      console.error('predict wizard [1/home]: ctx.reply for away-question threw', err);
+      throw err;
+    }
     console.log('predict wizard [1/home]: advancing, new cursor will be', ctx.wizard.cursor + 1);
     return ctx.wizard.next();
   },

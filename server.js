@@ -101,6 +101,13 @@ const redisClient = await initializeRedis();
 
   const API_URL = `https://api.telegram.org/bot${bot_token}/getUpdates`;
   let lastUpdateId = 1;
+  // Without this, a getUpdates() call that's still awaiting bot.handleUpdate
+  // (DB query, slow Telegram API call, etc.) when the next 500ms tick fires
+  // overlaps with itself: both invocations fetch the same offset/batch and
+  // run bot.handleUpdate on the same updates concurrently, which can race
+  // a WizardScene step (e.g. the predict flow) into processing one answer
+  // twice and corrupting the cursor.
+  let isPolling = false;
 
 
   async function sendCRMUpdates(updates) {
@@ -122,6 +129,11 @@ const redisClient = await initializeRedis();
   }
 }
   async function getUpdates() {
+    if (isPolling) {
+      console.log('getUpdates: previous call still in flight, skipping this tick');
+      return;
+    }
+    isPolling = true;
     try {
       const response = await axios.get(API_URL, {
         params: {
@@ -162,6 +174,8 @@ const redisClient = await initializeRedis();
       }
     } catch (error) {
       console.error("Error fetching updates:", error.message);
+    } finally {
+      isPolling = false;
     }
   }
 
