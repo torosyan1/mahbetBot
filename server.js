@@ -11,7 +11,7 @@ process.on('uncaughtException', (err) => {
   console.error('Uncaught exception (ignored, process stays up):', err);
 });
 
-const { Telegraf, session, Scenes } = require("telegraf");
+const { Telegraf, session } = require("telegraf");
 // const iplocate = require("node-iplocate");
 const geoip = require('geoip-lite');
 const schedule = require('node-schedule');
@@ -30,7 +30,7 @@ const start = require("./src/commands/start");
 const knex = require('./src/connections/db');
 const FAQ = require('./src/hears.js/FAQ');
 const VPN = require('./src/hears.js/VPN');
-const { registerPredictionHandlers, predictWizard } = require('./src/predictions/handlers');
+const { registerPredictionHandlers } = require('./src/predictions/handlers');
 const predictionsDb = require('./src/predictions/db');
 
 const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, vpn } = languages[locale];
@@ -66,9 +66,6 @@ const sessionStore = {
 };
 
 bot.use(session({ store: sessionStore }));
-
-const stage = new Scenes.Stage([predictWizard]);
-bot.use(stage.middleware());
 
 bot.use(userActivityValidation);
 bot.use(auth);
