@@ -14,7 +14,20 @@ function getPool(id) {
 }
 
 function listPredictions(poolId) {
-  return knex('predictions').where({ pool_id: poolId }).orderBy('created_at', 'desc');
+  return knex('predictions')
+    .where({ 'predictions.pool_id': poolId })
+    .leftJoin('users', 'users.telegram_id', 'predictions.telegram_id')
+    .orderBy('predictions.created_at', 'desc')
+    .select(
+      'predictions.id',
+      'predictions.pool_id',
+      'predictions.telegram_id',
+      'predictions.predicted_home',
+      'predictions.predicted_away',
+      'predictions.is_correct',
+      'predictions.created_at',
+      'users.username'
+    );
 }
 
 async function savePrediction(poolId, telegramId, predictedHome, predictedAway) {
