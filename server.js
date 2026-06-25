@@ -135,10 +135,18 @@ const redisClient = await initializeRedis();
       const getLastID = await redisClient.get("lastUpdateId");
 
       if (updates && updates.length > 0) {
-        updates.forEach((update) => {
-          if (parseInt(getLastID) === update.update_id) return;
-          bot.handleUpdate(update);
-        });
+        for (const update of updates) {
+          console.log('getUpdates: raw update', update.update_id, 'type=', update.message ? 'message' : update.callback_query ? 'callback_query' : Object.keys(update).filter(k => k !== 'update_id'), 'text=', update.message?.text, 'data=', update.callback_query?.data);
+          if (parseInt(getLastID) === update.update_id) {
+            console.log('getUpdates: skipping update', update.update_id, 'because it matches stored lastUpdateId');
+            continue;
+          }
+          try {
+            await bot.handleUpdate(update);
+          } catch (err) {
+            console.error('getUpdates: bot.handleUpdate threw for update', update.update_id, err);
+          }
+        }
 
         lastUpdateId = updates[updates.length - 1].update_id;
         await redisClient.set("lastUpdateId", lastUpdateId);
@@ -153,7 +161,7 @@ const redisClient = await initializeRedis();
       }
       }
     } catch (error) {
-      // console.error("Error fetching updates:", error.message);
+      console.error("Error fetching updates:", error.message);
     }
   }
 
