@@ -19,6 +19,8 @@ const start = require("./src/commands/start");
 const knex = require('./src/connections/db');
 const FAQ = require('./src/hears.js/FAQ');
 const VPN = require('./src/hears.js/VPN');
+const { registerPredictionHandlers } = require('./src/predictions/handlers');
+const predictionsDb = require('./src/predictions/db');
 
 const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, vpn } = languages[locale];
 
@@ -39,6 +41,8 @@ bot.use(userActivityValidation);
 bot.use(auth);
 
 bot.start(start);
+
+registerPredictionHandlers(bot);
 
 // hears
 bot.hears(suppotButtonKeyboard,(ctx)=>ctx.telegram.sendMessage(ctx.message.from.id, '@MB_Support'));
@@ -675,6 +679,129 @@ app.post('/channels', panelAuth, async (req, res) => {
 app.delete('/channels/:id', panelAuth, async (req, res) => {
   try {
     await knex('channels').where({ id: req.params.id }).delete();
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET/POST /pools — prediction pools (e.g. Arsenal vs PSG) ──
+app.get('/pools', panelAuth, async (_req, res) => {
+  try {
+    const pools = await predictionsDb.listPools();
+    const counts = await knex('predictions')
+      .select('pool_id')
+      .count('id as c')
+      .groupBy('pool_id');
+    const countMap = Object.fromEntries(counts.map(c => [c.pool_id, Number(c.c)]));
+    res.json(pools.map(p => ({ ...p, prediction_count: countMap[p.id] || 0 })));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/pools', panelAuth, async (req, res) => {
+  try {
+    const { home_team, away_team } = req.body;
+    if (!home_team || !away_team) {
+      return res.status(400).json({ error: 'home_team and away_team required' });
+    }
+    const pool = await predictionsDb.createPool(home_team, away_team);
+    res.json(pool);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/** Send the pool's announcement (with Predict button) to a given list of telegram ids. */
+async function sendPoolAnnouncement(pool, ids) {
+  const text = `⚽️ پیش‌بینی نتیجه بازی\n\n${pool.home_team} 🆚 ${pool.away_team}\n\nنظرتون چیه؟ نتیجه رو پیش‌بینی کن!`;
+  const markup = { inline_keyboard: [[{ text: '🔮 پیش‌بینی نتیجه', callback_data: `predict_${pool.id}` }]] };
+  let sent = 0, failed = 0;
+  const BATCH = 25;
+  for (let i = 0; i < ids.length; i += BATCH) {
+    const batch = ids.slice(i, i + BATCH);
+    const start = Date.now();
+    const results = await Promise.all(batch.map(id =>
+      axios.post(`https://api.telegram.org/bot${bot_token}/sendMessage`, {
+        chat_id: id, text, reply_markup: markup,
+      }).then(() => true).catch(err => {
+        console.error(`❌ pool announce ${id}:`, err.response?.data?.description || err.message);
+        return false;
+      })
+    ));
+    results.forEach(ok => { if (ok) sent++; else failed++; });
+    const elapsed = Date.now() - start;
+    if (elapsed < 1000 && i + BATCH < ids.length) {
+      await new Promise(r => setTimeout(r, 1000 - elapsed));
+    }
+  }
+  return { sent, failed, total: ids.length };
+}
+
+// ── POST /pools/:id/announce — test send to specific ids, or broadcast to all ──
+app.post('/pools/:id/announce', panelAuth, async (req, res) => {
+  try {
+    const pool = await predictionsDb.getPool(req.params.id);
+    if (!pool) return res.status(404).json({ error: 'Pool not found' });
+
+    const { telegram_ids } = req.body;
+    let ids;
+    if (Array.isArray(telegram_ids) && telegram_ids.length > 0) {
+      ids = [...new Set(telegram_ids.map(String))];
+    } else {
+      const dbUsers = await knex('users').select('telegram_id').where('active', 1);
+      ids = [...new Set(dbUsers.filter(u => u.telegram_id).map(u => String(u.telegram_id)))];
+    }
+
+    const result = await sendPoolAnnouncement(pool, ids);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/pools/:id', panelAuth, async (req, res) => {
+  try {
+    const pool = await predictionsDb.getPool(req.params.id);
+    if (!pool) return res.status(404).json({ error: 'Pool not found' });
+    const predictions = await predictionsDb.listPredictions(req.params.id);
+    res.json({ ...pool, predictions });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /pools/:id/settle — set final score, notify everyone ──
+app.post('/pools/:id/settle', panelAuth, async (req, res) => {
+  try {
+    const { result_home, result_away } = req.body;
+    if (result_home === undefined || result_away === undefined) {
+      return res.status(400).json({ error: 'result_home and result_away required' });
+    }
+    const pool = await predictionsDb.getPool(req.params.id);
+    if (!pool) return res.status(404).json({ error: 'Pool not found' });
+
+    const predictions = await predictionsDb.settlePool(req.params.id, Number(result_home), Number(result_away));
+
+    let notified = 0;
+    for (const p of predictions) {
+      const text = p.is_correct
+        ? `🎉 درست بود!\n\n${pool.home_team} ${result_home} - ${result_away} ${pool.away_team}\n\nشما پیش‌بینی درستی داشتید، تبریک! 🏆`
+        : `❌ این بار درست نبود.\n\nنتیجه واقعی: ${pool.home_team} ${result_home} - ${result_away} ${pool.away_team}\nپیش‌بینی شما: ${pool.home_team} ${p.predicted_home} - ${p.predicted_away} ${pool.away_team}\n\nدفعه بعد موفق باشید! 🍀`;
+      const ok = await sendTelegramText(p.telegram_id, text);
+      if (ok) notified++;
+    }
+
+    res.json({ ok: true, total: predictions.length, notified });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/pools/:id', panelAuth, async (req, res) => {
+  try {
+    await knex('prediction_pools').where({ id: req.params.id }).delete();
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
