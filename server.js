@@ -94,6 +94,7 @@ const redisClient = await initializeRedis();
         params: {
           offset: lastUpdateId + 1,
           limit: process.env.MAX_REQUEST_LIMIT,
+          allowed_updates: JSON.stringify(['message', 'callback_query', 'my_chat_member']),
         },
       });
 
