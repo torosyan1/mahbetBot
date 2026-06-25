@@ -35,7 +35,22 @@ const { startPosterBot } = require('./src/posterBot');
 
 const bot = new Telegraf(bot_token);
 
-bot.use(session());
+// Sessions live in Redis (not memory) so an unrelated crash/restart mid-conversation
+// (e.g. a Telegram API timeout) doesn't silently wipe an in-progress prediction flow.
+const sessionStore = {
+  async get(key) {
+    const raw = await global.redisClient.get(`tg:session:${key}`);
+    return raw ? JSON.parse(raw) : undefined;
+  },
+  async set(key, value) {
+    await global.redisClient.set(`tg:session:${key}`, JSON.stringify(value), { EX: 60 * 60 * 24 });
+  },
+  async delete(key) {
+    await global.redisClient.del(`tg:session:${key}`);
+  },
+};
+
+bot.use(session({ store: sessionStore }));
 
 bot.use(userActivityValidation);
 bot.use(auth);
