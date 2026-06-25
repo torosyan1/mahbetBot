@@ -133,6 +133,7 @@ const redisClient = await initializeRedis();
     isPolling = true;
     try {
       const response = await axios.get(API_URL, {
+        timeout: 10000,
         params: {
           offset: lastUpdateId + 1,
           limit: process.env.MAX_REQUEST_LIMIT,
