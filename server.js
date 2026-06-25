@@ -1,6 +1,17 @@
 require('dotenv').config()
 
-const { Telegraf, session } = require("telegraf");
+// Without this, any unhandled rejection/exception anywhere in the process
+// (a single failed Telegram API call, a Redis hiccup, etc.) crashes the
+// whole server under Node's default behavior, and PM2's restart silently
+// wipes any in-progress conversation state.
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled rejection (ignored, process stays up):', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception (ignored, process stays up):', err);
+});
+
+const { Telegraf, session, Scenes } = require("telegraf");
 // const iplocate = require("node-iplocate");
 const geoip = require('geoip-lite');
 const schedule = require('node-schedule');
@@ -19,7 +30,7 @@ const start = require("./src/commands/start");
 const knex = require('./src/connections/db');
 const FAQ = require('./src/hears.js/FAQ');
 const VPN = require('./src/hears.js/VPN');
-const { registerPredictionHandlers } = require('./src/predictions/handlers');
+const { registerPredictionHandlers, predictWizard } = require('./src/predictions/handlers');
 const predictionsDb = require('./src/predictions/db');
 
 const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, vpn } = languages[locale];
@@ -34,6 +45,10 @@ const { startPosterBot } = require('./src/posterBot');
 (async () => {
 
 const bot = new Telegraf(bot_token);
+
+bot.catch((err, ctx) => {
+  console.error(`Telegraf error for update ${ctx.update.update_id}:`, err);
+});
 
 // Sessions live in Redis (not memory) so an unrelated crash/restart mid-conversation
 // (e.g. a Telegram API timeout) doesn't silently wipe an in-progress prediction flow.
@@ -51,6 +66,9 @@ const sessionStore = {
 };
 
 bot.use(session({ store: sessionStore }));
+
+const stage = new Scenes.Stage([predictWizard]);
+bot.use(stage.middleware());
 
 bot.use(userActivityValidation);
 bot.use(auth);
