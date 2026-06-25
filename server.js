@@ -751,6 +751,64 @@ app.delete('/channels/:id', panelAuth, async (req, res) => {
   }
 });
 
+// ── POST /pools/parse-targets — parse a CSV/Excel file of target users ──
+const targetsUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  fileFilter: (_req, file, cb) => {
+    const ok = /\.(csv|xlsx|xls)$/i.test(file.originalname);
+    cb(ok ? null : new Error('Only .csv, .xlsx or .xls files are allowed'), ok);
+  }
+});
+
+app.post('/pools/parse-targets', panelAuth, targetsUpload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    const XLSX = require('xlsx');
+    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+    // Collect every non-empty cell value, flattened across all columns/rows.
+    const raw = [];
+    for (const row of rows) {
+      for (const cell of row) {
+        const v = String(cell ?? '').trim();
+        if (v) raw.push(v);
+      }
+    }
+    // Drop an obvious header cell like "telegram_id" / "username".
+    const values = raw.filter(v => !/^(telegram[_ ]?id|username|user|id)$/i.test(v));
+
+    const numericIds = [...new Set(values.filter(v => /^\d+$/.test(v)))];
+    const usernameLikes = [...new Set(
+      values.filter(v => !/^\d+$/.test(v)).map(v => v.replace(/^@/, ''))
+    )];
+
+    let resolvedFromUsernames = [];
+    if (usernameLikes.length > 0) {
+      const found = await knex('users')
+        .whereIn('username', usernameLikes)
+        .select('telegram_id', 'username');
+      resolvedFromUsernames = found.filter(u => u.telegram_id).map(u => String(u.telegram_id));
+    }
+
+    const telegram_ids = [...new Set([...numericIds, ...resolvedFromUsernames])];
+    const matchedUsernames = resolvedFromUsernames.length;
+    const unmatchedUsernames = usernameLikes.length - matchedUsernames;
+
+    res.json({
+      telegram_ids,
+      total_rows: values.length,
+      matched: telegram_ids.length,
+      unmatched_usernames: unmatchedUsernames,
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 // ── GET/POST /pools — prediction pools (e.g. Arsenal vs PSG) ──
 app.get('/pools', panelAuth, async (_req, res) => {
   try {
