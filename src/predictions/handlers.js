@@ -12,6 +12,7 @@ function parseScore(ctx) {
 const predictWizard = new Scenes.WizardScene(
   'predict-wizard',
   async (ctx) => {
+    console.log('predict wizard [0/enter]: from=', ctx.from?.id, 'state=', JSON.stringify(ctx.scene.state));
     const { poolId } = ctx.scene.state;
     const pool = await getPool(poolId);
     if (!pool || pool.status !== 'open') {
@@ -23,6 +24,7 @@ const predictWizard = new Scenes.WizardScene(
     return ctx.wizard.next();
   },
   async (ctx) => {
+    console.log('predict wizard [1/home]: from=', ctx.from?.id, 'cursor=', ctx.wizard.cursor, 'text=', ctx.message?.text, 'state=', JSON.stringify(ctx.wizard.state));
     const value = parseScore(ctx);
     if (value === null) {
       await ctx.reply('❗️ لطفاً یک عدد صحیح معتبر بفرستید (مثلاً 2).');
@@ -36,9 +38,11 @@ const predictWizard = new Scenes.WizardScene(
     ctx.wizard.state.pool = pool;
     ctx.wizard.state.home = value;
     await ctx.reply(`⚽ چند گل می‌زند ${pool.away_team}؟ (یک عدد بفرستید)`);
+    console.log('predict wizard [1/home]: advancing, new cursor will be', ctx.wizard.cursor + 1);
     return ctx.wizard.next();
   },
   async (ctx) => {
+    console.log('predict wizard [2/away]: from=', ctx.from?.id, 'cursor=', ctx.wizard.cursor, 'text=', ctx.message?.text, 'state=', JSON.stringify(ctx.wizard.state));
     const value = parseScore(ctx);
     if (value === null) {
       await ctx.reply('❗️ لطفاً یک عدد صحیح معتبر بفرستید (مثلاً 2).');
@@ -62,6 +66,7 @@ const predictWizard = new Scenes.WizardScene(
 function registerPredictionHandlers(bot) {
   bot.action(/^predict_(\d+)$/, async (ctx) => {
     const poolId = Number(ctx.match[1]);
+    console.log('predict action: from=', ctx.from?.id, 'poolId=', poolId);
     await ctx.answerCbQuery();
     await ctx.scene.enter('predict-wizard', { poolId });
   });
