@@ -50,18 +50,33 @@ bot.catch((err, ctx) => {
   console.error(`Telegraf error for update ${ctx.update.update_id}:`, err);
 });
 
+// A hung Redis/DB call inside a single update used to block the polling loop
+// forever (it has no timeout of its own), wedging every future getUpdates tick
+// behind it. withTimeout() turns that into a loud, logged failure instead.
+function withTimeout(promise, ms, label) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
 // Sessions live in Redis (not memory) so an unrelated crash/restart mid-conversation
 // (e.g. a Telegram API timeout) doesn't silently wipe in-progress session state.
 const sessionStore = {
   async get(key) {
-    const raw = await global.redisClient.get(`tg:session:${key}`);
+    const raw = await withTimeout(global.redisClient.get(`tg:session:${key}`), 5000, `session.get(${key})`);
     return raw ? JSON.parse(raw) : undefined;
   },
   async set(key, value) {
-    await global.redisClient.set(`tg:session:${key}`, JSON.stringify(value), { EX: 60 * 60 * 24 });
+    await withTimeout(
+      global.redisClient.set(`tg:session:${key}`, JSON.stringify(value), { EX: 60 * 60 * 24 }),
+      5000,
+      `session.set(${key})`
+    );
   },
   async delete(key) {
-    await global.redisClient.del(`tg:session:${key}`);
+    await withTimeout(global.redisClient.del(`tg:session:${key}`), 5000, `session.delete(${key})`);
   },
 };
 
@@ -150,7 +165,7 @@ const redisClient = await initializeRedis();
             continue;
           }
           try {
-            await bot.handleUpdate(update);
+            await withTimeout(bot.handleUpdate(update), 8000, `handleUpdate(${update.update_id})`);
           } catch (err) {
             console.error('getUpdates: bot.handleUpdate threw for update', update.update_id, err);
           }

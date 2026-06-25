@@ -8,10 +8,10 @@ const userActivityValidation = async (ctx, next) =>{
         } else if(ctx.update?.my_chat_member?.new_chat_member?.status === 'member') {
             await knex('users').update({ active: 1 }).where({ telegram_id: ctx.update.my_chat_member.chat.id });
         }
-        next()
+        return next()
     } catch(err){
         console.log('userActivityValidation middlware  ==>', err.message)
-        next();
+        return next();
     }
 }
 

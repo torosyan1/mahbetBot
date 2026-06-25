@@ -16,7 +16,7 @@ const auth = async (ctx, next) =>{
             ctx.session = { userId: ctx.from.id };
         }
 
-        next()
+        return next()
     } catch(err){
         console.log(err)
         console.log('Auth middlware  ==>', err.message)
