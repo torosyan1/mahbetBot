@@ -90,9 +90,18 @@ function formatRemaining(ms) {
   return `${hours}h ${minutes}m`;
 }
 
-/** Roll a real Telegram dice message and return the value (1-6) Telegram's servers picked. */
+// Telegram's 🎲 dice animation runs for ~4s before it visually lands on a number.
+const DICE_ANIMATION_MS = 4000;
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Roll a real Telegram dice message and return the value (1-6) Telegram's servers picked.
+ * Waits out the dice animation so the caller doesn't reveal the result before it lands.
+ */
 async function rollDice(ctx) {
   const message = await ctx.replyWithDice({ emoji: '🎲' });
+  await sleep(DICE_ANIMATION_MS);
   return message.dice.value;
 }
 
