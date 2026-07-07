@@ -32,6 +32,10 @@ const FAQ = require('./src/hears.js/FAQ');
 const VPN = require('./src/hears.js/VPN');
 const { registerPredictionHandlers } = require('./src/predictions/handlers');
 const predictionsDb = require('./src/predictions/db');
+const { registerDailyLuckyHandlers } = require('./src/dailyLucky/handlers');
+const dailyLuckyService = require('./src/dailyLucky/service');
+const dailyLuckyDb = require('./src/dailyLucky/db');
+const { runDailyLuckyNotifyJob } = require('./src/dailyLucky/notifyJob');
 
 const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, vpn } = languages[locale];
 
@@ -88,6 +92,7 @@ bot.use(auth);
 bot.start(start);
 
 registerPredictionHandlers(bot);
+registerDailyLuckyHandlers(bot);
 
 // hears
 bot.hears(suppotButtonKeyboard,(ctx)=>ctx.telegram.sendMessage(ctx.message.from.id, '@MB_Support'));
@@ -932,6 +937,64 @@ app.delete('/pools/:id', panelAuth, async (req, res) => {
   }
 });
 
+// ── GET/POST /lucky-draw/settings — enable/disable, cooldown, messages ──
+app.get('/lucky-draw/settings', panelAuth, async (_req, res) => {
+  try {
+    const settings = await dailyLuckyService.getSettings();
+    res.json(settings);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/lucky-draw/settings', panelAuth, async (req, res) => {
+  try {
+    const { enabled, cooldownHours, inviteText, notificationText, winText, loseText } = req.body;
+    const settings = await dailyLuckyService.updateSettings({ enabled, cooldownHours, inviteText, notificationText, winText, loseText });
+    res.json(settings);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /lucky-draw/stats — plays, wins, losses, win rate, codes distributed ──
+app.get('/lucky-draw/stats', panelAuth, async (_req, res) => {
+  try {
+    const stats = await dailyLuckyService.getStats();
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET/POST /lucky-draw/promo-codes — manage the redeemable code pool ──
+app.get('/lucky-draw/promo-codes', panelAuth, async (req, res) => {
+  try {
+    const { status } = req.query;
+    const rows = await dailyLuckyDb.listPromoCodes({ status });
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/lucky-draw/promo-codes', panelAuth, async (req, res) => {
+  try {
+    const { codes } = req.body;
+    if (!Array.isArray(codes) || codes.length === 0) {
+      return res.status(400).json({ error: 'codes must be a non-empty array of strings' });
+    }
+    const cleaned = [...new Set(codes.map((c) => String(c).trim()).filter(Boolean))];
+    if (cleaned.length === 0) {
+      return res.status(400).json({ error: 'no valid codes provided' });
+    }
+    await dailyLuckyDb.addPromoCodes(cleaned);
+    res.json({ ok: true, added: cleaned.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── POST /channel-broadcast ───────────────────────────────────
 app.post('/channel-broadcast', panelAuth, async (req, res) => {
   try {
@@ -996,6 +1059,17 @@ app.delete('/broadcasts/:id', panelAuth, async (req, res) => {
 // The existing /trigger is already defined above; we add DB logging inside it
 // by patching the background job's completion callback.
 // We do this via a simple middleware that wraps the existing route.
+
+// ── Daily Lucky Draw — reminder job ─────────────────────────────
+// Runs every minute; picks up users whose 24h cooldown just elapsed and
+// haven't been reminded yet (see src/dailyLucky/notifyJob.js).
+schedule.scheduleJob('* * * * *', async () => {
+  try {
+    await runDailyLuckyNotifyJob();
+  } catch (err) {
+    console.error('❌ dailyLucky notify job failed:', err.message);
+  }
+});
 
 app.listen(port, async () => {
   await startPosterBot()

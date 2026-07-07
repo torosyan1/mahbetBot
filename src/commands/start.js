@@ -2,6 +2,7 @@ const { Markup } = require("telegraf");
 const { welcome_image_url, web_app, locale, mahbet_registr, mahbet_login } = require("../utils/env");
 const languages = require("../utils/language");
 const knex = require('../connections/db');
+const { LUCKY_DRAW_BUTTON } = require('../dailyLucky/handlers');
 
 module.exports = async (ctx) => {
   try {
@@ -63,6 +64,12 @@ module.exports = async (ctx) => {
               {
                 text: helpMeButtonKeyboard,
                 style: 'danger'  // ✅ Red button
+              }
+            ],
+            [
+              {
+                text: LUCKY_DRAW_BUTTON,
+                style: 'success'  // ✅ Green button
               }
             ],
           ],
