@@ -25,6 +25,16 @@ const { userActivityValidation } = require('./src/middleware/usersActivityValida
 const { bot_token, locale, port, welcome_image_url, web_app } = require('./src/utils/env');
 const FAQAnswers = require('./src/actions.js/FAQAnswers');
 const { auth } = require("./src/middleware/auth");
+const {
+  panelAuth,
+  requireBroadcastPin,
+  siteAuth,
+  corsOptions,
+  loginRateLimit,
+  signPanelToken,
+  verifyCredentials,
+  JWT_EXPIRES_IN,
+} = require("./src/middleware/panelAuth");
 const languages = require("./src/utils/language"); 
 const start = require("./src/commands/start");
 const knex = require('./src/connections/db');
@@ -204,7 +214,8 @@ const redisClient = await initializeRedis();
 // express server
 const app = express();
 
-app.use(cors())
+// Only the admin panel origins may call this API from a browser.
+app.use(cors(corsOptions))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -246,7 +257,7 @@ app.post('/upload', panelAuth, upload.single('file'), (req, res) => {
 });
 
 // ── GET /stats ────────────────────────────────────────────────
-app.get('/stats', async (_req, res) => {
+app.get('/stats', panelAuth, async (_req, res) => {
   try {
     const dbUsers = await knex('users').select('telegram_id').where('active', 1);
     const total = new Set(dbUsers.filter(u => u.telegram_id).map(u => String(u.telegram_id))).size;
@@ -269,7 +280,7 @@ app.get('/users/registered', panelAuth, async (_req, res) => {
 });
 
 // ── POST /users/:id/message — send a direct Telegram message ──
-app.post('/users/:id/message', panelAuth, async (req, res) => {
+app.post('/users/:id/message', panelAuth, requireBroadcastPin, async (req, res) => {
   try {
     const { message } = req.body;
     if (!message) return res.status(400).json({ error: 'message required' });
@@ -286,7 +297,7 @@ app.post('/users/:id/message', panelAuth, async (req, res) => {
   }
 });
 
-app.post('/login', async (req, res) => {
+app.post('/login', siteAuth, async (req, res) => {
     try {
         const { action, user_id, telegram_id } = req.body;
         console.log('----', action)
@@ -306,7 +317,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.post('/registration', async (req, res) => {
+app.post('/registration', siteAuth, async (req, res) => {
     try {
         const { action, user_id, telegram_id } = req.body;
         console.log('----', action)
@@ -326,7 +337,7 @@ app.post('/registration', async (req, res) => {
     }
 });
 
-app.post('/fraud', async (req, res) => {
+app.post('/fraud', siteAuth, async (req, res) => {
     try {
         // const { ip, device, device_input, telegram_id } = req.body;
         // // if( !ip || !device || !device_input || !telegram_id) {
@@ -343,16 +354,6 @@ app.post('/fraud', async (req, res) => {
         //     device_input,
         //     telegram_id,
         // })
-        res.status(200).send(true)
-    } catch(err){
-        console.log(err, 'fraud');
-        res.status(500).send('Something went wrong!,');
-    }
-});
-
-app.post('/fraud', async (req, res) => {
-    try {
-        
         res.status(200).send(true)
     } catch(err){
         console.log(err, 'fraud');
@@ -389,7 +390,7 @@ async function makeAPICall(item, photo, caption, buttonText, butonUrl) {
 }
 
 // API endpoint to trigger bulk API calls
-app.post("/sendMessage", async (req, res) => {
+app.post("/sendMessage", panelAuth, requireBroadcastPin, async (req, res) => {
   try {
     const { photo, caption, buttonText, butonUrl } = req.body;
     const items = await knex('users').where({ active:  1 });
@@ -408,23 +409,27 @@ app.post("/sendMessage", async (req, res) => {
 });
 
 // ── Panel Auth ────────────────────────────────────────────────
-const PANEL_TOKEN = process.env.PANEL_TOKEN || 'mahbet-panel-secret';
+// panelAuth / siteAuth live in src/middleware/panelAuth.js.
+app.post('/panel-login', loginRateLimit, (req, res) => {
+  const { username, password } = req.body || {};
 
-app.post('/panel-login', (req, res) => {
-  const { username, password } = req.body;
-  const validUser = process.env.PANEL_USER || 'admin';
-  const validPass = process.env.PANEL_PASS || 'mahbet2024';
-  if (username === validUser && password === validPass) {
-    return res.json({ token: PANEL_TOKEN });
+  if (!verifyCredentials(username, password)) {
+    res.locals.recordLoginFailure();
+    return res.status(401).json({ error: 'Invalid username or password' });
   }
-  res.status(401).json({ error: 'Invalid username or password' });
+
+  res.locals.clearLoginFailures();
+  res.json({
+    token:     signPanelToken(username),
+    expiresIn: JWT_EXPIRES_IN,
+    user:      { username },
+  });
 });
 
-function panelAuth(req, res, next) {
-  const token = req.headers['x-panel-token'] || req.query.token;
-  if (token === PANEL_TOKEN) return next();
-  res.status(401).json({ error: 'Unauthorized' });
-}
+// Lets the panel check a stored token is still valid before rendering.
+app.get('/panel-me', panelAuth, (req, res) => {
+  res.json({ username: req.admin.sub, role: req.admin.role, exp: req.admin.exp });
+});
 
 // ── In-memory broadcast jobs ──────────────────────────────────
 const broadcastJobs = new Map(); // jobId → { total, sent, failed, done, clients[] }
@@ -531,7 +536,7 @@ async function sendTelegramText(chat_id, text) {
 const rateLimiter = new RateLimiter({ tokensPerInterval: 25, interval: 'second' });
 
 // ── POST /trigger — start broadcast, respond immediately with jobId ──
-app.post('/trigger', panelAuth, async (req, res) => {
+app.post('/trigger', panelAuth, requireBroadcastPin, async (req, res) => {
   try {
     const { photo, video, caption, buttons } = req.body;
 
@@ -869,7 +874,7 @@ async function sendPoolAnnouncement(pool, ids) {
 }
 
 // ── POST /pools/:id/announce — test send to specific ids, or broadcast to all ──
-app.post('/pools/:id/announce', panelAuth, async (req, res) => {
+app.post('/pools/:id/announce', panelAuth, requireBroadcastPin, async (req, res) => {
   try {
     const pool = await predictionsDb.getPool(req.params.id);
     if (!pool) return res.status(404).json({ error: 'Pool not found' });
@@ -996,7 +1001,7 @@ app.post('/lucky-draw/promo-codes', panelAuth, async (req, res) => {
 });
 
 // ── POST /channel-broadcast ───────────────────────────────────
-app.post('/channel-broadcast', panelAuth, async (req, res) => {
+app.post('/channel-broadcast', panelAuth, requireBroadcastPin, async (req, res) => {
   try {
     const { channelUsername, photo, video, caption } = req.body;
     if (!channelUsername || (!photo && !video) || !caption) {
@@ -1069,6 +1074,23 @@ schedule.scheduleJob('* * * * *', async () => {
   } catch (err) {
     console.error('❌ dailyLucky notify job failed:', err.message);
   }
+});
+
+// ── Error handler ─────────────────────────────────────────────
+// Must stay last. Turns CORS and multer rejections into clean JSON instead of
+// the default HTML 500 page.
+app.use((err, req, res, _next) => {
+  if (res.headersSent) return;
+
+  if (/is not allowed/.test(err.message || '')) {
+    return res.status(403).json({ error: 'Origin not allowed' });
+  }
+  if (err.name === 'MulterError') {
+    return res.status(400).json({ error: err.message });
+  }
+
+  console.error('Unhandled error:', req.method, req.path, err.message);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 app.listen(port, async () => {
