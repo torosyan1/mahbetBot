@@ -2,19 +2,16 @@ const { Markup } = require("telegraf");
 const { welcome_image_url, web_app, locale, mahbet_registr, mahbet_login } = require("../utils/env");
 const languages = require("../utils/language");
 const knex = require('../connections/db');
-const { LUCKY_DRAW_BUTTON } = require('../dailyLucky/handlers');
+const { mainMenuKeyboard } = require('./menuKeyboard');
+const dailyLucky = require('../dailyLucky/service');
 
 module.exports = async (ctx) => {
   try {
     const { 
       welcomeMessage, 
       welcomeButtonInline, 
-      welcomeButtonKeyboard, 
-      suppotButtonKeyboard, 
-      promotionButtonKeyboard, 
-      FAQButtonKeyboard, 
-      helpMeButtonKeyboard, 
-      forMoreMessage, 
+      welcomeButtonKeyboard,
+      forMoreMessage,
       vpn, 
       registration,
       login
@@ -41,44 +38,9 @@ module.exports = async (ctx) => {
 
     // Send menu with regular keyboard
     // ✅ Regular keyboard buttons also support: icon_custom_emoji_id and style (NEW in Bot API 9.4)
-    await ctx.reply(
-      forMoreMessage,
-      {
-        reply_markup: {
-          keyboard: [
-            [
-              {
-                text: suppotButtonKeyboard,
-                style: 'primary',  // ✅ Blue button
-              },
-              {
-                text: promotionButtonKeyboard,
-                style: 'success'  // ✅ Green button
-              }
-            ],
-            [
-              {
-                text: FAQButtonKeyboard,
-                style: 'primary'  // ✅ Blue button
-              },
-              {
-                text: helpMeButtonKeyboard,
-                style: 'danger'  // ✅ Red button
-              }
-            ],
-            [
-              {
-                text: LUCKY_DRAW_BUTTON,
-                style: 'success'  // ✅ Green button
-              }
-            ],
-          ],
-          resize_keyboard: true,
-          persistent: true,
-          one_time_keyboard: false,
-        }
-      }
-    );
+    // The dice button is dropped from the menu while the daily draw is closed.
+    const luckyEnabled = await dailyLucky.isEnabled();
+    await ctx.reply(forMoreMessage, { reply_markup: mainMenuKeyboard({ luckyEnabled }) });
 
 // Handle promo code if exists
 if (payload) {

@@ -62,6 +62,20 @@ async function updateSettings(patch) {
   return getSettings();
 }
 
+/**
+ * Is the daily draw currently open? Never throws — /start must still render its menu if the
+ * settings lookup fails, and hiding the dice button is the safe way to fail.
+ */
+async function isEnabled() {
+  try {
+    const settings = await getSettings();
+    return settings.enabled;
+  } catch (err) {
+    console.error('lucky draw settings lookup failed:', err.message);
+    return false;
+  }
+}
+
 /** How long until this user's next chance, or null if they can play right now. */
 async function canPlay(telegramId) {
   const settings = await getSettings();
@@ -161,6 +175,7 @@ async function sendReminder(telegramId, text) {
 module.exports = {
   getSettings,
   updateSettings,
+  isEnabled,
   canPlay,
   formatRemaining,
   rollDice,

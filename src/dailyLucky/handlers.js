@@ -1,6 +1,24 @@
 const service = require('./service');
+const { LUCKY_DRAW_BUTTON, mainMenuKeyboard } = require('../commands/menuKeyboard');
 
-const LUCKY_DRAW_BUTTON = '🎲 قرعه‌کشی روزانه';
+const CLOSED_TEXT = '⚠️ قرعه‌کشی روزانه بسته شده است.';
+
+/**
+ * Tell a user the draw is closed. Buttons handed out before it closed stay in old chats, so this
+ * also clears the stale keyboard they tapped: the guess buttons on that message for an inline tap,
+ * or the bottom menu's dice button for a menu tap.
+ */
+async function replyClosed(ctx) {
+  if (ctx.callbackQuery) {
+    // Already-answered (the draw closed mid-play) and expired queries both throw; neither matters here.
+    await ctx.answerCbQuery(CLOSED_TEXT, { show_alert: true }).catch(() => {});
+    // The message may be too old to edit, or carry no keyboard at all — neither is worth failing on.
+    await ctx.editMessageReplyMarkup().catch(() => {});
+    return;
+  }
+
+  await ctx.reply(CLOSED_TEXT, { reply_markup: mainMenuKeyboard({ luckyEnabled: false }) });
+}
 
 function guessKeyboard() {
   return {
@@ -15,7 +33,7 @@ async function offerPlay(ctx) {
   const gate = await service.canPlay(ctx.from.id);
 
   if (gate.disabled) {
-    await ctx.reply('⚠️ قرعه‌کشی روزانه در حال حاضر غیرفعال است.');
+    await replyClosed(ctx);
     return;
   }
 
@@ -38,7 +56,7 @@ async function handleGuess(ctx, guess) {
   }
 
   if (result.status === 'disabled') {
-    await ctx.reply('⚠️ قرعه‌کشی روزانه در حال حاضر غیرفعال است.');
+    await replyClosed(ctx);
     return;
   }
 
@@ -68,12 +86,16 @@ async function handleGuess(ctx, guess) {
 function registerDailyLuckyHandlers(bot) {
   bot.hears(LUCKY_DRAW_BUTTON, offerPlay);
 
+  // The closed check runs before the tap is acked: a closed draw answers with an alert instead,
+  // and Telegram only accepts one answer per callback query.
   bot.action('lucky_play', async (ctx) => {
+    if (!(await service.isEnabled())) return replyClosed(ctx);
     await ctx.answerCbQuery();
     await offerPlay(ctx);
   });
 
   bot.action(/^lucky_guess_([1-6])$/, async (ctx) => {
+    if (!(await service.isEnabled())) return replyClosed(ctx);
     await ctx.answerCbQuery();
     await handleGuess(ctx, Number(ctx.match[1]));
   });
