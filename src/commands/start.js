@@ -5,6 +5,14 @@ const knex = require('../connections/db');
 const { mainMenuKeyboard } = require('./menuKeyboard');
 const dailyLucky = require('../dailyLucky/service');
 
+/** MySQL unique-key violation — a parallel /start already inserted this user's claim. */
+const isDuplicateClaim = (err) => err && (err.code === 'ER_DUP_ENTRY' || err.errno === 1062);
+
+function alreadyClaimedMessage(code) {
+  const base = `⚠️ شما قبلاً کد هدیه دریافت کرده‌اید.\n\nهر کاربر فقط یک بار می‌تواند کد هدیه دریافت کند.`;
+  return code ? `${base}\n\nکد هدیه شما:\n\`${code}\`` : base;
+}
+
 module.exports = async (ctx) => {
   try {
     const { 
@@ -45,42 +53,55 @@ module.exports = async (ctx) => {
 // Handle promo code if exists
 if (payload) {
   try {
-    // Check if user already received a promo code (telegram_id exists in promo_codes)
-    const alreadyUsed = await knex('promo_codes')
-      .where({ telegram_id: String(ctx.from.id) })
+    const telegramId = String(ctx.from.id);
+
+    // The claims ledger is permanent: leaving the bot and starting it again does not clear it,
+    // so a returning user can never take a second gift code.
+    const existingClaim = await knex('welcome_bonus_claims')
+      .where({ telegram_id: telegramId })
       .first();
 
-    if (alreadyUsed) {
-      await ctx.reply(
-        `⚠️ شما قبلاً کد هدیه دریافت کرده‌اید.\n\nهر کاربر فقط یک بار می‌تواند کد هدیه دریافت کند.`,
-        { parse_mode: 'Markdown' }
-      );
+    if (existingClaim) {
+      await ctx.reply(alreadyClaimedMessage(existingClaim.promo_code), { parse_mode: 'Markdown' });
       return;
     }
 
-    // Get an unused promo code (telegram_id is NULL)
-    const promoRow = await knex('promo_codes')
-      .whereNull('telegram_id')
-      .first();
+    // Take a code and record the claim atomically, so two fast /start taps cannot both win a code.
+    const promoRow = await knex.transaction(async (trx) => {
+      const row = await trx('promo_codes')
+        .whereNull('telegram_id')
+        .forUpdate()
+        .first();
+
+      if (!row) return null;
+
+      // Insert the ledger row first — its unique telegram_id rejects a concurrent second claim.
+      await trx('welcome_bonus_claims').insert({
+        telegram_id: telegramId,
+        mahbet_id: String(payload),
+        promo_code: row.codes,
+      });
+
+      await trx('promo_codes')
+        .update({
+          telegram_id: telegramId,
+          active: 1
+        })
+        .where({ codes: row.codes })
+        .whereNull('telegram_id'); // extra safety to prevent race condition
+
+      // Update user's mahbet_id
+      await trx('users')
+        .update({ mahbet_id: payload })
+        .where({ telegram_id: ctx.from.id });
+
+      return row;
+    });
 
     if (!promoRow) {
       await ctx.reply('⚠️ کد هدیه‌ای موجود نیست. لطفاً با پشتیبانی تماس بگیرید.');
       return;
     }
-
-    // Mark promo code as used
-    await knex('promo_codes')
-      .update({ 
-        telegram_id: String(ctx.from.id),
-        active: 1
-      })
-      .where({ codes: promoRow.codes })
-      .whereNull('telegram_id'); // extra safety to prevent race condition
-
-    // Update user's mahbet_id
-    await knex('users')
-      .update({ mahbet_id: payload })
-      .where({ telegram_id: ctx.from.id });
 
     await ctx.reply(
 `🎁 *هدیه شما در راه است*\n\n` +
@@ -104,6 +125,13 @@ if (payload) {
     );
 
   } catch(promoErr) {
+    if (isDuplicateClaim(promoErr)) {
+      const claim = await knex('welcome_bonus_claims')
+        .where({ telegram_id: String(ctx.from.id) })
+        .first();
+      await ctx.reply(alreadyClaimedMessage(claim && claim.promo_code), { parse_mode: 'Markdown' });
+      return;
+    }
     console.log('Error applying promo code:', promoErr.message);
     await ctx.reply('⚠️ خطا در فعال‌سازی کد هدیه. لطفاً با پشتیبانی تماس بگیرید.');
   }
