@@ -119,9 +119,14 @@ module.exports = async (ctx) => {
       return;
     }
     lastAsk.set(telegramId, Date.now());
+    // A lookup that never produced an answer must not cost the player their
+    // next attempt — the cooldown exists to stop stampedes, not to punish a
+    // failure. Cleared on every path that ends without a withdrawal shown.
+    const allowImmediateRetry = () => lastAsk.delete(telegramId);
 
     const { mahbetId, source } = await resolveMahbetId(telegramId);
     if (!mahbetId) {
+      allowImmediateRetry();
       await ctx.reply(L.notLinked);
       return;
     }
@@ -132,6 +137,7 @@ module.exports = async (ctx) => {
     const data = await fetchLastWithdrawal(mahbetId);
     if (!data || !data.ok) {
       console.log(`lastWithdrawal: service refused for ${mahbetId}:`, data && data.error);
+      allowImmediateRetry();
       await ctx.reply(L.unavailable);
       return;
     }
@@ -144,6 +150,7 @@ module.exports = async (ctx) => {
   } catch (err) {
     // A failed lookup must never leak the admin panel's error text to a player.
     console.log('lastWithdrawal error:', err.message);
+    lastAsk.delete(telegramId);
     await ctx.reply(L.unavailable).catch(() => {});
   }
 };
