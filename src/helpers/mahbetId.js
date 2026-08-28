@@ -47,6 +47,50 @@ async function resolveMahbetId(telegramId) {
   return { mahbetId: '', source: 'none' };
 }
 
+/**
+ * Record the MahBet id carried by a /start deep link
+ * (https://telegram.me/MahBetBot?start=485791256 -> mahbet_id 485791256).
+ *
+ * Called first thing in /start, before any Telegram reply: the payload is the
+ * one piece of the deep link we cannot recover afterwards, so storing it must
+ * not depend on a photo or menu message going out successfully.
+ *
+ * The users row is normally created by the auth middleware, but that middleware
+ * swallows its own errors and still calls next(), so an update that matches no
+ * row falls back to inserting the player here (mirroring the auth insert).
+ */
+async function linkMahbetId(ctx, payload) {
+  const mahbetId = String(payload ?? '').trim();
+  if (!/^\d{3,}$/.test(mahbetId)) return false;
+
+  const tgId = String(ctx.from.id);
+
+  try {
+    const updated = await knex('users').where({ telegram_id: tgId }).update({ mahbet_id: mahbetId });
+    if (updated > 0) return true;
+
+    try {
+      await knex('users').insert({
+        telegram_id: ctx.from.id,
+        username: ctx.from.username || '',
+        first_name: ctx.from.first_name,
+        last_name: ctx.from.last_name,
+        mahbet_id: mahbetId,
+        active: 1,
+      });
+    } catch (insertErr) {
+      // The auth middleware inserted the row in parallel — update the row it made.
+      if (insertErr.code !== 'ER_DUP_ENTRY' && insertErr.errno !== 1062) throw insertErr;
+      await knex('users').where({ telegram_id: tgId }).update({ mahbet_id: mahbetId });
+    }
+
+    return true;
+  } catch (err) {
+    console.log(`Failed to link mahbet_id ${mahbetId} to telegram_id ${tgId}:`, err.message);
+    return false;
+  }
+}
+
 /** Cache the resolved id on the users row. Never fatal — the lookup already won. */
 async function backfill(tgId, mahbetId) {
   try {
@@ -56,4 +100,4 @@ async function backfill(tgId, mahbetId) {
   }
 }
 
-module.exports = { resolveMahbetId };
+module.exports = { resolveMahbetId, linkMahbetId };

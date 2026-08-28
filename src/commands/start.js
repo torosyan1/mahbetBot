@@ -4,6 +4,7 @@ const languages = require("../utils/language");
 const knex = require('../connections/db');
 const { mainMenuKeyboard } = require('./menuKeyboard');
 const dailyLucky = require('../dailyLucky/service');
+const { linkMahbetId } = require('../helpers/mahbetId');
 
 /** MySQL unique-key violation — a parallel /start already inserted this user's claim. */
 const isDuplicateClaim = (err) => err && (err.code === 'ER_DUP_ENTRY' || err.errno === 1062);
@@ -26,6 +27,11 @@ module.exports = async (ctx) => {
     } = languages[locale];
 
     const payload = ctx.startPayload;
+
+    // Store the MahBet id from the deep link before anything else. A failed
+    // photo or menu message must never cost us the link between the two
+    // accounts — it is the only place that id ever reaches us.
+    await linkMahbetId(ctx, payload);
 
     // Send welcome image with inline keyboard
     // ✅ Inline buttons support: icon_custom_emoji_id and style
@@ -55,16 +61,9 @@ if (payload) {
   try {
     const telegramId = String(ctx.from.id);
 
-    // Link the Telegram account to the MahBet account first, on its own. This
-    // used to happen only inside the gift-code transaction below, which returns
-    // early for anyone who already claimed or when no codes are left — so most
-    // players were never linked, and features that need the id (the "my last
-    // withdrawal" lookup) had nothing to go on.
-    if (/^\d{3,}$/.test(String(payload))) {
-      await knex('users')
-        .where({ telegram_id: telegramId })
-        .update({ mahbet_id: String(payload) });
-    }
+    // The account link is already stored (linkMahbetId, above) — it must not
+    // depend on the gift-code flow, which returns early for anyone who already
+    // claimed or when no codes are left.
 
     // The claims ledger is permanent: leaving the bot and starting it again does not clear it,
     // so a returning user can never take a second gift code.
