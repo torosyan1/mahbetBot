@@ -86,6 +86,7 @@ const text = {
     status: '🔶 وضعیت فعلی',
     payments: '💸 پرداخت‌ها',
     tracking: 'کد پیگیری',
+    viaPaya: 'پرداخت شده از طریق پایا',
     toman: 'تومان',
     settled: 'پرداخت شد ✅',
     inProgress: 'در حال پرداخت ⏳',
@@ -110,6 +111,7 @@ const text = {
     status: '🔶 Current status',
     payments: '💸 Payments',
     tracking: 'Tracking number',
+    viaPaya: 'Paid via Paya',
     toman: 'Toman',
     settled: 'Paid ✅',
     inProgress: 'In progress ⏳',
@@ -135,10 +137,13 @@ function formatPayments(payments) {
   const shown = payments.slice(0, MAX_PAYMENTS_SHOWN);
   const lines = [`${L.payments}:`];
   shown.forEach((p, i) => {
+    const when = p.atJalali || p.at || '-';
     lines.push(
       '',
       `${i + 1}) ${money(p.amount)} ${L.toman}`,
-      `🕕 ${p.atJalali || p.at || '-'}`,
+      // A Paya transfer is noted next to the time: it reaches the player's
+      // account on a bank's schedule, not instantly like a card payment.
+      p.viaPaya ? `🕕 ${when} — ${L.viaPaya}` : `🕕 ${when}`,
       `🔖 ${L.tracking}: ${p.trackingId}`
     );
   });
