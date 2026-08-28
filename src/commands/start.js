@@ -9,11 +9,6 @@ const { linkMahbetId } = require('../helpers/mahbetId');
 /** MySQL unique-key violation — a parallel /start already inserted this user's claim. */
 const isDuplicateClaim = (err) => err && (err.code === 'ER_DUP_ENTRY' || err.errno === 1062);
 
-function alreadyClaimedMessage(code) {
-  const base = `⚠️ شما قبلاً کد هدیه دریافت کرده‌اید.\n\nهر کاربر فقط یک بار می‌تواند کد هدیه دریافت کند.`;
-  return code ? `${base}\n\nکد هدیه شما:\n\`${code}\`` : base;
-}
-
 module.exports = async (ctx) => {
   try {
     const { 
@@ -71,10 +66,10 @@ if (payload) {
       .where({ telegram_id: telegramId })
       .first();
 
-    if (existingClaim) {
-      await ctx.reply(alreadyClaimedMessage(existingClaim.promo_code), { parse_mode: 'Markdown' });
-      return;
-    }
+    // Already claimed: stop here without a word. The welcome and the menu have
+    // gone out already, and re-showing a code they took long ago only reads as
+    // a warning on what is, for them, an ordinary /start.
+    if (existingClaim) return;
 
     // Take a code and record the claim atomically, so two fast /start taps cannot both win a code.
     const promoRow = await knex.transaction(async (trx) => {
@@ -135,13 +130,8 @@ if (payload) {
     );
 
   } catch(promoErr) {
-    if (isDuplicateClaim(promoErr)) {
-      const claim = await knex('welcome_bonus_claims')
-        .where({ telegram_id: String(ctx.from.id) })
-        .first();
-      await ctx.reply(alreadyClaimedMessage(claim && claim.promo_code), { parse_mode: 'Markdown' });
-      return;
-    }
+    // A parallel /start won the claim — same situation as above, same silence.
+    if (isDuplicateClaim(promoErr)) return;
     console.log('Error applying promo code:', promoErr.message);
     await ctx.reply('⚠️ خطا در فعال‌سازی کد هدیه. لطفاً با پشتیبانی تماس بگیرید.');
   }
