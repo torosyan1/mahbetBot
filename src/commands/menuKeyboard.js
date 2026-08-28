@@ -1,4 +1,4 @@
-const { locale } = require('../utils/env');
+const { locale, centralpay_api_url } = require('../utils/env');
 const languages = require('../utils/language');
 
 const LUCKY_DRAW_BUTTON = '🎲 قرعه‌کشی روزانه';
@@ -8,7 +8,13 @@ const LUCKY_DRAW_BUTTON = '🎲 قرعه‌کشی روزانه';
  * so a closed draw stops being offered to anyone who opens /start after it was closed.
  */
 function mainMenuKeyboard({ luckyEnabled }) {
-  const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard } = languages[locale];
+  const {
+    suppotButtonKeyboard,
+    promotionButtonKeyboard,
+    FAQButtonKeyboard,
+    helpMeButtonKeyboard,
+    lastWithdrawButtonKeyboard,
+  } = languages[locale];
 
   const keyboard = [
     [
@@ -23,6 +29,12 @@ function mainMenuKeyboard({ luckyEnabled }) {
 
   if (luckyEnabled) {
     keyboard.push([{ text: LUCKY_DRAW_BUTTON, style: 'success' }]);
+  }
+
+  // Only offered while the CentralPay automation service is configured — with no
+  // service to ask, the button could only ever answer "unavailable".
+  if (centralpay_api_url) {
+    keyboard.push([{ text: lastWithdrawButtonKeyboard, style: 'primary' }]);
   }
 
   return {

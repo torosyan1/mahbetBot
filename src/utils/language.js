@@ -11,6 +11,7 @@ const language = {
         "promotionButtonKeyboard": "Rewards 🎁",
         "FAQButtonKeyboard": "FAQ ❔",
         "helpMeButtonKeyboard": "Guide 🆘",
+        "lastWithdrawButtonKeyboard": "My last withdrawal 🧾",
         "helpMessage": `Guide\n\nMahBet Telegram Casino has been designed as a new service in Iran so that users can easily and conveniently operate on the site and enjoy.\nTo use the bot, you just need to start the bot and that's it.\nDifferent sections of the bot:\nEnter the site\nBy clicking on this option, you can enter the website without closing Telegram and log in to your user account or register new and operate.\nAlso, even when you enter your Telegram with Telegram proxy, you can enter the website using this option and enjoy.\nLive Support\nBy clicking on this option, you can directly connect to the website's Telegram support to review and resolve all issues and matters related to the site.\n\nGuide\nYou are currently in this section\n\nFAQ\nIn this section, you can view all frequently asked questions about MahBet site and how to operate on it.`,
         "vpn": "Free VPN"
     },
@@ -26,6 +27,7 @@ const language = {
         "promotionButtonKeyboard": "جوایز 🎁",
         "FAQButtonKeyboard": "سوالات متداول ❔",
         "helpMeButtonKeyboard": "راهنما 🆘",
+        "lastWithdrawButtonKeyboard": "آخرین برداشت من 🧾",
         "helpMessage": `راهنمای استفاده\n\nکازینوی تلگرامی ماه بت به عنوان خدمتی نوین در ایران طراحی شده تا کاربران به راحتی و سهولت هرچه تمام بتوانند در سایت فعالیت کنند و لذت ببرند.\nبرای استفاده از ربات فقط نیاز هست تا ربات را استارت کنید و تمام.\n\nبخش های مختلف ربات:\n\n🌐 ورود به سایت\nبا کلیک بر روی این گزینه شما میتوانید بدون نیاز به بستن تلگرام وارد وب سایت شوید و وارد حساب کاربری خود شوید یا اینکه ثبت نام جدید داشته باشید و فعالیت کنید.\nدر ضمن شما حتی زمانیکه با پروکسی تلگرامی وارد تلگرام خود میشوید نیز میتوانید با استفاده از این گزینه وارد وب سایت شوید و لذت ببرید.\n\n💬 پشتیبانی زنده\nبا کلیک بر روی این گزینه شما میتوانید به صورت مستقیم به پشتیبانی تلگرامی وب سایت متصل شوید تا تمام مسائل و موارد مربوط به سایت را بررسی و حل و فصل نمایید.\n\n🆘 راهنما\nشما در حال حاضر در این قسمت می باشید\n\n❔ سوالات متداول\nشما در این قسمت میتوانید تمام سوالات پرتکرار را در رابطه با سایت ماه بت و نحوه فعالیت در آن مشاهده نمایید.`,
         "vpn": "فیلتر شکن رایگان 🔒"
     }

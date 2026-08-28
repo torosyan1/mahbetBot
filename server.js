@@ -40,6 +40,7 @@ const start = require("./src/commands/start");
 const knex = require('./src/connections/db');
 const FAQ = require('./src/hears.js/FAQ');
 const VPN = require('./src/hears.js/VPN');
+const lastWithdrawal = require('./src/hears.js/lastWithdrawal');
 const { registerPredictionHandlers } = require('./src/predictions/handlers');
 const predictionsDb = require('./src/predictions/db');
 const { registerDailyLuckyHandlers } = require('./src/dailyLucky/handlers');
@@ -47,7 +48,7 @@ const dailyLuckyService = require('./src/dailyLucky/service');
 const dailyLuckyDb = require('./src/dailyLucky/db');
 const { runDailyLuckyNotifyJob } = require('./src/dailyLucky/notifyJob');
 
-const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, vpn } = languages[locale];
+const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, vpn, lastWithdrawButtonKeyboard } = languages[locale];
 
 
 
@@ -110,6 +111,10 @@ bot.hears(vpn, VPN);
 bot.hears(promotionButtonKeyboard,(ctx)=>ctx.replyWithHTML(`<a href='https://telegra.ph/%D8%A8%D9%88%D9%86%D9%88%D8%B3-%D9%87%D8%A7-%D9%88-%D8%AC%D9%88%D8%A7%DB%8C%D8%B2-%D8%A8%D8%A7%D9%88%D8%B1%D9%86%DA%A9%D8%B1%D8%AF%D9%86%DB%8C-%D9%85%D8%A7%D9%87-%D8%A8%D8%AA--%DA%A9%D9%84%DB%8C%DA%A9-%DA%A9%D9%86%DB%8C%D8%AF-08-21'>${promotionButtonKeyboard}</a>`));
 bot.hears(FAQButtonKeyboard, FAQ);
 bot.hears(helpMeButtonKeyboard,(ctx)=>ctx.telegram.sendMessage(ctx.message.from.id, languages[locale]['helpMessage']));
+// "My last withdrawal": looks the tapper's own mahbet_id up and asks the
+// CentralPay automation service for their latest withdrawal request.
+bot.hears(lastWithdrawButtonKeyboard, lastWithdrawal);
+bot.command(['lastwithdraw', 'mywithdraw'], lastWithdrawal);
 
 // actions
 bot.action('faqAnswer1', FAQAnswers);
