@@ -3,11 +3,67 @@ const { resolveMahbetId } = require('../helpers/mahbetId');
 const { locale, centralpay_api_url, centralpay_api_token, support_username } = require('../utils/env');
 const languages = require('../utils/language');
 
-// One lookup per user per COOLDOWN_MS. Each request drives a real browser
-// session on the CentralPay side, so a user holding down the button must not
-// turn into a burst of admin-panel calls.
-const COOLDOWN_MS = 20 * 1000;
-const lastAsk = new Map();
+// Each lookup drives a real browser session on the CentralPay side, so a player
+// who has just been shown their withdrawal waits before asking again. A
+// withdrawal is paid out over hours, not seconds — there is nothing new to see
+// sooner than that.
+const SUCCESS_COOLDOWN_MS = Number(process.env.CENTRALPAY_LOOKUP_COOLDOWN_MIN || 20) * 60 * 1000;
+// Shorter hold when the answer was "you have no withdrawals": that player may
+// be waiting for a request to appear, so locking them out for 20 minutes would
+// be answering a question they haven't been able to ask yet.
+const EMPTY_COOLDOWN_MS = 2 * 60 * 1000;
+// Held while a lookup is in flight, so a double-tap can't start two of them.
+const IN_FLIGHT_MS = 60 * 1000;
+
+// Cooldowns live in Redis when it's available, so they survive a bot restart
+// and hold across processes; the Map is the fallback when it isn't.
+const localCooldowns = new Map();
+const cooldownKey = (id) => `lw:cooldown:${id}`;
+
+// Redis has no timeout of its own here — a hung call would wedge the update.
+function withTimeout(promise, ms) {
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('redis timeout')), ms); }),
+  ]).finally(() => clearTimeout(timer));
+}
+
+async function cooldownUntil(telegramId) {
+  try {
+    if (global.redisClient) {
+      const raw = await withTimeout(global.redisClient.get(cooldownKey(telegramId)), 2000);
+      return raw ? Number(raw) : 0;
+    }
+  } catch (err) {
+    console.log('lastWithdrawal cooldown read failed, using local:', err.message);
+  }
+  return localCooldowns.get(telegramId) || 0;
+}
+
+async function holdFor(telegramId, ms) {
+  const until = Date.now() + ms;
+  localCooldowns.set(telegramId, until);
+  try {
+    if (global.redisClient) {
+      await withTimeout(
+        global.redisClient.set(cooldownKey(telegramId), String(until), { PX: ms }),
+        2000
+      );
+    }
+  } catch (err) {
+    console.log('lastWithdrawal cooldown write failed, local only:', err.message);
+  }
+}
+
+async function release(telegramId) {
+  localCooldowns.delete(telegramId);
+  try {
+    if (global.redisClient) await withTimeout(global.redisClient.del(cooldownKey(telegramId)), 2000);
+  } catch (err) {
+    console.log('lastWithdrawal cooldown clear failed:', err.message);
+  }
+}
 
 const money = (n) => Number(n || 0).toLocaleString('en-US');
 
@@ -18,6 +74,9 @@ const text = {
       `برای اتصال حساب، از طریق لینک موجود در سایت وارد ربات شوید یا با پشتیبانی ${support_username} در تماس باشید.`,
     wait: '⏳ در حال دریافت اطلاعات برداشت شما…',
     slowDown: '⏳ لطفاً چند لحظه صبر کنید و دوباره تلاش کنید.',
+    comeBackIn: (minutes) =>
+      `⏳ شما به‌تازگی وضعیت برداشت خود را دریافت کرده‌اید.\n\n` +
+      `برداشت‌ها به مرور و در چند مرحله پرداخت می‌شوند، بنابراین لطفاً ${minutes} دقیقه دیگر دوباره بررسی کنید.`,
     none: 'ℹ️ درخواست برداشتی برای حساب شما ثبت نشده است.',
     unavailable: `⚠️ در حال حاضر امکان بررسی برداشت وجود ندارد. لطفاً بعداً تلاش کنید یا با پشتیبانی ${support_username} در تماس باشید.`,
     title: '🧾 آخرین درخواست برداشت شما',
@@ -41,6 +100,9 @@ const text = {
       `Open the bot from the link on the site, or contact support ${support_username}.`,
     wait: '⏳ Fetching your withdrawal…',
     slowDown: '⏳ Please wait a moment and try again.',
+    comeBackIn: (minutes) =>
+      `⏳ You have just checked your withdrawal.\n\n` +
+      `Withdrawals are paid out in stages, so please check again in ${minutes} minutes.`,
     none: 'ℹ️ No withdrawal requests found for your account.',
     unavailable: `⚠️ Withdrawal lookup is unavailable right now. Please try later or contact ${support_username}.`,
     title: '🧾 Your last withdrawal request',
@@ -113,16 +175,16 @@ module.exports = async (ctx) => {
       return;
     }
 
-    const previous = lastAsk.get(telegramId);
-    if (previous && Date.now() - previous < COOLDOWN_MS) {
-      await ctx.reply(L.slowDown);
+    const remaining = (await cooldownUntil(telegramId)) - Date.now();
+    if (remaining > 0) {
+      await ctx.reply(remaining < 60 * 1000 ? L.slowDown : L.comeBackIn(Math.ceil(remaining / 60000)));
       return;
     }
-    lastAsk.set(telegramId, Date.now());
-    // A lookup that never produced an answer must not cost the player their
-    // next attempt — the cooldown exists to stop stampedes, not to punish a
-    // failure. Cleared on every path that ends without a withdrawal shown.
-    const allowImmediateRetry = () => lastAsk.delete(telegramId);
+    // Hold the slot while the lookup runs, so a double-tap can't start a second
+    // one. Every path that ends without showing a withdrawal releases it again:
+    // the cooldown exists to stop stampedes, not to punish a failed lookup.
+    await holdFor(telegramId, IN_FLIGHT_MS);
+    const allowImmediateRetry = () => release(telegramId);
 
     const { mahbetId, source } = await resolveMahbetId(telegramId);
     if (!mahbetId) {
@@ -142,15 +204,17 @@ module.exports = async (ctx) => {
       return;
     }
     if (!data.last) {
+      await holdFor(telegramId, EMPTY_COOLDOWN_MS);
       await ctx.reply(L.none);
       return;
     }
 
+    await holdFor(telegramId, SUCCESS_COOLDOWN_MS);
     await ctx.reply(formatWithdrawal(data.last));
   } catch (err) {
     // A failed lookup must never leak the admin panel's error text to a player.
     console.log('lastWithdrawal error:', err.message);
-    lastAsk.delete(telegramId);
+    await release(telegramId).catch(() => {});
     await ctx.reply(L.unavailable).catch(() => {});
   }
 };
