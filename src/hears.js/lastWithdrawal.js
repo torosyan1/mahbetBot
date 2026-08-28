@@ -80,19 +80,21 @@ const text = {
     none: 'ℹ️ درخواست برداشتی برای حساب شما ثبت نشده است.',
     unavailable: `⚠️ در حال حاضر امکان بررسی برداشت وجود ندارد. لطفاً بعداً تلاش کنید یا با پشتیبانی ${support_username} در تماس باشید.`,
     title: '🧾 آخرین درخواست برداشت شما',
-    amount: '💰 مبلغ درخواست',
-    paid: '✅ پرداخت شده',
-    remaining: '⏳ باقی‌مانده',
-    status: '🔶 وضعیت',
+    amount: '💰 مبلغ کل برداشت',
+    paid: '✅ مبلغ پرداخت شده',
+    remaining: '⏳ مبلغ باقی‌مانده',
+    status: '🔶 وضعیت فعلی',
     card: '💳 کارت',
     bank: '🏦 بانک',
     requestedAt: '🕕 تاریخ درخواست',
-    lastPayment: '💸 آخرین پرداخت',
+    payments: '💸 پرداخت‌ها',
+    tracking: 'کد پیگیری',
     ref: '🔖 شماره پیگیری',
     toman: 'تومان',
     settled: 'پرداخت شد ✅',
     inProgress: 'در حال پرداخت ⏳',
-    noPayment: 'هنوز پرداختی انجام نشده است',
+    noPayment: 'هنوز پرداختی برای این درخواست انجام نشده است.',
+    morePayments: (n) => `و ${n} پرداخت دیگر…`,
   },
   en: {
     notLinked:
@@ -106,23 +108,53 @@ const text = {
     none: 'ℹ️ No withdrawal requests found for your account.',
     unavailable: `⚠️ Withdrawal lookup is unavailable right now. Please try later or contact ${support_username}.`,
     title: '🧾 Your last withdrawal request',
-    amount: '💰 Requested',
+    amount: '💰 Total withdrawal',
     paid: '✅ Paid',
     remaining: '⏳ Remaining',
-    status: '🔶 Status',
+    status: '🔶 Current status',
     card: '💳 Card',
     bank: '🏦 Bank',
     requestedAt: '🕕 Requested at',
-    lastPayment: '💸 Last payment',
+    payments: '💸 Payments',
+    tracking: 'Tracking number',
     ref: '🔖 Reference',
     toman: 'Toman',
     settled: 'Paid ✅',
     inProgress: 'In progress ⏳',
-    noPayment: 'No payment has been made yet',
+    noPayment: 'No payment has been made for this request yet.',
+    morePayments: (n) => `and ${n} more payment(s)…`,
   },
 };
 
 const t = () => text[locale] || text.fa;
+
+/**
+ * The payment breakdown. A withdrawal is settled out of the payment pool in
+ * slices, and the tracking number is what a player quotes to support when a
+ * slice is disputed, so each one is listed rather than just summarised.
+ * Newest first; capped so a long history can't blow Telegram's message limit.
+ */
+const MAX_PAYMENTS_SHOWN = 10;
+
+function formatPayments(payments) {
+  const L = t();
+  if (!payments || !payments.length) return [L.noPayment];
+
+  const shown = payments.slice(0, MAX_PAYMENTS_SHOWN);
+  const lines = [`${L.payments}:`];
+  shown.forEach((p, i) => {
+    lines.push(
+      '',
+      `${i + 1}) ${money(p.amount)} ${L.toman}`,
+      `🕕 ${p.atJalali || p.at || '-'}`,
+      `🔖 ${L.tracking}: ${p.trackingId}`
+    );
+  });
+  if (payments.length > shown.length) {
+    lines.push('', L.morePayments(payments.length - shown.length));
+  }
+  return lines;
+}
 
 /** Render the flattened withdrawal the CentralPay service returns. */
 function formatWithdrawal(w) {
@@ -132,16 +164,17 @@ function formatWithdrawal(w) {
     '',
     `${L.amount}: ${money(w.amount)} ${L.toman}`,
     `${L.paid}: ${money(w.paid)} ${L.toman}`,
-  ];
-  if (!w.settled) lines.push(`${L.remaining}: ${money(w.remaining)} ${L.toman}`);
-  lines.push(
+    `${L.remaining}: ${money(w.remaining)} ${L.toman}`,
     `${L.status}: ${w.settled ? L.settled : L.inProgress}`,
+    '',
     `${L.card}: ${w.cardMasked}`,
     `${L.bank}: ${w.bank}`,
     `${L.requestedAt}: ${w.requestedAtJalali || w.requestedAt || '-'}`,
-    `${L.lastPayment}: ${w.lastPaymentAt || L.noPayment}`,
-    `${L.ref}: ${w.withdrawalId}`
-  );
+    '',
+    ...formatPayments(w.payments),
+    '',
+    `${L.ref}: ${w.withdrawalId}`,
+  ];
   return lines.join('\n');
 }
 
