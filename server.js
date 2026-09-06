@@ -705,7 +705,7 @@ app.get('/settings', panelAuth, async (_req, res) => {
     rows.forEach(r => { settings[r.key] = r.value; });
     const defaults = {
       website_url: 'https://www.mahbet.com',
-      instagram_url: 'https://www.instagram.com/mahbet_official/?hl=en',
+      instagram_url: 'https://www.instagram.com/mah_bet_official?igsi=aHFmbnR3amh1cjFo&utm_source=qr',
       support_url: 'https://direct.lc.chat/14697702/',
       apk_url: 'https://files.igmobile.io/storage/v1/object/public/Shared/MahBv1.0.2.apk',
       bot_url: 'https://t.me/MahBetBot',
