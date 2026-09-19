@@ -6,14 +6,16 @@ const LUCKY_DRAW_BUTTON = '🎲 قرعه‌کشی روزانه';
 /**
  * The persistent bottom menu. The dice row is only included while the daily draw is open,
  * so a closed draw stops being offered to anyone who opens /start after it was closed.
+ * The "Get link" row likewise only appears while an admin has a link active.
  */
-function mainMenuKeyboard({ luckyEnabled }) {
+function mainMenuKeyboard({ luckyEnabled, linkEnabled = false }) {
   const {
     suppotButtonKeyboard,
     promotionButtonKeyboard,
     FAQButtonKeyboard,
     helpMeButtonKeyboard,
     lastWithdrawButtonKeyboard,
+    getLinkButtonKeyboard,
   } = languages[locale];
 
   const keyboard = [
@@ -26,6 +28,10 @@ function mainMenuKeyboard({ luckyEnabled }) {
       { text: helpMeButtonKeyboard, style: 'danger' },
     ],
   ];
+
+  if (linkEnabled) {
+    keyboard.push([{ text: getLinkButtonKeyboard, style: 'success' }]);
+  }
 
   if (luckyEnabled) {
     keyboard.push([{ text: LUCKY_DRAW_BUTTON, style: 'success' }]);

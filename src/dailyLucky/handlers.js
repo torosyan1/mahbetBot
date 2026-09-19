@@ -1,5 +1,6 @@
 const service = require('./service');
 const { LUCKY_DRAW_BUTTON, mainMenuKeyboard } = require('../commands/menuKeyboard');
+const { getActiveLink } = require('../helpers/botLink');
 
 const CLOSED_TEXT = '⚠️ قرعه‌کشی روزانه بسته شده است.';
 
@@ -17,7 +18,8 @@ async function replyClosed(ctx) {
     return;
   }
 
-  await ctx.reply(CLOSED_TEXT, { reply_markup: mainMenuKeyboard({ luckyEnabled: false }) });
+  const linkEnabled = Boolean(await getActiveLink());
+  await ctx.reply(CLOSED_TEXT, { reply_markup: mainMenuKeyboard({ luckyEnabled: false, linkEnabled }) });
 }
 
 function guessKeyboard() {

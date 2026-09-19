@@ -41,6 +41,7 @@ const knex = require('./src/connections/db');
 const FAQ = require('./src/hears.js/FAQ');
 const VPN = require('./src/hears.js/VPN');
 const lastWithdrawal = require('./src/hears.js/lastWithdrawal');
+const getLink = require('./src/hears.js/getLink');
 const { registerPredictionHandlers } = require('./src/predictions/handlers');
 const predictionsDb = require('./src/predictions/db');
 const { registerDailyLuckyHandlers } = require('./src/dailyLucky/handlers');
@@ -48,7 +49,7 @@ const dailyLuckyService = require('./src/dailyLucky/service');
 const dailyLuckyDb = require('./src/dailyLucky/db');
 const { runDailyLuckyNotifyJob } = require('./src/dailyLucky/notifyJob');
 
-const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, vpn, lastWithdrawButtonKeyboard } = languages[locale];
+const { suppotButtonKeyboard, promotionButtonKeyboard, FAQButtonKeyboard, helpMeButtonKeyboard, vpn, lastWithdrawButtonKeyboard, getLinkButtonKeyboard } = languages[locale];
 
 
 
@@ -115,6 +116,9 @@ bot.hears(helpMeButtonKeyboard,(ctx)=>ctx.telegram.sendMessage(ctx.message.from.
 // CentralPay automation service for their latest withdrawal request.
 bot.hears(lastWithdrawButtonKeyboard, lastWithdrawal);
 bot.command(['lastwithdraw', 'mywithdraw'], lastWithdrawal);
+// "Get link": the single active link an admin set in the panel (Bot → Bot Link).
+bot.hears(getLinkButtonKeyboard, getLink);
+bot.command('link', getLink);
 
 // actions
 bot.action('faqAnswer1', FAQAnswers);

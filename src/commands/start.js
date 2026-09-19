@@ -5,6 +5,7 @@ const knex = require('../connections/db');
 const { mainMenuKeyboard } = require('./menuKeyboard');
 const dailyLucky = require('../dailyLucky/service');
 const { linkMahbetId } = require('../helpers/mahbetId');
+const { getActiveLink } = require('../helpers/botLink');
 
 /** MySQL unique-key violation — a parallel /start already inserted this user's claim. */
 const isDuplicateClaim = (err) => err && (err.code === 'ER_DUP_ENTRY' || err.errno === 1062);
@@ -47,9 +48,12 @@ module.exports = async (ctx) => {
 
     // Send menu with regular keyboard
     // ✅ Regular keyboard buttons also support: icon_custom_emoji_id and style (NEW in Bot API 9.4)
-    // The dice button is dropped from the menu while the daily draw is closed.
-    const luckyEnabled = await dailyLucky.isEnabled();
-    await ctx.reply(forMoreMessage, { reply_markup: mainMenuKeyboard({ luckyEnabled }) });
+    // The dice button is dropped from the menu while the daily draw is closed,
+    // and "Get link" while no link is active in the admin panel.
+    const [luckyEnabled, activeLink] = await Promise.all([dailyLucky.isEnabled(), getActiveLink()]);
+    await ctx.reply(forMoreMessage, {
+      reply_markup: mainMenuKeyboard({ luckyEnabled, linkEnabled: Boolean(activeLink) }),
+    });
 
 // Handle promo code if exists
 if (payload) {
