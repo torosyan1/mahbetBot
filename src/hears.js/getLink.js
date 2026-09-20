@@ -29,12 +29,21 @@ module.exports = async (ctx) => {
 
     // The URL itself is never written out — the player gets buttons and nothing
     // to copy. Two ways in: the mini app opens the site inside Telegram the way
-    // the welcome button does, and the second leaves for the browser. The mini
-    // app is offered only over https, which is the only scheme Telegram accepts
-    // for a web_app, so an http link keeps just the browser button.
+    // the welcome button does, and the second leaves for the browser.
+    //
+    // Telegram accepts https and nothing else for a web_app, so an http link is
+    // offered to the mini app over https instead of being dropped: the same host
+    // on the scheme Telegram requires, while the browser button still opens
+    // exactly what the admin saved.
+    const miniAppUrl = url.startsWith('http://')
+      ? `https://${url.slice('http://'.length)}`
+      : url;
+
     const buttons = [];
-    if (url.startsWith('https://')) {
-      buttons.push([{ text: getLinkButtonMiniApp, web_app: { url }, style: 'success' }]);
+    if (miniAppUrl.startsWith('https://')) {
+      buttons.push([
+        { text: getLinkButtonMiniApp, web_app: { url: miniAppUrl }, style: 'success' },
+      ]);
     }
     buttons.push([{ text: getLinkButtonBrowser, url, style: 'primary' }]);
 
