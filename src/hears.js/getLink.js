@@ -7,7 +7,12 @@ const dailyLucky = require('../dailyLucky/service');
 // "Get link": sends the one active link from `bot_links`. Admins manage that table
 // from the MAHBET admin panel (Bot → Bot Link); the bot never writes to it.
 module.exports = async (ctx) => {
-  const { getLinkMessage, getLinkButtonInline, noLinkMessage } = languages[locale];
+  const {
+    getLinkMessage,
+    getLinkButtonMiniApp,
+    getLinkButtonBrowser,
+    noLinkMessage,
+  } = languages[locale];
 
   try {
     const url = await getActiveLink();
@@ -22,17 +27,21 @@ module.exports = async (ctx) => {
       return;
     }
 
-    // The URL itself is never written out — the player gets a button and nothing
-    // to copy. https opens inside Telegram as a web app, the way the welcome
-    // button does; anything else can only be a plain link button, since Telegram
-    // refuses a web_app that is not https.
-    const button = url.startsWith('https://')
-      ? { text: getLinkButtonInline, web_app: { url }, style: 'success' }
-      : { text: getLinkButtonInline, url, style: 'success' };
+    // The URL itself is never written out — the player gets buttons and nothing
+    // to copy. Two ways in: the mini app opens the site inside Telegram the way
+    // the welcome button does, and the second leaves for the browser. The mini
+    // app is offered only over https, which is the only scheme Telegram accepts
+    // for a web_app, so an http link keeps just the browser button.
+    const buttons = [];
+    if (url.startsWith('https://')) {
+      buttons.push([{ text: getLinkButtonMiniApp, web_app: { url }, style: 'success' }]);
+    }
+    buttons.push([{ text: getLinkButtonBrowser, url, style: 'primary' }]);
 
     await ctx.reply(getLinkMessage, {
-      reply_markup: { inline_keyboard: [[button]] },
+      reply_markup: { inline_keyboard: buttons },
     });
+
   } catch (err) {
     console.log('getLink failed:', err.message);
     await ctx.reply(noLinkMessage).catch(() => {});
