@@ -22,11 +22,16 @@ module.exports = async (ctx) => {
       return;
     }
 
-    await ctx.reply(`${getLinkMessage}\n\n${url}`, {
-      link_preview_options: { is_disabled: true },
-      reply_markup: {
-        inline_keyboard: [[{ text: getLinkButtonInline, url, style: 'success' }]],
-      },
+    // The URL itself is never written out — the player gets a button and nothing
+    // to copy. https opens inside Telegram as a web app, the way the welcome
+    // button does; anything else can only be a plain link button, since Telegram
+    // refuses a web_app that is not https.
+    const button = url.startsWith('https://')
+      ? { text: getLinkButtonInline, web_app: { url }, style: 'success' }
+      : { text: getLinkButtonInline, url, style: 'success' };
+
+    await ctx.reply(getLinkMessage, {
+      reply_markup: { inline_keyboard: [[button]] },
     });
   } catch (err) {
     console.log('getLink failed:', err.message);
